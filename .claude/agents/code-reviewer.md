@@ -1,7 +1,7 @@
 ---
 name: "code-reviewer"
 description: "Use this agent after code-implementer and before any git push. It reviews code for quality, security, consistency with existing patterns, and potential regressions. Never skip it on feature branches. Examples:\n\n<example>\nContext: code-implementer just finished writing a new feature.\nAssistant: \"Le code est écrit, je lance code-reviewer avant de pusher.\"\n<commentary>\nAlways review before pushing to main — CI is not a substitute for review.\n</commentary>\n</example>\n\n<example>\nContext: A bug fix was applied.\nAssistant: \"Le fix est en place, code-reviewer vérifie qu'il ne casse rien d'autre.\"\n<commentary>\nBug fixes can introduce regressions — review is mandatory.\n</commentary>\n</example>"
-model: sonnet
+model: opus
 color: red
 memory: project
 ---

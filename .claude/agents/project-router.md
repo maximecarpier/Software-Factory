@@ -1,7 +1,7 @@
 ---
 name: "project-router"
 description: "Use this agent at the very start of any feature request or bug report when the target project is not explicitly named. It identifies the correct repository among all existing projects before any other agent runs. Examples:\n\n<example>\nContext: User asks for a feature without naming the project.\nUser: \"Ajoute un système d'export CSV\"\nAssistant: \"Je vais utiliser project-router pour identifier le projet cible.\"\n<commentary>\nThe target project is unknown. Use project-router first to identify it before proceeding.\n</commentary>\n</example>\n\n<example>\nContext: A bug is reported without specifying which app.\nUser: \"Le dashboard plante quand il n'y a pas de données\"\nAssistant: \"Je lance project-router pour confirmer quel repo est concerné.\"\n<commentary>\nEven if a project seems obvious, project-router validates and loads the full context.\n</commentary>\n</example>"
-model: sonnet
+model: haiku
 color: purple
 memory: project
 ---

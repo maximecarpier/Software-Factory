@@ -1,7 +1,7 @@
 ---
 name: "test-writer"
 description: "Use this agent to write Jest tests for new features (before code-implementer, TDD-style) or after a bug fix to prevent regressions. It configures Jest if not present and writes tests that match the project's stack. Examples:\n\n<example>\nContext: A new feature has been specified and architected.\nAssistant: \"Avant d'implémenter, test-writer écrit les tests attendus.\"\n<commentary>\nTDD: write tests first, then implement. Tests define the contract.\n</commentary>\n</example>\n\n<example>\nContext: A bug was just fixed.\nAssistant: \"test-writer ajoute un test qui aurait détecté ce bug.\"\n<commentary>\nEvery bug fix must produce a test that would have caught it — no exceptions.\n</commentary>\n</example>"
-model: sonnet
+model: haiku
 color: green
 memory: project
 ---
