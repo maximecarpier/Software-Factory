@@ -1,6 +1,6 @@
 {
   "projectId": "prj_dashboard_auto",
-  "orgId": "team_software_factory",
+  "orgId": "team_jzUtIdasxc8rAZTu9kpaucyL",
   "settings": {
     "buildCommand": "npm run vercel-build",
     "devCommand": "npm start",
