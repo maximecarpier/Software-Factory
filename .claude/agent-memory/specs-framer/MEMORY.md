@@ -1,0 +1,1 @@
+- [Projet Dashboard Ressources](project_dashboard_ressources.md) — Dashboard personnel pour surveiller tokens Claude + temps Codespace GitHub, usage simple sans interactivité

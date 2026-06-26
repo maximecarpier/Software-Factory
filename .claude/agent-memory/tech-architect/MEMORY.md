@@ -1,0 +1,1 @@
+- [Dashboard Architecture](project_dashboard_architecture.md) — Architecture validée dashboard tokens Claude + Codespace, caveats: source logs locaux pour tokens, Codespace Secrets pour clés API

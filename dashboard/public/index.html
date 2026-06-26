@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude & Codespace Monitor</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>Claude &amp; Codespace Monitor</h1>
+    <div class="status-bar">
+      <span id="last-updated">Chargement...</span>
+      <span class="sep">|</span>
+      <span>Refresh dans <span id="countdown">5:00</span></span>
+      <button id="refresh-btn" onclick="refreshAll()">Actualiser</button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ── Tokens Claude ─────────────────────────────────────────────────── -->
+    <section class="card">
+      <div class="card-header">
+        <h2>Tokens Claude</h2>
+        <span class="badge" id="tokens-badge">...</span>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Input aujourd'hui</div>
+          <div class="metric-value" id="today-input">--</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Output aujourd'hui</div>
+          <div class="metric-value" id="today-output">--</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Coût estimé aujourd'hui</div>
+          <div class="metric-value accent" id="today-cost">--</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Coût total historique</div>
+          <div class="metric-value" id="total-cost">--</div>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-label">
+          <span>Consommation Claude Pro ce mois-ci</span>
+          <span class="progress-value" id="month-progress">-- / --</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="month-progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="progress-percent" id="month-progress-percent">0%</div>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="tokensChart"></canvas>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Par modèle (total)</h3>
+        <div id="models-list"><div class="placeholder">Chargement...</div></div>
+      </div>
+    </section>
+
+    <!-- ── GitHub Codespace ──────────────────────────────────────────────── -->
+    <section class="card">
+      <div class="card-header">
+        <h2>GitHub Codespace</h2>
+        <span class="badge" id="codespace-badge">...</span>
+      </div>
+
+      <div id="codespace-error" class="alert alert-error hidden"></div>
+
+      <div id="user-info" class="user-info hidden">
+        <img id="user-avatar" src="" alt="avatar" width="28" height="28" />
+        <span id="user-login"></span>
+      </div>
+
+      <div id="billing-block" class="metrics-grid hidden">
+        <div class="metric">
+          <div class="metric-label">Heures utilisées (mois)</div>
+          <div class="metric-value" id="billing-used">--</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Quota inclus</div>
+          <div class="metric-value" id="billing-quota">--</div>
+        </div>
+      </div>
+
+      <div id="billing-progress-block" class="progress-section hidden">
+        <div class="progress-label">
+          <span>Utilisation du plan gratuit Codespaces</span>
+          <span class="progress-value" id="billing-progress">-- / -- h</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="billing-progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="progress-percent" id="billing-progress-percent">0%</div>
+      </div>
+
+      <div class="subsection">
+        <h3 class="subsection-title">Codespaces actifs</h3>
+        <div id="codespaces-list"><div class="placeholder">Chargement...</div></div>
+      </div>
+
+      <div id="no-token-notice" class="alert alert-warning hidden">
+        <strong>GITHUB_TOKEN non configuré</strong><br />
+        Configurez la variable d'environnement <code>GITHUB_TOKEN</code> via
+        <a href="https://github.com/settings/codespaces" target="_blank" rel="noopener">
+          Settings &gt; Codespaces &gt; Secrets
+        </a>
+        avec les scopes <code>read:user</code> et <code>codespace</code>.<br /><br />
+        <strong>Sécurité :</strong> le port 3001 doit rester en visibilité
+        <strong>Private</strong> dans l'onglet Ports de votre Codespace.
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+- [Dashboard project](project_dashboard.md) — Claude token + Codespace monitoring dashboard at dashboard/, Express + vanilla JS, reads ~/.claude JSONL files
