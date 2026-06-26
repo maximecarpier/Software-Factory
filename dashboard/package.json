@@ -4,7 +4,9 @@
   "description": "Monitoring dashboard for Claude token usage and GitHub Codespace",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "echo 'Dashboard build complete'",
+    "vercel-build": "npm install"
   },
   "dependencies": {
     "express": "^4.19.2"
