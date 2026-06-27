@@ -127,5 +127,14 @@
     "priorite": "basse",
     "projectId": "proj-usine-001",
     "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "4e44fdcf-453a-4568-9126-8a4eac4ee198",
+    "type": "feature",
+    "titre": "Finalisation du mvp",
+    "description": null,
+    "priorite": "haute",
+    "createdAt": "2026-06-27T18:33:37.980Z",
+    "projectId": "proj-voyage-001"
   }
 ]
