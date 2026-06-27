@@ -32,15 +32,6 @@
     "createdAt": "2026-06-27T00:00:00.000Z"
   },
   {
-    "id": "feat-voyage-terminer-001",
-    "type": "feature",
-    "titre": "Terminer l'application Voyage",
-    "description": "Finaliser et compléter le développement de travelfinance.",
-    "priorite": "haute",
-    "projectId": "proj-voyage-001",
-    "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
     "id": "feat-usine-discussion-001",
     "type": "feature",
     "titre": "Discussion inter-agents pour cohérence",
