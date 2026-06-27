@@ -1,1 +1,165 @@
-[]
+[
+  {
+    "id": "proj-usine-001",
+    "type": "projet",
+    "titre": "Software Factory — Usine",
+    "description": "Le meta-projet : amélioration continue de la Factory, ses agents, son pipeline et ses outils d'orchestration.",
+    "priorite": "haute",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "proj-voyage-001",
+    "type": "projet",
+    "titre": "travelfinance — Application Voyage",
+    "description": "App de suivi financier de voyage. Projet existant déployé sur Vercel (apps/travelfinance/).",
+    "priorite": "haute",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "proj-onepiece-001",
+    "type": "projet",
+    "titre": "one-piece-speedrun",
+    "description": "App de speedrun One Piece. Projet existant déployé sur Vercel (apps/one-piece-speedrun/).",
+    "priorite": "moyenne",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "proj-dashboard-001",
+    "type": "projet",
+    "titre": "factory-dashboard",
+    "description": "Dashboard de gestion du backlog de la Factory. Projet actuel en cours (apps/factory-dashboard/).",
+    "priorite": "haute",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "proj-maman-sport-001",
+    "type": "projet",
+    "titre": "Application Maman sport",
+    "description": "Nouvelle app à créer — sport / fitness.",
+    "priorite": "haute",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "proj-pari-sportif-001",
+    "type": "projet",
+    "titre": "Application Pari sportif",
+    "description": "Nouvelle app à créer — suivi et analyse de paris sportifs.",
+    "priorite": "haute",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "proj-photo-eval-001",
+    "type": "projet",
+    "titre": "Application évaluation photo",
+    "description": "Nouvelle app à créer — évaluation de photos pour améliorer la qualité de ses clichés.",
+    "priorite": "basse",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "proj-defy-001",
+    "type": "projet",
+    "titre": "Repo defy",
+    "description": "Projet à clarifier — nature et périmètre non identifiés dans l'architecture actuelle.",
+    "priorite": "basse",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "feat-voyage-terminer-001",
+    "type": "feature",
+    "titre": "Terminer l'application Voyage",
+    "description": "Finaliser et compléter le développement de travelfinance.",
+    "priorite": "haute",
+    "projectId": "proj-voyage-001",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "feat-usine-brainstorm-001",
+    "type": "feature",
+    "titre": "Agent brainstorm avant specs-framer",
+    "description": "[FAIT] Intégrer un agent brainstorm en amont du specs-framer pour challenger les idées avant la rédaction des specs.",
+    "priorite": "haute",
+    "projectId": "proj-usine-001",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "feat-usine-discussion-001",
+    "type": "feature",
+    "titre": "Discussion inter-agents pour cohérence",
+    "description": "Mécanisme de discussion entre agents pour améliorer la cohérence des livrables avant Gate 2.",
+    "priorite": "haute",
+    "projectId": "proj-usine-001",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "feat-usine-resilience-001",
+    "type": "feature",
+    "titre": "Bullet-proof — reprise après coupure de session",
+    "description": "[Résilience] Mécanisme de checkpoint et reprise automatique si coupure en plein milieu de pipeline, sans perdre le contexte.",
+    "priorite": "haute",
+    "projectId": "proj-usine-001",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "feat-usine-expert-cc-001",
+    "type": "feature",
+    "titre": "Agent expert-claude-code — audit et optimisation",
+    "description": "[Optimisation] Agent dédié à l'analyse et l'optimisation de tous les configs et fichiers agents pour éviter redites et doublons.",
+    "priorite": "haute",
+    "projectId": "proj-usine-001",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "feat-usine-helloworld-001",
+    "type": "feature",
+    "titre": "Lancer un hello world pour tester le pipeline",
+    "description": "[TERMINÉ] Test end-to-end du pipeline avec une app hello world.",
+    "priorite": "haute",
+    "projectId": "proj-usine-001",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "feat-dashboard-pwa-001",
+    "type": "feature",
+    "titre": "Dashboard — mode PWA + gestion bugs/features",
+    "description": "[PROJET ACTUEL] Évolution du factory-dashboard vers un mode PWA avec gestion des bugs en plus des features.",
+    "priorite": "haute",
+    "projectId": "proj-dashboard-001",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "feat-onepiece-design-001",
+    "type": "feature",
+    "titre": "Améliorer le design de one-piece-speedrun",
+    "description": "Refonte visuelle de l'application one-piece-speedrun.",
+    "priorite": "moyenne",
+    "projectId": "proj-onepiece-001",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "feat-usine-idx-001",
+    "type": "feature",
+    "titre": "Tester Project IDX",
+    "description": "Évaluation de Project IDX comme alternative ou complément à Codespace.",
+    "priorite": "moyenne",
+    "projectId": "proj-usine-001",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "feat-usine-replit-001",
+    "type": "feature",
+    "titre": "Tester Replit + Airtable + Lovable",
+    "description": "Exploration et évaluation des outils Replit, Airtable et Lovable pour la Factory.",
+    "priorite": "moyenne",
+    "projectId": "proj-usine-001",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "feat-usine-factory-simple-001",
+    "type": "feature",
+    "titre": "Faire une usine simple avec sub-agents",
+    "description": "Créer une version simplifiée de la Factory avec sub-agents, comme la précédente architecture.",
+    "priorite": "basse",
+    "projectId": "proj-usine-001",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  }
+]
