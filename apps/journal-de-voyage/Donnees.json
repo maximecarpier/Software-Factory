@@ -1,0 +1,498 @@
+{
+  "pays": [
+    {
+      "id": "xaji0y6dpbhsahxt",
+      "nom": "Thaïlande",
+      "devise": "THB",
+      "visa": 0,
+      "emoji": "🇹🇭"
+    },
+    {
+      "id": "hv3a3zmf8mdd4v30",
+      "nom": "Cambodge",
+      "devise": "USD",
+      "visa": 37,
+      "emoji": "🇰🇭"
+    },
+    {
+      "id": "t9nt3w5uzbikcidk",
+      "nom": "Vietnam",
+      "devise": "VND",
+      "visa": 0,
+      "emoji": "🇻🇳"
+    },
+    {
+      "id": "wnnhj7xvg0fn9xuy",
+      "nom": "Laos",
+      "devise": "LAK",
+      "visa": 37,
+      "emoji": "🇱🇦"
+    }
+  ],
+  "jours": [
+    {
+      "id": "41ibljh75lxo6qji",
+      "paysId": "xaji0y6dpbhsahxt",
+      "date": "2024-11-01",
+      "ville": "Bangkok",
+      "duree": 4,
+      "categories": {
+        "trajet_aller": 3.84,
+        "deplacements": 7.89,
+        "nourriture": 21.05,
+        "activites": 36.84,
+        "logement": 32.89,
+        "autre": 2.63
+      },
+      "notes": ""
+    },
+    {
+      "id": "ujv6oh9sdbdw2pcn",
+      "paysId": "xaji0y6dpbhsahxt",
+      "date": "2024-11-02",
+      "ville": "Koh Tao",
+      "duree": 5,
+      "categories": {
+        "trajet_aller": 22.32,
+        "deplacements": 8.55,
+        "nourriture": 32.89,
+        "activites": 301.05,
+        "logement": 51.5,
+        "autre": 2.63
+      },
+      "notes": ""
+    },
+    {
+      "id": "9t84azytjxepq85j",
+      "paysId": "xaji0y6dpbhsahxt",
+      "date": "2024-11-03",
+      "ville": "Koh Lanta",
+      "duree": 7,
+      "categories": {
+        "trajet_aller": 31.47,
+        "deplacements": 19.16,
+        "nourriture": 46.05,
+        "activites": 40.0,
+        "logement": 49.16,
+        "autre": 4.61
+      },
+      "notes": ""
+    },
+    {
+      "id": "sg65kxvf1t2tala7",
+      "paysId": "xaji0y6dpbhsahxt",
+      "date": "2024-11-04",
+      "ville": "Chiang Mai",
+      "duree": 8,
+      "categories": {
+        "trajet_aller": 49.34,
+        "deplacements": 10.32,
+        "nourriture": 36.84,
+        "activites": 63.16,
+        "logement": 28.82,
+        "autre": 11.05
+      },
+      "notes": ""
+    },
+    {
+      "id": "53lc58drc11ertj5",
+      "paysId": "xaji0y6dpbhsahxt",
+      "date": "2024-11-05",
+      "ville": "Nong Khai",
+      "duree": 3,
+      "categories": {
+        "trajet_aller": 39.34,
+        "deplacements": 2.37,
+        "nourriture": 9.87,
+        "activites": 2.63,
+        "logement": 15.34,
+        "autre": 2.37
+      },
+      "notes": ""
+    },
+    {
+      "id": "pht0hl9xpseimvih",
+      "paysId": "hv3a3zmf8mdd4v30",
+      "date": "2024-11-06",
+      "ville": "Phnom Penh",
+      "duree": 2,
+      "categories": {
+        "trajet_aller": 81.48,
+        "deplacements": 1.85,
+        "nourriture": 14.81,
+        "activites": 6.02,
+        "logement": 14.54,
+        "autre": 3.7
+      },
+      "notes": ""
+    },
+    {
+      "id": "cwi64ciyhe7ur23g",
+      "paysId": "hv3a3zmf8mdd4v30",
+      "date": "2024-11-07",
+      "ville": "Kampot",
+      "duree": 2,
+      "categories": {
+        "trajet_aller": 7.41,
+        "deplacements": 9.26,
+        "nourriture": 14.81,
+        "activites": 4.63,
+        "logement": 17.5,
+        "autre": 5.56
+      },
+      "notes": ""
+    },
+    {
+      "id": "dppq0y9dom5igqpk",
+      "paysId": "hv3a3zmf8mdd4v30",
+      "date": "2024-11-08",
+      "ville": "Phnom Penh",
+      "duree": 3,
+      "categories": {
+        "trajet_aller": 7.41,
+        "deplacements": 2.78,
+        "nourriture": 33.33,
+        "activites": 0.0,
+        "logement": 22.69,
+        "autre": 13.89
+      },
+      "notes": ""
+    },
+    {
+      "id": "i7p5tb94874frhoc",
+      "paysId": "hv3a3zmf8mdd4v30",
+      "date": "2024-11-09",
+      "ville": "Koh Rong",
+      "duree": 3,
+      "categories": {
+        "trajet_aller": 31.71,
+        "deplacements": 11.57,
+        "nourriture": 33.33,
+        "activites": 12.96,
+        "logement": 27.78,
+        "autre": 46.3
+      },
+      "notes": ""
+    },
+    {
+      "id": "n9j2qp89uzfk8ut0",
+      "paysId": "hv3a3zmf8mdd4v30",
+      "date": "2024-11-10",
+      "ville": "Koh Rong Sanloem",
+      "duree": 4,
+      "categories": {
+        "trajet_aller": 9.26,
+        "deplacements": 0.0,
+        "nourriture": 29.63,
+        "activites": 4.63,
+        "logement": 29.63,
+        "autre": 11.11
+      },
+      "notes": ""
+    },
+    {
+      "id": "cvs4f8cgvyie6ivw",
+      "paysId": "hv3a3zmf8mdd4v30",
+      "date": "2024-11-11",
+      "ville": "Chi Phat",
+      "duree": 3,
+      "categories": {
+        "trajet_aller": 26.85,
+        "deplacements": 0.0,
+        "nourriture": 3.7,
+        "activites": 65.74,
+        "logement": 11.11,
+        "autre": 0.0
+      },
+      "notes": ""
+    },
+    {
+      "id": "pvs7hzioykl1cq99",
+      "paysId": "hv3a3zmf8mdd4v30",
+      "date": "2024-11-12",
+      "ville": "Siem Reap",
+      "duree": 4,
+      "categories": {
+        "trajet_aller": 34.26,
+        "deplacements": 3.7,
+        "nourriture": 22.22,
+        "activites": 53.7,
+        "logement": 18.52,
+        "autre": 19.44
+      },
+      "notes": ""
+    },
+    {
+      "id": "chj755nf4zw9xa3k",
+      "paysId": "hv3a3zmf8mdd4v30",
+      "date": "2024-11-13",
+      "ville": "Sen Monorom",
+      "duree": 4,
+      "categories": {
+        "trajet_aller": 23.15,
+        "deplacements": 5.56,
+        "nourriture": 11.11,
+        "activites": 77.78,
+        "logement": 18.98,
+        "autre": 2.78
+      },
+      "notes": ""
+    },
+    {
+      "id": "x7eedtjvzhwjr64d",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-14",
+      "ville": "Ho Chi Minh",
+      "duree": 2,
+      "categories": {
+        "trajet_aller": 30.89,
+        "deplacements": 3.33,
+        "nourriture": 8.89,
+        "activites": 0.0,
+        "logement": 15.07,
+        "autre": 11.11
+      },
+      "notes": ""
+    },
+    {
+      "id": "pja1wj0tpac56t4u",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-15",
+      "ville": "Ben Tre",
+      "duree": 2,
+      "categories": {
+        "trajet_aller": 4.44,
+        "deplacements": 0.0,
+        "nourriture": 8.89,
+        "activites": 24.07,
+        "logement": 10.37,
+        "autre": 3.7
+      },
+      "notes": ""
+    },
+    {
+      "id": "fel6246hid25owf7",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-16",
+      "ville": "Can Tho",
+      "duree": 2,
+      "categories": {
+        "trajet_aller": 3.52,
+        "deplacements": 4.44,
+        "nourriture": 5.93,
+        "activites": 24.07,
+        "logement": 11.48,
+        "autre": 4.44
+      },
+      "notes": ""
+    },
+    {
+      "id": "5935a0l7253j2d54",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-17",
+      "ville": "Da Lat",
+      "duree": 3,
+      "categories": {
+        "trajet_aller": 17.78,
+        "deplacements": 16.67,
+        "nourriture": 16.67,
+        "activites": 34.07,
+        "logement": 7.16,
+        "autre": 10.0
+      },
+      "notes": ""
+    },
+    {
+      "id": "i3qk2iagl58kxo9t",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-18",
+      "ville": "Hoi An",
+      "duree": 5,
+      "categories": {
+        "trajet_aller": 20.37,
+        "deplacements": 6.3,
+        "nourriture": 22.22,
+        "activites": 7.41,
+        "logement": 18.22,
+        "autre": 46.3
+      },
+      "notes": ""
+    },
+    {
+      "id": "7e8g8jdp0lvsnujz",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-19",
+      "ville": "Hué",
+      "duree": 3,
+      "categories": {
+        "trajet_aller": 3.04,
+        "deplacements": 1.7,
+        "nourriture": 17.78,
+        "activites": 22.67,
+        "logement": 15.93,
+        "autre": 11.11
+      },
+      "notes": ""
+    },
+    {
+      "id": "a7tz0yncxll4zklo",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-20",
+      "ville": "Phong Nha",
+      "duree": 2,
+      "categories": {
+        "trajet_aller": 10.19,
+        "deplacements": 1.7,
+        "nourriture": 11.85,
+        "activites": 20.83,
+        "logement": 7.22,
+        "autre": 7.41
+      },
+      "notes": ""
+    },
+    {
+      "id": "okep7y6wktakpuxq",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-21",
+      "ville": "Ninh Binh",
+      "duree": 3,
+      "categories": {
+        "trajet_aller": 14.81,
+        "deplacements": 2.22,
+        "nourriture": 13.33,
+        "activites": 12.96,
+        "logement": 16.67,
+        "autre": 8.89
+      },
+      "notes": ""
+    },
+    {
+      "id": "phr62gdswm31yiha",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-22",
+      "ville": "Mai Chau",
+      "duree": 4,
+      "categories": {
+        "trajet_aller": 11.11,
+        "deplacements": 3.98,
+        "nourriture": 20.74,
+        "activites": 15.19,
+        "logement": 19.63,
+        "autre": 2.96
+      },
+      "notes": ""
+    },
+    {
+      "id": "ir4cowgzrixa11dp",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-23",
+      "ville": "Hanoï",
+      "duree": 3,
+      "categories": {
+        "trajet_aller": 5.56,
+        "deplacements": 1.11,
+        "nourriture": 13.33,
+        "activites": 0.0,
+        "logement": 17.41,
+        "autre": 13.33
+      },
+      "notes": ""
+    },
+    {
+      "id": "g8sbi4q2y9v86wzs",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-24",
+      "ville": "Cat Ba",
+      "duree": 3,
+      "categories": {
+        "trajet_aller": 10.74,
+        "deplacements": 2.96,
+        "nourriture": 15.56,
+        "activites": 28.52,
+        "logement": 15.56,
+        "autre": 10.0
+      },
+      "notes": ""
+    },
+    {
+      "id": "3t60rjiw1swjckjl",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-25",
+      "ville": "Cao Bang",
+      "duree": 3,
+      "categories": {
+        "trajet_aller": 21.48,
+        "deplacements": 11.48,
+        "nourriture": 25.0,
+        "activites": 18.52,
+        "logement": 11.11,
+        "autre": 10.0
+      },
+      "notes": ""
+    },
+    {
+      "id": "teiyzcotohp6vz41",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-26",
+      "ville": "Ha Giang",
+      "duree": 5,
+      "categories": {
+        "trajet_aller": 12.22,
+        "deplacements": 0.0,
+        "nourriture": 3.33,
+        "activites": 148.15,
+        "logement": 7.41,
+        "autre": 16.67
+      },
+      "notes": ""
+    },
+    {
+      "id": "nam148p0tvhhpbmy",
+      "paysId": "t9nt3w5uzbikcidk",
+      "date": "2024-11-27",
+      "ville": "Sapa",
+      "duree": 4,
+      "categories": {
+        "trajet_aller": 11.11,
+        "deplacements": 0.74,
+        "nourriture": 17.78,
+        "activites": 42.59,
+        "logement": 12.96,
+        "autre": 22.22
+      },
+      "notes": ""
+    },
+    {
+      "id": "ofqewaouaxeqbnhl",
+      "paysId": "wnnhj7xvg0fn9xuy",
+      "date": "2024-11-28",
+      "ville": "Muang Khua",
+      "duree": 1,
+      "categories": {
+        "trajet_aller": 33.04,
+        "deplacements": 0.0,
+        "nourriture": 0.0,
+        "activites": 0.0,
+        "logement": 3.26,
+        "autre": 6.52
+      },
+      "notes": ""
+    },
+    {
+      "id": "1n13jcat9mx2x18h",
+      "paysId": "wnnhj7xvg0fn9xuy",
+      "date": "2024-11-29",
+      "ville": "Muang Ngoy",
+      "duree": 3,
+      "categories": {
+        "trajet_aller": 26.09,
+        "deplacements": 0.0,
+        "nourriture": 17.61,
+        "activites": 38.7,
+        "logement": 7.61,
+        "autre": 1.3
+      },
+      "notes": ""
+    }
+  ]
+}

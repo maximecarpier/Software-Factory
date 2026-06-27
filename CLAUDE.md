@@ -56,7 +56,7 @@ App Express.js qui affiche l'usage des tokens Claude.
 cd apps/dashboard && npm install && npm start   # port 3001
 ```
 
-Anciennement dans `dashboard/` (racine) — migration vers `apps/dashboard/` en cours.
+Déployée sur : `https://dashboard-usine.vercel.app`
 
 ---
 
