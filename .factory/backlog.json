@@ -119,5 +119,13 @@
     "description": "Ajouter ce projet même si pas dans le hub",
     "priorite": "haute",
     "createdAt": "2026-06-27T18:37:45.855Z"
+  },
+  {
+    "id": "8daa4e57-56f7-40ae-a568-6158abf2e46a",
+    "type": "projet",
+    "titre": "Dashboard-Factory",
+    "description": "Ajouter ce projet",
+    "priorite": "haute",
+    "createdAt": "2026-06-27T18:41:31.754Z"
   }
 ]
