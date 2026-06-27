@@ -41,15 +41,6 @@
     "projectId": "proj-onepiece-001"
   },
   {
-    "id": "feat-usine-factory-simple-001",
-    "type": "feature",
-    "titre": "Faire une usine simple avec sub-agents",
-    "description": "Créer une version simplifiée de la Factory avec sub-agents, comme la précédente architecture.",
-    "priorite": "basse",
-    "projectId": "proj-usine-001",
-    "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
     "id": "8daa4e57-56f7-40ae-a568-6158abf2e46a",
     "type": "projet",
     "titre": "Dashboard-Factory",
