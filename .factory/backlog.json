@@ -1,13 +1,5 @@
 [
   {
-    "id": "proj-usine-001",
-    "type": "projet",
-    "titre": "Software Factory — Usine",
-    "description": "Le meta-projet : amélioration continue de la Factory, ses agents, son pipeline et ses outils d'orchestration.",
-    "priorite": "haute",
-    "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
     "id": "proj-voyage-001",
     "type": "projet",
     "titre": "travelfinance — Application Voyage",
