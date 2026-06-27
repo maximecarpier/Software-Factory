@@ -127,13 +127,5 @@
     "priorite": "basse",
     "projectId": "proj-usine-001",
     "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
-    "id": "7b182579-ee47-4b38-8f48-9abc7f3cd9fa",
-    "type": "projet",
-    "titre": "Finalisation du MVP travel finance",
-    "description": null,
-    "priorite": "haute",
-    "createdAt": "2026-06-27T18:32:58.178Z"
   }
 ]
