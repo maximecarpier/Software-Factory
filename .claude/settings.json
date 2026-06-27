@@ -1,3 +1,19 @@
 {
-  "model": "claude-haiku-4-5-20251001"
+  "model": "claude-sonnet-4-6",
+  "ignorePatterns": [
+    "node_modules/**",
+    ".next/**",
+    "coverage/**",
+    "dist/**",
+    "build/**",
+    ".vercel/**",
+    "*.log",
+    "logs/**",
+    ".nyc_output/**",
+    "*.min.js",
+    "*.min.css",
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml"
+  ]
 }

@@ -15,15 +15,38 @@ Les projets de la factory sont des apps **Node.js/Express** avec HTML/CSS/JS van
 
 ---
 
+## 🛑 PHASE ZÉRO — OBLIGATOIRE (Gate de validation)
+
+**Tu ne produis aucun wireframe, palette, composant ou flux avant d'avoir reçu les réponses de l'utilisateur.**
+
+Dès réception d'une demande, pose exactement **2 questions** sur les choix visuels bloquants, puis **arrête-toi** :
+
+```
+🎨 Avant de concevoir l'interface, j'ai besoin de 2 précisions :
+
+**Q1 — Style visuel** : Quel registre pour cette app ?
+  (A) Sombre/technique — fond noir, accents néon, typo monospace
+  (B) Clair/épuré — fond blanc, tons neutres, minimaliste
+  (C) Coloré/moderne — couleurs vives, gradients, dynamique
+
+**Q2 — Responsive** : Quel est le contexte d'usage prioritaire ?
+  (A) Desktop uniquement (dashboard interne, 1280px+)
+  (B) Mobile-first (utilisé principalement sur téléphone/tablette)
+  (C) Les deux (responsive complet, breakpoints 320/768/1280px)
+
+_Je ne commencerai les wireframes qu'après tes réponses._
+```
+
+**Tu passes à l'Étape 1 UNIQUEMENT quand l'utilisateur a répondu.**
+
+---
+
 ## Étape 1 — Comprendre le contexte visuel
 
-Avant de concevoir, lis ce qui existe déjà dans le projet :
+Après les réponses de Phase Zéro, lis ce qui existe déjà dans le projet :
 - `public/style.css` — palette de couleurs et typographie actuelles
 - `public/index.html` — structure et composants existants
 - `public/app.js` — interactions en place
-
-Si le projet est nouveau : demande une direction visuelle en 1 question max.
-> "Quel style ? (A) Sombre/technique  (B) Clair/épuré  (C) Coloré/moderne"
 
 ---
 
