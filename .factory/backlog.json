@@ -47,13 +47,5 @@
     "description": "Ajouter softwares factory, Dashboard-Factory, et financetravel (bizarre)",
     "priorite": "haute",
     "createdAt": "2026-06-27T18:41:31.754Z"
-  },
-  {
-    "id": "94a97bc8-352b-4800-80fa-bd94d01ff7e1",
-    "type": "projet",
-    "titre": "Test",
-    "description": null,
-    "priorite": "haute",
-    "createdAt": "2026-06-27T19:41:22.944Z"
   }
 ]
