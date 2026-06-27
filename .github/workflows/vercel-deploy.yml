@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'dashboard/**'
+      - 'apps/dashboard/**'
       - '.github/workflows/vercel-deploy.yml'
 
 jobs:
@@ -13,12 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
       - name: Deploy to Vercel
-        uses: BetaHuhn/deploy-to-vercel-action@v1
-        with:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WORKING_DIRECTORY: dashboard
-          PRODUCTION: true
+        working-directory: apps/dashboard
+        run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes

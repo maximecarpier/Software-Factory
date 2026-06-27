@@ -1,0 +1,45 @@
+name: Init & Deploy Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      # Échoue tôt avec un message clair si VERCEL_TOKEN est absent/invalide,
+      # plutôt que de laisser l'erreur surgir plus loin dans link/deploy.
+      - name: Vérifier le token Vercel
+        run: vercel whoami --token="$VERCEL_TOKEN"
+
+      # --project force un nom en minuscules : le nom du repo (Safecalc) est
+      # invalide tel quel pour un nom de projet Vercel. Idempotent : si
+      # VERCEL_ORG_ID/VERCEL_PROJECT_ID sont déjà définis (secrets), ou si un
+      # projet du même nom existe déjà côté Vercel, --yes le relie sans en
+      # créer un nouveau. Sinon il crée le projet au premier run.
+      - name: Lier le projet Vercel
+        run: vercel link --yes --project safecalc --token="$VERCEL_TOKEN"
+
+      # vercel link ne connecte pas automatiquement le repo Git au projet
+      # (ça reste local au CLI). Cette étape établit la connexion native
+      # GitHub <-> Vercel pour activer les déploiements/preview auto.
+      - name: Connecter le repo GitHub au projet Vercel
+        run: vercel git connect --yes --token="$VERCEL_TOKEN"
+
+      - name: Déployer sur Vercel (production)
+        run: vercel deploy --prod --yes --token="$VERCEL_TOKEN"
