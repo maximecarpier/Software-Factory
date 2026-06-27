@@ -41,15 +41,6 @@
     "createdAt": "2026-06-27T00:00:00.000Z"
   },
   {
-    "id": "feat-usine-brainstorm-001",
-    "type": "feature",
-    "titre": "Agent brainstorm avant specs-framer",
-    "description": "[FAIT] Intégrer un agent brainstorm en amont du specs-framer pour challenger les idées avant la rédaction des specs.",
-    "priorite": "haute",
-    "projectId": "proj-usine-001",
-    "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
     "id": "feat-usine-discussion-001",
     "type": "feature",
     "titre": "Discussion inter-agents pour cohérence",
