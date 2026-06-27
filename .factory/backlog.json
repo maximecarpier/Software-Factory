@@ -36,9 +36,9 @@
     "type": "feature",
     "titre": "Améliorer le design de one-piece-speedrun",
     "description": "Refonte visuelle de l'application one-piece-speedrun.",
-    "priorite": "moyenne",
-    "projectId": "proj-onepiece-001",
-    "createdAt": "2026-06-27T00:00:00.000Z"
+    "priorite": "basse",
+    "createdAt": "2026-06-27T00:00:00.000Z",
+    "projectId": "proj-onepiece-001"
   },
   {
     "id": "feat-usine-factory-simple-001",
