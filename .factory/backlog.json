@@ -111,5 +111,13 @@
     "priorite": "haute",
     "createdAt": "2026-06-27T18:33:37.980Z",
     "projectId": "proj-voyage-001"
+  },
+  {
+    "id": "e053ea89-01cc-4955-8db1-3948f907a725",
+    "type": "projet",
+    "titre": "Software-Factory",
+    "description": "Ajouter ce projet même si pas dans le hub",
+    "priorite": "haute",
+    "createdAt": "2026-06-27T18:37:45.855Z"
   }
 ]
