@@ -415,6 +415,71 @@ h1 {
   opacity: 1;
 }
 
+/* ─── Actions des cartes (Éditer / Supprimer) ───────────────────── */
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.btn-edit {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: var(--font);
+  background: var(--color-secondary-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-edit:hover {
+  background: var(--color-secondary-hover);
+}
+
+.btn-delete {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: var(--font);
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-delete:hover {
+  background: #fecaca;
+}
+
+/* ─── Badge projet parent (feature cards) ────────────────────────── */
+.badge-project {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+/* ─── Message avertissement inline (ex: aucun projet disponible) ─── */
+.warning-message {
+  font-size: 0.875rem;
+  color: #92400e;
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+}
+
+/* ─── Bouton Annuler dans les form-actions ───────────────────────── */
+.form-cancel {
+  margin-left: 0.5rem;
+}
+
 /* ─── Responsive minimal ────────────────────────────────────────── */
 @media (max-width: 600px) {
   .nav-inner {

@@ -25,7 +25,11 @@ function route(hash) {
 
   updateActiveNav(hash);
 
-  if (hash === '#/new') {
+  if (hash.startsWith('#/edit/')) {
+    // Mode édition — extrait l'ID après '#/edit/'
+    const editId = hash.slice(7);
+    renderForm(app, editId);
+  } else if (hash === '#/new') {
     renderForm(app);
   } else {
     // '#/backlog' et tout hash inconnu → vue backlog par défaut

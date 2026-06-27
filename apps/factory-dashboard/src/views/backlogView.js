@@ -1,7 +1,8 @@
-// M-F2 : vue backlog — liste + filtres + tri + états vide / vide-filtré
+// M-F2 : vue backlog — liste + filtres + tri + édition + suppression + états vide
 
-import { load } from '../store.js';
+import { load, save, pushToGitHub } from '../store.js';
 import { applyFilters, applySort } from '../model.js';
+import { showToast } from '../components/toast.js';
 
 // État local des filtres/tri (non persisté, reset au rechargement)
 const state = {
@@ -88,28 +89,45 @@ function renderFilterBar() {
 /**
  * Génère le HTML d'une carte item.
  * @param {Object} item
+ * @param {Object[]} allItems - tableau complet pour résoudre le nom du projet parent
  * @returns {string}
  */
-function renderCard(item) {
+function renderCard(item, allItems) {
   const desc = item.description ? truncate(item.description, 120) : null;
+
+  // Badge projet parent pour les features
+  let projectBadge = '';
+  if (item.type === 'feature' && item.projectId) {
+    const parentProject = allItems.find(i => i.id === item.projectId);
+    if (parentProject) {
+      projectBadge = `<span class="badge badge-project">${escapeHtml(parentProject.titre)}</span>`;
+    }
+  }
+
   return `
-    <div class="card">
+    <div class="card" data-id="${escapeHtml(item.id)}">
       <div class="card-header">
         <div class="card-badges">
           <span class="badge badge-type badge-${escapeHtml(item.type)}">${escapeHtml(item.type)}</span>
           <span class="badge badge-prio prio-${escapeHtml(item.priorite)}">${escapeHtml(item.priorite)}</span>
+          ${projectBadge}
         </div>
         <span class="card-date">${formatDate(item.createdAt)}</span>
       </div>
       <h3 class="card-title">${escapeHtml(item.titre)}</h3>
       ${desc ? `<p class="card-desc">${escapeHtml(desc)}</p>` : ''}
+      <div class="card-actions">
+        <button class="btn-edit" data-id="${escapeHtml(item.id)}" aria-label="Modifier cet item">Éditer</button>
+        <button class="btn-delete" data-id="${escapeHtml(item.id)}" aria-label="Supprimer cet item">Supprimer</button>
+      </div>
     </div>
   `;
 }
 
 /**
  * Point d'entrée unique pour le rendu de la vue backlog.
- * Appelée à chaque changement de filtre/tri et à chaque navigation vers #/backlog.
+ * Appelée à chaque changement de filtre/tri, navigation vers #/backlog,
+ * et après synchronisation GitHub.
  * @param {HTMLElement} container — typiquement #app
  */
 export function renderBacklog(container) {
@@ -138,7 +156,6 @@ export function renderBacklog(container) {
       </div>
     `;
   } else {
-    // Des items existent — afficher la barre de filtres
     const filterBarHtml = renderFilterBar();
 
     if (sorted.length === 0) {
@@ -150,14 +167,14 @@ export function renderBacklog(container) {
         </div>
       `;
     } else {
-      // État normal — afficher le compteur + les cartes
+      // État normal — compteur + cartes
       const total = allItems.length;
       const shown = sorted.length;
       const counterLabel = shown === total
         ? `${shown} item${shown > 1 ? 's' : ''}`
         : `${shown} item${shown > 1 ? 's' : ''} sur ${total}`;
 
-      const cardsHtml = sorted.map(renderCard).join('');
+      const cardsHtml = sorted.map(item => renderCard(item, allItems)).join('');
 
       innerContent = filterBarHtml + `
         <p class="counter">${counterLabel}</p>
@@ -174,8 +191,9 @@ export function renderBacklog(container) {
     </div>
   `;
 
-  // Liaison des événements filtres/tri (après injection dans le DOM)
+  // Liaison des événements (après injection dans le DOM)
   bindFilterEvents(container);
+  bindCardActions(container);
 }
 
 /**
@@ -216,4 +234,41 @@ function bindFilterEvents(container) {
       renderBacklog(container);
     });
   }
+}
+
+/**
+ * Attache les listeners Éditer et Supprimer sur les cartes.
+ * La suppression : confirmation → localStorage → re-render → push GitHub async.
+ * @param {HTMLElement} container
+ */
+function bindCardActions(container) {
+  // Éditer — navigation vers #/edit/:id
+  container.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const id = e.currentTarget.dataset.id;
+      window.location.hash = `#/edit/${id}`;
+    });
+  });
+
+  // Supprimer — confirmation + suppression locale + sync GitHub
+  container.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      const id = e.currentTarget.dataset.id;
+      if (!window.confirm('Supprimer cet item définitivement ?')) return;
+
+      const { items } = load();
+      const updatedItems = items.filter(i => i.id !== id);
+
+      // Persistance locale immédiate + re-render
+      save(updatedItems);
+      renderBacklog(container);
+
+      // Synchronisation GitHub en arrière-plan
+      try {
+        await pushToGitHub(updatedItems);
+      } catch {
+        showToast('Mode hors-ligne — données non synchronisées');
+      }
+    });
+  });
 }

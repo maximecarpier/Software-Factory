@@ -16,11 +16,11 @@ function generateId() {
 
 /**
  * Crée un item backlog complet à partir des données du formulaire.
- * @param {{ type: string, titre: string, description: string|null, priorite: string }} fields
+ * @param {{ type: string, titre: string, description: string|null, priorite: string, projectId?: string }} fields
  * @returns {Object} Item complet avec id et createdAt
  */
-export function createItem({ type, titre, description, priorite }) {
-  return {
+export function createItem({ type, titre, description, priorite, projectId }) {
+  const item = {
     id: generateId(),
     type,
     titre: titre.trim(),
@@ -28,14 +28,21 @@ export function createItem({ type, titre, description, priorite }) {
     priorite,
     createdAt: new Date().toISOString(),
   };
+  // projectId uniquement pour les features avec un projet parent défini
+  if (type === 'feature' && projectId) {
+    item.projectId = projectId;
+  }
+  return item;
 }
 
 /**
  * Valide les données du formulaire selon les règles fonctionnelles (specs §4.3).
- * @param {{ type: string, titre: string, description: string|null, priorite: string }} fields
+ * Pour les features, valide aussi projectId contre la liste des projets existants.
+ * @param {{ type: string, titre: string, description: string|null, priorite: string, projectId?: string }} fields
+ * @param {Object[]} allItems - tableau complet des items pour valider le projet parent
  * @returns {{ ok: boolean, errors: Object.<string, string> }}
  */
-export function validateItem({ type, titre, description, priorite }) {
+export function validateItem({ type, titre, description, priorite, projectId }, allItems = []) {
   const errors = {};
 
   if (!type || !TYPES.includes(type)) {
@@ -54,6 +61,16 @@ export function validateItem({ type, titre, description, priorite }) {
 
   if (!priorite || !PRIORITES.includes(priorite)) {
     errors.priorite = 'Veuillez sélectionner une priorité.';
+  }
+
+  // Une feature doit obligatoirement être liée à un projet existant
+  if (type === 'feature') {
+    const projects = allItems.filter(i => i.type === 'projet');
+    if (projects.length === 0) {
+      errors.projectId = "Aucun projet disponible. Créez d'abord un projet.";
+    } else if (!projectId || !projects.find(p => p.id === projectId)) {
+      errors.projectId = 'Veuillez sélectionner un projet parent.';
+    }
   }
 
   return { ok: Object.keys(errors).length === 0, errors };

@@ -1,27 +1,109 @@
-// M-F1 : vue formulaire de création d'un item backlog
+// M-F1 : vue formulaire — création ET édition d'un item backlog
 
 import { validateItem, createItem } from '../model.js';
-import { add } from '../store.js';
+import { load, save, pushToGitHub } from '../store.js';
 import { showToast } from '../components/toast.js';
 
+// ID de l'item en cours d'édition (null = mode création)
+let _editId = null;
+
 /**
- * Injecte le formulaire de création dans le conteneur fourni.
- * @param {HTMLElement} container — typiquement #app
+ * Échappe les caractères HTML spéciaux pour les valeurs d'attributs et de texte.
+ * @param {string} str
+ * @returns {string}
  */
-export function renderForm(container) {
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Injecte (ou réinjecte) le select du projet parent dans le wrapper dédié.
+ * En l'absence de projets, affiche un message d'avertissement à la place.
+ * @param {string} selectedProjectId - ID pré-sélectionné (peut être '')
+ */
+function renderProjectSelect(selectedProjectId) {
+  const wrapper = document.getElementById('project-select-wrapper');
+  if (!wrapper) return;
+
+  const projects = load().items.filter(i => i.type === 'projet');
+
+  if (projects.length === 0) {
+    wrapper.innerHTML = `
+      <p class="warning-message">Aucun projet disponible. Créez d'abord un projet.</p>
+    `;
+    return;
+  }
+
+  const options = projects
+    .map(p =>
+      `<option value="${escapeHtml(p.id)}" ${selectedProjectId === p.id ? 'selected' : ''}>${escapeHtml(p.titre)}</option>`
+    )
+    .join('');
+
+  wrapper.innerHTML = `
+    <select id="field-project" name="projectId" autocomplete="off">
+      <option value="">-- Choisir un projet --</option>
+      ${options}
+    </select>
+  `;
+}
+
+/**
+ * Injecte le formulaire (création ou édition) dans le conteneur fourni.
+ * @param {HTMLElement} container — typiquement #app
+ * @param {string|null} editId — ID de l'item à éditer, ou null pour la création
+ */
+export function renderForm(container, editId = null) {
+  _editId = editId || null;
+
+  const { items } = load();
+  const editingItem = _editId ? items.find(i => i.id === _editId) : null;
+
+  // Item introuvable → fallback création
+  if (_editId && !editingItem) {
+    _editId = null;
+    window.location.hash = '#/new';
+    return;
+  }
+
+  const isEditing = Boolean(editingItem);
+  const title = isEditing ? "Modifier l'item" : 'Nouvel item';
+  const submitLabel = isEditing ? 'Enregistrer les modifications' : 'Enregistrer';
+
+  // Valeurs pré-remplies en mode édition
+  const currentType = isEditing ? editingItem.type : '';
+  const currentTitre = isEditing ? editingItem.titre : '';
+  const currentDesc = isEditing ? (editingItem.description || '') : '';
+  const currentPrio = isEditing ? editingItem.priorite : '';
+  const currentProjectId = isEditing ? (editingItem.projectId || '') : '';
+
+  // Le champ projet est visible dès le rendu si le type est déjà 'feature'
+  const projectGroupStyle = currentType === 'feature' ? 'flex' : 'none';
+
   container.innerHTML = `
     <div class="form-container">
-      <h1>Nouvel item</h1>
+      <h1>${escapeHtml(title)}</h1>
       <form id="item-form" novalidate>
 
         <div class="field-group">
           <label for="field-type">Type <span class="required" aria-hidden="true">*</span></label>
           <select id="field-type" name="type" autocomplete="off">
             <option value="">-- Choisir un type --</option>
-            <option value="projet">Projet</option>
-            <option value="feature">Feature</option>
+            <option value="projet" ${currentType === 'projet' ? 'selected' : ''}>Projet</option>
+            <option value="feature" ${currentType === 'feature' ? 'selected' : ''}>Feature</option>
           </select>
           <span class="field-error" id="error-type" role="alert"></span>
+        </div>
+
+        <div class="field-group" id="field-group-project" style="display: ${projectGroupStyle}">
+          <label for="field-project">Projet parent <span class="required" aria-hidden="true">*</span></label>
+          <div id="project-select-wrapper"></div>
+          <span class="field-error" id="error-projectId" role="alert"></span>
         </div>
 
         <div class="field-group">
@@ -32,6 +114,7 @@ export function renderForm(container) {
             name="titre"
             placeholder="Titre de l'item (max 100 caractères)"
             autocomplete="off"
+            value="${escapeHtml(currentTitre)}"
           />
           <span class="field-error" id="error-titre" role="alert"></span>
         </div>
@@ -43,7 +126,7 @@ export function renderForm(container) {
             name="description"
             rows="4"
             placeholder="Description facultative (max 1 000 caractères)"
-          ></textarea>
+          >${escapeHtml(currentDesc)}</textarea>
           <span class="field-error" id="error-description" role="alert"></span>
         </div>
 
@@ -51,20 +134,41 @@ export function renderForm(container) {
           <label for="field-priorite">Priorité <span class="required" aria-hidden="true">*</span></label>
           <select id="field-priorite" name="priorite" autocomplete="off">
             <option value="">-- Choisir une priorité --</option>
-            <option value="haute">Haute</option>
-            <option value="moyenne">Moyenne</option>
-            <option value="basse">Basse</option>
+            <option value="haute" ${currentPrio === 'haute' ? 'selected' : ''}>Haute</option>
+            <option value="moyenne" ${currentPrio === 'moyenne' ? 'selected' : ''}>Moyenne</option>
+            <option value="basse" ${currentPrio === 'basse' ? 'selected' : ''}>Basse</option>
           </select>
           <span class="field-error" id="error-priorite" role="alert"></span>
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn-primary">Enregistrer</button>
+          <button type="submit" class="btn-primary">${escapeHtml(submitLabel)}</button>
+          ${isEditing ? `<a href="#/backlog" class="btn-secondary form-cancel">Annuler</a>` : ''}
         </div>
 
       </form>
     </div>
   `;
+
+  // Initialiser le select projet si le type est déjà 'feature' (mode édition)
+  if (currentType === 'feature') {
+    renderProjectSelect(currentProjectId);
+  }
+
+  // Afficher/masquer le champ projet selon le type sélectionné
+  const typeSelect = document.getElementById('field-type');
+  typeSelect.addEventListener('change', () => {
+    const groupEl = document.getElementById('field-group-project');
+    if (typeSelect.value === 'feature') {
+      groupEl.style.display = 'flex';
+      renderProjectSelect('');
+    } else {
+      groupEl.style.display = 'none';
+    }
+    // Effacer l'erreur éventuelle sur le projet quand le type change
+    const errEl = document.getElementById('error-projectId');
+    if (errEl) errEl.textContent = '';
+  });
 
   const form = document.getElementById('item-form');
   form.addEventListener('submit', handleSubmit);
@@ -74,7 +178,7 @@ export function renderForm(container) {
  * Efface tous les messages d'erreur inline.
  */
 function clearErrors() {
-  ['type', 'titre', 'description', 'priorite'].forEach(field => {
+  ['type', 'projectId', 'titre', 'description', 'priorite'].forEach(field => {
     const el = document.getElementById(`error-${field}`);
     if (el) el.textContent = '';
   });
@@ -93,39 +197,80 @@ function displayErrors(errors) {
 
 /**
  * Handler de soumission du formulaire.
- * Valide, crée, persiste, redirige, affiche le toast.
+ * Valide, persiste localement (immédiat), redirige, puis pousse vers GitHub (async).
  */
-function handleSubmit(e) {
+async function handleSubmit(e) {
   e.preventDefault();
   clearErrors();
 
   const form = e.target;
+  const type = form.type.value;
+  const projectIdEl = document.getElementById('field-project');
+
   const data = {
-    type: form.type.value,
+    type,
     titre: form.titre.value,
     description: form.description.value || null,
     priorite: form.priorite.value,
+    projectId: projectIdEl ? projectIdEl.value : undefined,
   };
 
-  const { ok, errors } = validateItem(data);
+  // Validation — passe allItems pour vérifier le projet parent des features
+  const { items: allItems } = load();
+  const { ok, errors } = validateItem(data, allItems);
 
   if (!ok) {
     displayErrors(errors);
     // Focus sur le premier champ en erreur
-    const firstErrorField = Object.keys(errors)[0];
-    const el = document.getElementById(`field-${firstErrorField}`);
+    const firstField = Object.keys(errors)[0];
+    const focusId = firstField === 'projectId' ? 'field-project' : `field-${firstField}`;
+    const el = document.getElementById(focusId);
     if (el) el.focus();
     return;
   }
 
-  const item = createItem(data);
-  add(item);
+  let updatedItems;
 
-  // Réinitialise le formulaire
-  form.reset();
+  if (_editId) {
+    // ── Mode édition : mettre à jour l'item existant ──
+    updatedItems = allItems.map(item => {
+      if (item.id !== _editId) return item;
+      const updated = {
+        id: item.id,
+        type: data.type,
+        titre: data.titre.trim(),
+        description: data.description && data.description.trim() !== '' ? data.description.trim() : null,
+        priorite: data.priorite,
+        createdAt: item.createdAt,
+      };
+      // projectId uniquement pour les features avec un projet parent valide
+      if (data.type === 'feature' && data.projectId) {
+        updated.projectId = data.projectId;
+      }
+      return updated;
+    });
 
-  // Redirige vers le backlog puis affiche le toast
-  // (le toast est déclenché après le hashchange pour être visible sur la vue F2)
-  window.location.hash = '#/backlog';
-  showToast('Item ajouté au backlog.');
+    save(updatedItems);
+    window.location.hash = '#/backlog';
+    showToast('Item modifié.');
+  } else {
+    // ── Mode création : ajouter un nouvel item ──
+    const newItem = createItem(data);
+    updatedItems = [...allItems, newItem];
+
+    save(updatedItems);
+    form.reset();
+    // Masquer le champ projet après reset (le type revient à vide)
+    const groupEl = document.getElementById('field-group-project');
+    if (groupEl) groupEl.style.display = 'none';
+    window.location.hash = '#/backlog';
+    showToast('Item ajouté au backlog.');
+  }
+
+  // ── Synchronisation GitHub en arrière-plan ──
+  try {
+    await pushToGitHub(updatedItems);
+  } catch {
+    showToast('Mode hors-ligne — données non synchronisées');
+  }
 }

@@ -1,6 +1,17 @@
-// M-STORE : persistance localStorage + garde-fou intégrité (specs §6.3, §6.4)
+// M-STORE : persistance localStorage (cache) + synchronisation GitHub via /api/backlog
 
 const KEY = 'factory_backlog';
+const SHA_KEY = 'factory_backlog_sha';
+
+// SHA courant du fichier GitHub, nécessaire pour les mises à jour (PUT).
+// Initialisé depuis localStorage au chargement du module.
+let _sha = null;
+try {
+  const stored = localStorage.getItem(SHA_KEY);
+  if (stored) _sha = stored;
+} catch {
+  // Contexte dégradé (ex: navigateur privé strict) — on ignore
+}
 
 /**
  * Vérifie qu'un objet a la forme minimale attendue d'un item backlog.
@@ -55,8 +66,20 @@ export function getAll() {
 }
 
 /**
- * Ajoute un item au tableau persisté.
- * Charge d'abord le tableau existant, pousse le nouvel item, puis écrit.
+ * Écrase le stockage localStorage avec le tableau fourni.
+ * Opération synchrone, immédiate. Utiliser pour toutes les mutations locales.
+ * @param {Object[]} items
+ */
+export function save(items) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(items));
+  } catch (e) {
+    console.error('[store] Erreur écriture localStorage:', e);
+  }
+}
+
+/**
+ * Ajoute un item au tableau persisté (localStorage uniquement).
  * @param {Object} item
  */
 export function add(item) {
@@ -69,14 +92,72 @@ export function add(item) {
   }
 }
 
+// ── Synchronisation GitHub ────────────────────────────────────────────────────
+
 /**
- * Ecrase le stockage avec le tableau fourni.
- * @param {Object[]} items
+ * Lit le backlog depuis GitHub via /api/backlog.
+ * Met à jour le cache localStorage et le SHA interne si succès.
+ * @returns {Promise<{ items: Object[], sha: string|null }>}
+ * @throws {Error} en cas d'erreur réseau ou serveur
  */
-export function save(items) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(items));
-  } catch (e) {
-    console.error('[store] Erreur écriture localStorage:', e);
+export async function fetchFromGitHub() {
+  const res = await fetch('/api/backlog');
+  if (!res.ok) {
+    throw new Error(`GET /api/backlog a échoué (${res.status})`);
   }
+  const data = await res.json();
+  if (data.error) {
+    throw new Error(data.error);
+  }
+
+  // Mettre à jour le SHA et le cache local
+  _sha = data.sha || null;
+  try {
+    if (_sha) localStorage.setItem(SHA_KEY, _sha);
+  } catch {
+    // ignore
+  }
+
+  if (Array.isArray(data.items)) {
+    save(data.items);
+  }
+
+  return { items: data.items || [], sha: data.sha };
+}
+
+/**
+ * Écrit le backlog sur GitHub via /api/backlog (PUT).
+ * Utilise le SHA stocké pour les mises à jour (requis par l'API GitHub).
+ * Met à jour le SHA interne si succès.
+ * @param {Object[]} items
+ * @returns {Promise<{ sha: string }>}
+ * @throws {Error} en cas d'erreur réseau ou conflit de SHA
+ */
+export async function pushToGitHub(items) {
+  const res = await fetch('/api/backlog', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items, sha: _sha }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`PUT /api/backlog a échoué (${res.status})`);
+  }
+
+  const data = await res.json();
+  if (data.error) {
+    throw new Error(data.error);
+  }
+
+  // Mettre à jour le SHA après une écriture réussie
+  if (data.sha) {
+    _sha = data.sha;
+    try {
+      localStorage.setItem(SHA_KEY, _sha);
+    } catch {
+      // ignore
+    }
+  }
+
+  return data;
 }
