@@ -83,6 +83,24 @@ Ne jamais lancer designer + tech-architect en parallèle si l'app est simple. Ne
 
 ---
 
+### Questions obligatoires avant specs-framer et tech-architect
+
+L'orchestrateur DOIT poser lui-même les questions clés à l'utilisateur **avant** de lancer ces agents — ne jamais leur passer un brief si complet qu'il court-circuite leur Phase Zéro.
+
+**Avant specs-framer**, poser au moins 2 questions parmi :
+- Qui sont les utilisateurs et dans quel contexte ?
+- Quelles contraintes techniques ou d'intégration ?
+- Quels critères de succès mesurables ?
+
+**Avant tech-architect**, poser au moins 2 questions parmi :
+- Contraintes de déploiement spécifiques (Vercel serverless, env vars, etc.) ?
+- Volumétrie / charge attendue ?
+- Systèmes existants à intégrer ou remplacer ?
+
+Ne lancer l'agent qu'après avoir reçu les réponses et les inclure dans le prompt.
+
+---
+
 ### Workflow pipeline adaptatif (ordre obligatoire)
 
 ```
@@ -90,6 +108,8 @@ Ne jamais lancer designer + tech-architect en parallèle si l'app est simple. Ne
                                          ↓
                      ┌─── [GATE 0 : périmètre MVP validé ? Y/N] ───┐
                      ↓ (oui)                              ↓ (non → ajuster)
+   ORCHESTRATEUR     → pose 2 questions clés à l'utilisateur (voir section ci-dessus)
+                                         ↓
 1. specs-framer      → CdC fonctionnel (MVP uniquement)
                                          ↓
                      ┌─── [GATE 1 : specs validées ? Y/N] ─────────┐
