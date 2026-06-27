@@ -1,0 +1,219 @@
+// M-F2 : vue backlog — liste + filtres + tri + états vide / vide-filtré
+
+import { load } from '../store.js';
+import { applyFilters, applySort } from '../model.js';
+
+// État local des filtres/tri (non persisté, reset au rechargement)
+const state = {
+  filterType: '',
+  filterPriorite: '',
+  sortKey: 'recent',
+};
+
+/**
+ * Formate une date ISO 8601 en JJ/MM/AAAA.
+ * @param {string} isoString
+ * @returns {string}
+ */
+function formatDate(isoString) {
+  const d = new Date(isoString);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+/**
+ * Tronque une chaîne à max caractères avec ellipse si nécessaire.
+ * @param {string} str
+ * @param {number} max
+ * @returns {string}
+ */
+function truncate(str, max) {
+  if (!str) return '';
+  return str.length > max ? str.slice(0, max) + '...' : str;
+}
+
+/**
+ * Échappe les caractères HTML pour éviter les injections XSS.
+ * @param {string} str
+ * @returns {string}
+ */
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Génère le HTML de la barre de filtres + tri.
+ * @returns {string}
+ */
+function renderFilterBar() {
+  return `
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label for="filter-type">Type</label>
+        <select id="filter-type">
+          <option value="">Tous les types</option>
+          <option value="projet" ${state.filterType === 'projet' ? 'selected' : ''}>Projet</option>
+          <option value="feature" ${state.filterType === 'feature' ? 'selected' : ''}>Feature</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filter-prio">Priorité</label>
+        <select id="filter-prio">
+          <option value="">Toutes les priorités</option>
+          <option value="haute" ${state.filterPriorite === 'haute' ? 'selected' : ''}>Haute</option>
+          <option value="moyenne" ${state.filterPriorite === 'moyenne' ? 'selected' : ''}>Moyenne</option>
+          <option value="basse" ${state.filterPriorite === 'basse' ? 'selected' : ''}>Basse</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filter-sort">Tri</label>
+        <select id="filter-sort">
+          <option value="recent" ${state.sortKey === 'recent' ? 'selected' : ''}>Plus récent d'abord</option>
+          <option value="ancien" ${state.sortKey === 'ancien' ? 'selected' : ''}>Plus ancien d'abord</option>
+          <option value="prio-desc" ${state.sortKey === 'prio-desc' ? 'selected' : ''}>Priorité décroissante</option>
+          <option value="prio-asc" ${state.sortKey === 'prio-asc' ? 'selected' : ''}>Priorité croissante</option>
+        </select>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Génère le HTML d'une carte item.
+ * @param {Object} item
+ * @returns {string}
+ */
+function renderCard(item) {
+  const desc = item.description ? truncate(item.description, 120) : null;
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-badges">
+          <span class="badge badge-type badge-${escapeHtml(item.type)}">${escapeHtml(item.type)}</span>
+          <span class="badge badge-prio prio-${escapeHtml(item.priorite)}">${escapeHtml(item.priorite)}</span>
+        </div>
+        <span class="card-date">${formatDate(item.createdAt)}</span>
+      </div>
+      <h3 class="card-title">${escapeHtml(item.titre)}</h3>
+      ${desc ? `<p class="card-desc">${escapeHtml(desc)}</p>` : ''}
+    </div>
+  `;
+}
+
+/**
+ * Point d'entrée unique pour le rendu de la vue backlog.
+ * Appelée à chaque changement de filtre/tri et à chaque navigation vers #/backlog.
+ * @param {HTMLElement} container — typiquement #app
+ */
+export function renderBacklog(container) {
+  const { items: allItems, corrupted } = load();
+
+  const filtered = applyFilters(allItems, {
+    type: state.filterType,
+    priorite: state.filterPriorite,
+  });
+  const sorted = applySort(filtered, state.sortKey);
+
+  // Bandeau d'avertissement si données corrompues au démarrage
+  const corruptedBanner = corrupted
+    ? `<div class="banner-warning" role="alert">Données locales illisibles, backlog réinitialisé.</div>`
+    : '';
+
+  let innerContent = '';
+
+  if (allItems.length === 0) {
+    // État vide absolu — aucun item dans le store
+    innerContent = `
+      <div class="empty-state">
+        <p class="empty-title">Aucun item dans le backlog.</p>
+        <p class="empty-sub">Commencez par ajouter votre premier item.</p>
+        <a href="#/new" class="btn-primary">+ Ajouter un item</a>
+      </div>
+    `;
+  } else {
+    // Des items existent — afficher la barre de filtres
+    const filterBarHtml = renderFilterBar();
+
+    if (sorted.length === 0) {
+      // État vide filtré — les filtres actifs excluent tous les items
+      innerContent = filterBarHtml + `
+        <div class="empty-state">
+          <p class="empty-title">Aucun item ne correspond à ces filtres.</p>
+          <button class="btn-secondary" id="reset-filters">Réinitialiser les filtres</button>
+        </div>
+      `;
+    } else {
+      // État normal — afficher le compteur + les cartes
+      const total = allItems.length;
+      const shown = sorted.length;
+      const counterLabel = shown === total
+        ? `${shown} item${shown > 1 ? 's' : ''}`
+        : `${shown} item${shown > 1 ? 's' : ''} sur ${total}`;
+
+      const cardsHtml = sorted.map(renderCard).join('');
+
+      innerContent = filterBarHtml + `
+        <p class="counter">${counterLabel}</p>
+        <div class="card-list">${cardsHtml}</div>
+      `;
+    }
+  }
+
+  container.innerHTML = `
+    <div class="backlog-container">
+      <h1>Backlog</h1>
+      ${corruptedBanner}
+      ${innerContent}
+    </div>
+  `;
+
+  // Liaison des événements filtres/tri (après injection dans le DOM)
+  bindFilterEvents(container);
+}
+
+/**
+ * Attache les listeners sur les selects de filtre/tri et le bouton reset.
+ * @param {HTMLElement} container
+ */
+function bindFilterEvents(container) {
+  const filterTypeEl = container.querySelector('#filter-type');
+  const filterPrioEl = container.querySelector('#filter-prio');
+  const filterSortEl = container.querySelector('#filter-sort');
+  const resetBtn = container.querySelector('#reset-filters');
+
+  if (filterTypeEl) {
+    filterTypeEl.addEventListener('change', e => {
+      state.filterType = e.target.value;
+      renderBacklog(container);
+    });
+  }
+
+  if (filterPrioEl) {
+    filterPrioEl.addEventListener('change', e => {
+      state.filterPriorite = e.target.value;
+      renderBacklog(container);
+    });
+  }
+
+  if (filterSortEl) {
+    filterSortEl.addEventListener('change', e => {
+      state.sortKey = e.target.value;
+      renderBacklog(container);
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      state.filterType = '';
+      state.filterPriorite = '';
+      renderBacklog(container);
+    });
+  }
+}
