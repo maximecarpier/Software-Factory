@@ -32,24 +32,6 @@
     "createdAt": "2026-06-27T00:00:00.000Z"
   },
   {
-    "id": "feat-usine-helloworld-001",
-    "type": "feature",
-    "titre": "Lancer un hello world pour tester le pipeline",
-    "description": "[TERMINÉ] Test end-to-end du pipeline avec une app hello world.",
-    "priorite": "haute",
-    "projectId": "proj-usine-001",
-    "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
-    "id": "feat-dashboard-pwa-001",
-    "type": "feature",
-    "titre": "Dashboard — mode PWA + gestion bugs/features",
-    "description": "[PROJET ACTUEL] Évolution du factory-dashboard vers un mode PWA avec gestion des bugs en plus des features.",
-    "priorite": "haute",
-    "projectId": "proj-dashboard-001",
-    "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
     "id": "feat-onepiece-design-001",
     "type": "feature",
     "titre": "Améliorer le design de one-piece-speedrun",
