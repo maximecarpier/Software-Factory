@@ -106,11 +106,11 @@
   {
     "id": "4e44fdcf-453a-4568-9126-8a4eac4ee198",
     "type": "feature",
-    "titre": "Finalisation du mvp",
-    "description": null,
-    "priorite": "haute",
+    "titre": "Ajout de travel finance",
+    "description": "Finalisation du mvp",
+    "priorite": "moyenne",
     "createdAt": "2026-06-27T18:33:37.980Z",
-    "projectId": "proj-voyage-001"
+    "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
   },
   {
     "id": "e053ea89-01cc-4955-8db1-3948f907a725",
