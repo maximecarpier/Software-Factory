@@ -34,7 +34,7 @@
   {
     "id": "proj-maman-sport-001",
     "type": "projet",
-    "titre": "Application Maman sport",
+    "titre": "StepQuest",
     "description": "Nouvelle app à créer — sport / fitness.",
     "priorite": "haute",
     "createdAt": "2026-06-27T00:00:00.000Z"
@@ -42,7 +42,7 @@
   {
     "id": "proj-pari-sportif-001",
     "type": "projet",
-    "titre": "Application Pari sportif",
+    "titre": "BetXpert",
     "description": "Nouvelle app à créer — suivi et analyse de paris sportifs.",
     "priorite": "haute",
     "createdAt": "2026-06-27T00:00:00.000Z"
@@ -50,16 +50,8 @@
   {
     "id": "proj-photo-eval-001",
     "type": "projet",
-    "titre": "Application évaluation photo",
+    "titre": "FocalGuide",
     "description": "Nouvelle app à créer — évaluation de photos pour améliorer la qualité de ses clichés.",
-    "priorite": "basse",
-    "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
-    "id": "proj-defy-001",
-    "type": "projet",
-    "titre": "Repo defy",
-    "description": "Projet à clarifier — nature et périmètre non identifiés dans l'architecture actuelle.",
     "priorite": "basse",
     "createdAt": "2026-06-27T00:00:00.000Z"
   },
@@ -133,24 +125,6 @@
     "description": "Refonte visuelle de l'application one-piece-speedrun.",
     "priorite": "moyenne",
     "projectId": "proj-onepiece-001",
-    "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
-    "id": "feat-usine-idx-001",
-    "type": "feature",
-    "titre": "Tester Project IDX",
-    "description": "Évaluation de Project IDX comme alternative ou complément à Codespace.",
-    "priorite": "moyenne",
-    "projectId": "proj-usine-001",
-    "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
-    "id": "feat-usine-replit-001",
-    "type": "feature",
-    "titre": "Tester Replit + Airtable + Lovable",
-    "description": "Exploration et évaluation des outils Replit, Airtable et Lovable pour la Factory.",
-    "priorite": "moyenne",
-    "projectId": "proj-usine-001",
     "createdAt": "2026-06-27T00:00:00.000Z"
   },
   {
