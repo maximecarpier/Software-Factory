@@ -4,7 +4,7 @@
 Ce repo est une usine à applications. Il contient le dashboard de monitoring Claude
 et les outils pour créer et déployer de nouvelles apps en autonomie.
 
-- **Tokens** : `dashboard/.env.local` (gitignored) — GITHUB_TOKEN + VERCEL_TOKEN
+- **Tokens** : `.env.local` à la racine (gitignored) — GITHUB_TOKEN + VERCEL_TOKEN
 - **Vercel org** : `team_jzUtIdasxc8rAZTu9kpaucyL` (maximecarpier)
 - **GitHub user** : `maximecarpier`
 

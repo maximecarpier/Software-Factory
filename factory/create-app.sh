@@ -15,7 +15,7 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATES_DIR="$SCRIPT_DIR/templates"
-ENV_FILE="$SCRIPT_DIR/../dashboard/.env.local"
+ENV_FILE="$SCRIPT_DIR/../.env.local"
 WORK_DIR="/tmp/$APP_NAME"
 VERCEL_ORG_ID="team_jzUtIdasxc8rAZTu9kpaucyL"
 GITHUB_USER="maximecarpier"
