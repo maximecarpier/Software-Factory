@@ -108,7 +108,7 @@
     "type": "feature",
     "titre": "Ajout de travel finance",
     "description": "Finalisation du mvp",
-    "priorite": "moyenne",
+    "priorite": "haute",
     "createdAt": "2026-06-27T18:33:37.980Z",
     "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
   },
