@@ -1,8 +1,9 @@
 # Software Factory — Instructions pour Claude
 
 ## Contexte
-Ce repo est une usine à applications. Il contient le dashboard de monitoring Claude
-et les outils pour créer et déployer de nouvelles apps en autonomie.
+
+Ce repo est une usine à applications mono-repo. Il contient le dashboard de monitoring Claude
+et toutes les applications produites par la Factory.
 
 - **Tokens** : `.env.local` à la racine (gitignored) — GITHUB_TOKEN + VERCEL_TOKEN
 - **Vercel org** : `team_jzUtIdasxc8rAZTu9kpaucyL` (maximecarpier)
@@ -10,139 +11,176 @@ et les outils pour créer et déployer de nouvelles apps en autonomie.
 
 ---
 
-## Créer une nouvelle application
+## ARCHITECTURE MONO-REPO (obligatoire)
 
-```bash
-chmod +x factory/create-app.sh
-./factory/create-app.sh <nom-app> "<description>"
+**Toutes les applications vivent dans ce repo unique, sous `apps/<nom-app>/`.**
+Ne jamais créer de nouveau repo GitHub par application — l'ancien workflow multi-repo est abandonné.
+
+```
+Software-Factory/
+├── apps/
+│   ├── dashboard/          ← monitoring Claude tokens
+│   ├── mon-mvp/            ← nouvelle app
+│   └── autre-app/
+├── factory/                ← scripts et templates Factory
+├── .claude/agents/         ← définitions des agents
+└── .factory/               ← livrables inter-agents (specs, designs, archi)
 ```
 
-Le script fait **tout** de manière autonome :
-1. Crée le repo GitHub `maximecarpier/<nom-app>` (public)
-2. Copie les templates (workflow CI/CD Vercel, .gitignore)
-3. Crée le projet Vercel lié au repo
-4. Configure les 3 GitHub Secrets (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID)
-5. Configure GITHUB_TOKEN comme env var sur Vercel
-6. Push initial → déploiement automatique
-
-Résultat : l'app est disponible sur `https://<nom-app>.vercel.app`
-
-### Ajouter du code après création
-```bash
-cd /tmp/<nom-app>
-# ajouter server.js, public/, package.json, etc.
-git add -A && git commit -m "feat: ..." && git push
-```
-Chaque push sur `main` redéploie automatiquement sur Vercel.
+Chaque `apps/<nom>/` est autonome : son propre `package.json`, ses dépendances, son point d'entrée.
 
 ---
 
-## Workflow de déploiement Vercel (déjà configuré sur chaque app)
+## Déploiement Vercel — Instructions iPad (manuel)
 
-Le template `factory/templates/.github/workflows/vercel-deploy.yml` utilise
-la **Vercel CLI** directement (pas BetaHuhn — incompatible Node 24).
+Pour connecter un nouveau `apps/<nom>/` à Vercel depuis Safari :
 
-```yaml
-run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
-```
+1. Aller sur **vercel.com → Add New → Project**
+2. Importer le repo `maximecarpier/Software-Factory`
+3. Champ **Root Directory** : `apps/<nom-app>/`
+4. Framework : Auto-detect (ou préciser si nécessaire)
+5. **Environment Variables** : ajouter `GITHUB_TOKEN` (valeur depuis `.env.local`)
+6. Cliquer **Deploy**
+
+L'URL générée sera `https://<nom-app>.vercel.app` (ou un slug Vercel si le nom est pris).
+
+Chaque push sur `main` redéploie automatiquement toutes les apps connectées à leur Root Directory respectif.
 
 ---
 
-## Dashboard monitoring (dashboard/)
+## Dashboard monitoring (apps/dashboard/)
 
 App Express.js qui affiche l'usage des tokens Claude.
 
 ```bash
-cd dashboard && npm install && npm start   # port 3001
+cd apps/dashboard && npm install && npm start   # port 3001
 ```
 
-Déployée sur : `https://dashboard-usine.vercel.app`
-Repo dédié : `https://github.com/maximecarpier/Dashboard_usine`
+Anciennement dans `dashboard/` (racine) — migration vers `apps/dashboard/` en cours.
 
 ---
 
 ## Sécurité
 
 - Les tokens ne vont **jamais** dans `settings.local.json` ni dans un fichier commité
-- Stockage local : `dashboard/.env.local` (gitignored)
-- Stockage CI/CD : GitHub Secrets (configurés par le script)
-- Stockage production : Vercel Environment Variables (configurés par le script)
-
----
-
-## Renouveler les tokens
-
-Si les tokens expirent, mettre à jour `dashboard/.env.local` puis relancer
-`factory/create-app.sh` sur les nouvelles apps. Pour les apps existantes,
-mettre à jour les secrets GitHub manuellement ou via :
-
-```bash
-source dashboard/.env.local
-gh secret set VERCEL_TOKEN --body "$VERCEL_TOKEN" -R maximecarpier/<app>
-gh secret set GITHUB_TOKEN --body "$GITHUB_TOKEN" -R maximecarpier/<app>
-```
+- Stockage local : `.env.local` (gitignored, racine du repo)
+- Stockage production : Vercel Environment Variables (configurées manuellement sur iPad)
 
 ---
 
 ## Orchestration — Règles globales de la Factory
 
-### Workflow pipeline (ordre obligatoire)
+### RÈGLE ANTI-USINE À GAZ (prioritaire sur tout le reste)
+
+Calibrer la lourdeur du processus à la complexité réelle de l'application :
+
+| Complexité | Pipeline |
+|---|---|
+| Simple (≤ 3 écrans, pas d'API tierce) | brainstorm → specs → tech-architect seul → code-implementer → review → deploy |
+| Complexe (API, auth, multi-rôles, data) | Pipeline complet ci-dessous |
+
+Ne jamais lancer designer + tech-architect en parallèle si l'app est simple. Ne jamais découper en modules si le code tient en 1-2 fichiers.
+
+---
+
+### Workflow pipeline adaptatif (ordre obligatoire)
 
 ```
-1. specs-framer      → Phase Zéro (Q/R) → CdC fonctionnel
-                                              ↓
-                        ┌─── [GATE 1 : Y/N] ──────────────────┐
-                        ↓ (oui)                                 ↓ (non → retour specs)
-2a. designer         2b. tech-architect     ← PARALLÈLE ──────┘
-    (UI/UX)              (CDC technique + modules)
-                        ↓
-                        ┌─── [GATE 2 : Y/N] ──────────────────┐
-                        ↓ (oui)                                 ↓ (non → révision archi)
+0. brainstorm-agent  → challenge l'idée + tri MVP / Backlog
+                                         ↓
+                     ┌─── [GATE 0 : périmètre MVP validé ? Y/N] ───┐
+                     ↓ (oui)                              ↓ (non → ajuster)
+1. specs-framer      → CdC fonctionnel (MVP uniquement)
+                                         ↓
+                     ┌─── [GATE 1 : specs validées ? Y/N] ─────────┐
+                     ↓ (oui)                              ↓ (non → révision)
+
+     SI SIMPLE                      SI COMPLEXE
+         │                    ┌─────────┴──────────┐
+         ▼                    ▼                    ▼
+  tech-architect         designer             tech-architect    ← PARALLÈLE
+      seul               (UI/UX)           (CDC + modules)
+         │                    └──── discussion inter-agents ────┘
+         │                          dans .factory/<projet>/
+         └──────────────────────────────┘
+                                         ↓
+                     ┌─── [GATE 2 : architecture validée ? Y/N] ───┐
+                     ↓ (oui)                              ↓ (non → révision)
 3. test-writer (TDD) → tests par module
 4. code-implementer  → implémentation par module (parallélisable)
-                        ↓
-                        ┌─── [GATE 3 : Y/N] ──────────────────┐
-                        ↓ (oui)                                 ↓ (non → retour impl.)
+   [+ expert-claude-code en audit continu des configs .factory/]
+                                         ↓
+                     security-check.sh avant Gate 3
+                     ┌─── [GATE 3 : implémentation terminée ? Y/N] ┐
+                     ↓ (oui)                              ↓ (non → retour impl.)
 5. code-reviewer     → revue + verdict
-6. doc-writer        → README + CLAUDE.md
+6. doc-writer        → README + CLAUDE.md de l'app
+7. infra-engineer    → déploiement Vercel (instructions iPad si besoin)
 ```
 
-### Pré-vérification automatisée (avant Gate 3)
+---
 
-Avant de lancer `code-reviewer`, exécuter le script de sécurité :
+### Discussion inter-agents (cohérence avant Gate 2)
 
-```bash
-./factory/security-check.sh <chemin-du-projet>
-```
+Quand designer et tech-architect travaillent en parallèle, leurs livrables sont déposés dans `.factory/<projet>/` :
+- `design.md` — wireframes et système visuel
+- `architecture.md` — CDC technique et modules
 
-Ce script vérifie automatiquement : secrets côté client, `process.env` dans le HTML, appels API directs depuis le frontend, tests stubs, couverture réelle ≥ 75%. Si exit 1, corriger avant d'appeler code-reviewer.
+Avant de présenter Gate 2, l'orchestrateur vérifie la cohérence entre les deux fichiers et signale les divergences à résoudre (ex: composants prévus dans design mais absents de l'archi).
+
+---
 
 ### Gates de validation obligatoires
 
 En tant qu'orchestrateur, tu DOIS demander une confirmation explicite (Y/N) à l'utilisateur :
 
-- **Gate 1** — Après validation du CdC fonctionnel, avant de lancer design + architecture :
-  > "✅ Les specs sont prêtes. Lance-t-on design + architecture en parallèle ? [Y/N]"
+- **Gate 0** — Après brainstorm, avant specs :
+  > "✅ MVP proposé : [liste]. Backlog : [liste]. On part sur ce périmètre ? [Y/N]"
 
-- **Gate 2** — Après validation du CDC technique et de la décomposition modules, avant implémentation :
-  > "✅ L'architecture est validée en [N] modules indépendants. Lance-t-on le développement ? [Y/N]"
+- **Gate 1** — Après CdC fonctionnel, avant design + archi :
+  > "✅ Les specs sont prêtes. Lance-t-on la suite ? [Y/N]"
 
-- **Gate 3** — Après l'implémentation, avant la revue finale :
-  > "✅ L'implémentation est terminée. Lance-t-on la revue de code ? [Y/N]"
+- **Gate 2** — Après architecture, avant développement :
+  > "✅ Architecture validée en [N] modules. Lance-t-on le développement ? [Y/N]"
+
+- **Gate 3** — Après implémentation, avant revue :
+  > "✅ Implémentation terminée. Lance-t-on la revue de code ? [Y/N]"
 
 Ne jamais sauter un Gate sans réponse explicite de l'utilisateur.
 
+---
+
 ### Parallélisation (P1)
 
-Dès que les specs fonctionnelles sont validées (Gate 1 passé), lancer **simultanément** :
+Après Gate 1, si l'app est complexe, lancer **simultanément** :
 - `designer` — wireframes et système visuel
 - `tech-architect` — CDC technique et découpage modules
 
-Ces deux agents s'exécutent en parallèle via des appels `Agent` indépendants dans le même message.
+Via deux appels `Agent` indépendants dans le même message.
 
-### Développement modulaire (P1)
+Après Gate 2, si les modules sont disjoints (sans dépendance de code entre eux) :
+- N × `code-implementer` en parallèle
 
-Le découpage produit par `tech-architect` définit des modules indépendants. Chaque module est développé par un agent `code-implementer` séparé. Les appels peuvent être parallélisés si les modules n'ont aucune dépendance de code entre eux (uniquement des contrats d'interface).
+---
+
+### Audit continu (expert-claude-code)
+
+L'agent `expert-claude-code` peut être lancé à tout moment pour auditer `.claude/agents/` et `factory/` :
+- Éliminer les doublons de règles entre agents
+- Corriger les contradictions
+- Signaler les instructions mortes (ex: références à l'ancien create-app.sh)
+
+Lancer systématiquement après l'ajout de nouveaux agents ou après une refonte du pipeline.
+
+---
+
+### Pré-vérification automatisée (avant Gate 3)
+
+```bash
+./factory/security-check.sh <chemin-du-projet>
+```
+
+Vérifie : secrets côté client, `process.env` dans le HTML, appels API directs depuis le frontend, tests stubs, couverture réelle ≥ 75%. Si exit 1 → corriger avant code-reviewer.
 
 ---
 
@@ -160,6 +198,7 @@ Le découpage produit par `tech-architect` définit des modules indépendants. C
   "last_checkpoint": "gate-2",
   "timestamp": "2026-06-27T14:30:00Z",
   "status": {
+    "brainstorm": "done",
     "specs": "done",
     "design": "done",
     "architecture": "done",
@@ -168,8 +207,9 @@ Le découpage produit par `tech-architect` définit des modules indépendants. C
     "deploy": "pending"
   },
   "context": {
-    "spec_file": "<chemin vers le CdC>",
-    "arch_file": "<chemin vers le CDC technique>",
+    "spec_file": ".factory/<projet>/specs.md",
+    "arch_file": ".factory/<projet>/architecture.md",
+    "app_path": "apps/<nom-app>/",
     "current_module": "M2"
   }
 }
@@ -183,13 +223,13 @@ git commit -m "checkpoint: gate-2 validé — M1 done, M2 in-progress"
 
 ### Reprendre après une déconnexion
 
-Au démarrage d'une nouvelle session, **avant toute action**, lire `.factory-state.json` s'il existe :
+Au démarrage d'une nouvelle session, **avant toute action**, lire `.factory-state.json` :
 
 ```bash
 cat .factory-state.json 2>/dev/null
 ```
 
-Si le fichier existe, afficher l'état et proposer de reprendre :
+Si le fichier existe :
 > "📍 Session précédente trouvée — Projet : [nom], checkpoint : [gate], module courant : [M]. On reprend là ? [Y/N]"
 
 Ne jamais repartir de zéro si un état valide existe.
@@ -197,6 +237,5 @@ Ne jamais repartir de zéro si un état valide existe.
 ### Script helper
 
 ```bash
-# Sauvegarder un checkpoint (usage interne orchestrateur)
 factory/checkpoint.sh <nom-projet> <gate> <module-courant>
 ```
