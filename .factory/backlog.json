@@ -1,13 +1,5 @@
 [
   {
-    "id": "proj-voyage-001",
-    "type": "projet",
-    "titre": "travelfinance — Application Voyage",
-    "description": "App de suivi financier de voyage. Projet existant déployé sur Vercel (apps/travelfinance/).",
-    "priorite": "haute",
-    "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
     "id": "proj-onepiece-001",
     "type": "projet",
     "titre": "one-piece-speedrun",
