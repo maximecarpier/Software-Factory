@@ -32,15 +32,6 @@
     "createdAt": "2026-06-27T00:00:00.000Z"
   },
   {
-    "id": "feat-usine-discussion-001",
-    "type": "feature",
-    "titre": "Discussion inter-agents pour cohérence",
-    "description": "Mécanisme de discussion entre agents pour améliorer la cohérence des livrables avant Gate 2.",
-    "priorite": "haute",
-    "projectId": "proj-usine-001",
-    "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
     "id": "feat-usine-resilience-001",
     "type": "feature",
     "titre": "Bullet-proof — reprise après coupure de session",
