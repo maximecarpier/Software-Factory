@@ -8,14 +8,6 @@
     "createdAt": "2026-06-27T00:00:00.000Z"
   },
   {
-    "id": "proj-dashboard-001",
-    "type": "projet",
-    "titre": "factory-dashboard",
-    "description": "Dashboard de gestion du backlog de la Factory. Projet actuel en cours (apps/factory-dashboard/).",
-    "priorite": "haute",
-    "createdAt": "2026-06-27T00:00:00.000Z"
-  },
-  {
     "id": "proj-maman-sport-001",
     "type": "projet",
     "titre": "StepQuest",
