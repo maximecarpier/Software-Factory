@@ -5,7 +5,7 @@
 **Statut** : Gate 2 — en attente de validation
 **Auteur** : tech-architect
 **Projet** : `apps/factory-dashboard/`
-**Specs source** : `.factory/factory-dashboard/specs.md` (v1.0)
+**Specs source** : `apps/factory-dashboard/docs/specs.md` (v1.0)
 
 ---
 
