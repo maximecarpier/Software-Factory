@@ -104,12 +104,18 @@ function renderCard(item, allItems) {
     }
   }
 
+  const statutSlug = item.statut ? item.statut.replace(/\s+/g, '-') : '';
+  const statutBadge = item.statut
+    ? `<span class="badge badge-statut statut-${escapeHtml(statutSlug)}">${escapeHtml(item.statut)}</span>`
+    : '';
+
   return `
     <div class="card" data-id="${escapeHtml(item.id)}">
       <div class="card-header">
         <div class="card-badges">
           <span class="badge badge-type badge-${escapeHtml(item.type)}">${escapeHtml(item.type)}</span>
           <span class="badge badge-prio prio-${escapeHtml(item.priorite)}">${escapeHtml(item.priorite)}</span>
+          ${statutBadge}
           ${projectBadge}
         </div>
         <span class="card-date">${formatDate(item.createdAt)}</span>
