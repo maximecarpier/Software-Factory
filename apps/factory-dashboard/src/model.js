@@ -19,7 +19,7 @@ function generateId() {
  * @param {{ type: string, titre: string, description: string|null, priorite: string, projectId?: string }} fields
  * @returns {Object} Item complet avec id et createdAt
  */
-export function createItem({ type, titre, description, priorite, projectId }) {
+export function createItem({ type, titre, description, priorite, projectId, url }) {
   const item = {
     id: generateId(),
     type,
@@ -31,6 +31,10 @@ export function createItem({ type, titre, description, priorite, projectId }) {
   // projectId uniquement pour les features avec un projet parent défini
   if (type === 'feature' && projectId) {
     item.projectId = projectId;
+  }
+  // url uniquement pour les projets
+  if (type === 'projet' && url) {
+    item.url = url;
   }
   return item;
 }
@@ -80,14 +84,15 @@ export function validateItem({ type, titre, description, priorite, projectId }, 
  * Applique des filtres cumulatifs (AND) sur un tableau d'items.
  * Une valeur vide ou absente signifie "pas de filtre sur ce champ".
  * @param {Object[]} items
- * @param {{ type?: string, priorite?: string }} filters
+ * @param {{ type?: string, priorite?: string, statut?: string }} filters
  * @returns {Object[]}
  */
-export function applyFilters(items, { type, priorite } = {}) {
+export function applyFilters(items, { type, priorite, statut } = {}) {
   return items.filter(item => {
     const matchType = !type || item.type === type;
     const matchPriorite = !priorite || item.priorite === priorite;
-    return matchType && matchPriorite;
+    const matchStatut = !statut || item.statut === statut;
+    return matchType && matchPriorite && matchStatut;
   });
 }
 

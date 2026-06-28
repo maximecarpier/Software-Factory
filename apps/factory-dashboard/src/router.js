@@ -3,6 +3,7 @@
 
 import { renderForm } from './views/formView.js';
 import { renderBacklog } from './views/backlogView.js';
+import { renderProjects } from './views/projectsView.js';
 import { updateActiveNav } from './components/nav.js';
 
 /**
@@ -31,6 +32,8 @@ function route(hash) {
     renderForm(app, editId);
   } else if (hash === '#/new') {
     renderForm(app);
+  } else if (hash === '#/projects') {
+    renderProjects(app);
   } else {
     // '#/backlog' et tout hash inconnu → vue backlog par défaut
     renderBacklog(app);

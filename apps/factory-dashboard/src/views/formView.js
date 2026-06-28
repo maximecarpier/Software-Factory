@@ -81,9 +81,11 @@ export function renderForm(container, editId = null) {
   const currentDesc = isEditing ? (editingItem.description || '') : '';
   const currentPrio = isEditing ? editingItem.priorite : '';
   const currentProjectId = isEditing ? (editingItem.projectId || '') : '';
+  const currentUrl = isEditing ? (editingItem.url || '') : '';
 
-  // Le champ projet est visible dès le rendu si le type est déjà 'feature'
+  // Visibilité initiale des champs conditionnels
   const projectGroupStyle = currentType === 'feature' ? 'flex' : 'none';
+  const urlGroupStyle = currentType === 'projet' ? 'flex' : 'none';
 
   container.innerHTML = `
     <div class="form-container">
@@ -130,6 +132,18 @@ export function renderForm(container, editId = null) {
           <span class="field-error" id="error-description" role="alert"></span>
         </div>
 
+        <div class="field-group" id="field-group-url" style="display: ${urlGroupStyle}">
+          <label for="field-url">URL du projet</label>
+          <input
+            type="url"
+            id="field-url"
+            name="url"
+            placeholder="https://..."
+            autocomplete="off"
+            value="${escapeHtml(currentUrl)}"
+          />
+        </div>
+
         <div class="field-group">
           <label for="field-priorite">Priorité <span class="required" aria-hidden="true">*</span></label>
           <select id="field-priorite" name="priorite" autocomplete="off">
@@ -155,15 +169,21 @@ export function renderForm(container, editId = null) {
     renderProjectSelect(currentProjectId);
   }
 
-  // Afficher/masquer le champ projet selon le type sélectionné
+  // Afficher/masquer les champs conditionnels selon le type sélectionné
   const typeSelect = document.getElementById('field-type');
   typeSelect.addEventListener('change', () => {
-    const groupEl = document.getElementById('field-group-project');
+    const projectGroupEl = document.getElementById('field-group-project');
+    const urlGroupEl = document.getElementById('field-group-url');
     if (typeSelect.value === 'feature') {
-      groupEl.style.display = 'flex';
+      projectGroupEl.style.display = 'flex';
       renderProjectSelect('');
+      if (urlGroupEl) urlGroupEl.style.display = 'none';
+    } else if (typeSelect.value === 'projet') {
+      projectGroupEl.style.display = 'none';
+      if (urlGroupEl) urlGroupEl.style.display = 'flex';
     } else {
-      groupEl.style.display = 'none';
+      projectGroupEl.style.display = 'none';
+      if (urlGroupEl) urlGroupEl.style.display = 'none';
     }
     // Effacer l'erreur éventuelle sur le projet quand le type change
     const errEl = document.getElementById('error-projectId');
@@ -213,6 +233,7 @@ async function handleSubmit(e) {
     description: form.description.value || null,
     priorite: form.priorite.value,
     projectId: projectIdEl ? projectIdEl.value : undefined,
+    url: form.url?.value?.trim() || null,
   };
 
   // Validation — passe allItems pour vérifier le projet parent des features
@@ -243,6 +264,10 @@ async function handleSubmit(e) {
         priorite: data.priorite,
         createdAt: item.createdAt,
       };
+      // Préserver le statut existant (non modifiable depuis le formulaire)
+      if (item.statut !== undefined) updated.statut = item.statut;
+      // url depuis le formulaire (projet uniquement, null sinon)
+      updated.url = data.url || null;
       // projectId uniquement pour les features avec un projet parent valide
       if (data.type === 'feature' && data.projectId) {
         updated.projectId = data.projectId;

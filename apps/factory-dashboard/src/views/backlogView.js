@@ -8,6 +8,7 @@ import { showToast } from '../components/toast.js';
 const state = {
   filterType: '',
   filterPriorite: '',
+  filterStatut: '',
   sortKey: 'recent',
 };
 
@@ -74,6 +75,15 @@ function renderFilterBar() {
         </select>
       </div>
       <div class="filter-group">
+        <label for="filter-statut">Statut</label>
+        <select id="filter-statut">
+          <option value="">Tous les statuts</option>
+          <option value="à faire" ${state.filterStatut === 'à faire' ? 'selected' : ''}>À faire</option>
+          <option value="en cours" ${state.filterStatut === 'en cours' ? 'selected' : ''}>En cours</option>
+          <option value="terminé" ${state.filterStatut === 'terminé' ? 'selected' : ''}>Terminé</option>
+        </select>
+      </div>
+      <div class="filter-group">
         <label for="filter-sort">Tri</label>
         <select id="filter-sort">
           <option value="recent" ${state.sortKey === 'recent' ? 'selected' : ''}>Plus récent d'abord</option>
@@ -122,6 +132,13 @@ function renderCard(item, allItems) {
       </div>
       <h3 class="card-title">${escapeHtml(item.titre)}</h3>
       ${desc ? `<p class="card-desc">${escapeHtml(desc)}</p>` : ''}
+      <div class="card-statut">
+        <select class="statut-select" data-id="${escapeHtml(item.id)}">
+          <option value="à faire" ${(item.statut || 'à faire') === 'à faire' ? 'selected' : ''}>À faire</option>
+          <option value="en cours" ${item.statut === 'en cours' ? 'selected' : ''}>En cours</option>
+          <option value="terminé" ${item.statut === 'terminé' ? 'selected' : ''}>Terminé</option>
+        </select>
+      </div>
       <div class="card-actions">
         <button class="btn-edit" data-id="${escapeHtml(item.id)}" aria-label="Modifier cet item">Éditer</button>
         <button class="btn-delete" data-id="${escapeHtml(item.id)}" aria-label="Supprimer cet item">Supprimer</button>
@@ -142,6 +159,7 @@ export function renderBacklog(container) {
   const filtered = applyFilters(allItems, {
     type: state.filterType,
     priorite: state.filterPriorite,
+    statut: state.filterStatut,
   });
   const sorted = applySort(filtered, state.sortKey);
 
@@ -209,6 +227,7 @@ export function renderBacklog(container) {
 function bindFilterEvents(container) {
   const filterTypeEl = container.querySelector('#filter-type');
   const filterPrioEl = container.querySelector('#filter-prio');
+  const filterStatutEl = container.querySelector('#filter-statut');
   const filterSortEl = container.querySelector('#filter-sort');
   const resetBtn = container.querySelector('#reset-filters');
 
@@ -226,6 +245,13 @@ function bindFilterEvents(container) {
     });
   }
 
+  if (filterStatutEl) {
+    filterStatutEl.addEventListener('change', e => {
+      state.filterStatut = e.target.value;
+      renderBacklog(container);
+    });
+  }
+
   if (filterSortEl) {
     filterSortEl.addEventListener('change', e => {
       state.sortKey = e.target.value;
@@ -237,6 +263,7 @@ function bindFilterEvents(container) {
     resetBtn.addEventListener('click', () => {
       state.filterType = '';
       state.filterPriorite = '';
+      state.filterStatut = '';
       renderBacklog(container);
     });
   }
@@ -253,6 +280,28 @@ function bindCardActions(container) {
     btn.addEventListener('click', e => {
       const id = e.currentTarget.dataset.id;
       window.location.hash = `#/edit/${id}`;
+    });
+  });
+
+  // Statut inline — changement immédiat + sync GitHub
+  container.querySelectorAll('.statut-select').forEach(select => {
+    select.addEventListener('change', async e => {
+      const id = e.currentTarget.dataset.id;
+      const newStatut = e.currentTarget.value;
+
+      const { items } = load();
+      const updatedItems = items.map(item =>
+        item.id === id ? { ...item, statut: newStatut } : item
+      );
+
+      save(updatedItems);
+      renderBacklog(container);
+
+      try {
+        await pushToGitHub(updatedItems);
+      } catch {
+        showToast('Mode hors-ligne — données non synchronisées');
+      }
     });
   });
 

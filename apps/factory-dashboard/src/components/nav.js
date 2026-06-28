@@ -10,6 +10,7 @@ export function renderNav() {
     <div class="nav-inner">
       <span class="nav-brand">factory-dashboard</span>
       <div class="nav-links">
+        <a href="#/projects" class="nav-link" data-route="#/projects">Projets</a>
         <a href="#/new" class="nav-link" data-route="#/new">+ Nouvel item</a>
         <a href="#/backlog" class="nav-link" data-route="#/backlog">Backlog</a>
       </div>
