@@ -216,55 +216,23 @@ Vérifie : secrets côté client, `process.env` dans le HTML, appels API directs
 bash scripts/resume.sh
 ```
 
-Si le fichier `.factory-state.json` existe, afficher le résumé et demander :
-> "📍 Session précédente trouvée — Projet : [nom], checkpoint : [gate], module : [M], agent : [A]. On reprend là ? [Y/N]"
+Le script lit les artefacts dans `.factory/<projet>/` et infère l'état du pipeline :
 
-Si Y → lire les fichiers de référence indiqués dans `context` (specs.md, architecture.md) avant de continuer.
-Ne jamais repartir de zéro si un état valide existe.
+| Artefact présent | Gate atteint | Prochaine étape |
+|---|---|---|
+| `brainstorm.md` | Gate 0 | specs-framer |
+| `specs.md` | Gate 1 | designer / tech-architect |
+| `architecture.md` ou `design.md` | Gate 2 | test-writer + code-implementer |
+| `apps/<projet>/` avec code | Gate 2+ | code-reviewer + deploy |
 
-### Sauvegarder un checkpoint (aux Gates)
+Si un projet en cours est détecté, afficher le résumé et demander :
+> "📍 Projet [nom] détecté — [gate] ([label]). Prochaine étape : [X]. On reprend ? [Y/N]"
 
-À chaque Gate validé, appeler :
-
-```bash
-scripts/checkpoint.sh <nom-projet> <gate> [module] [agent-running] [last-action]
-```
-
-Exemple :
-```bash
-scripts/checkpoint.sh mon-app gate-2 M2 code-implementer "implémentation module auth"
-```
-
-Le script écrit `.factory-state.json` avec le format enrichi :
-
-```json
-{
-  "project": "<nom-app>",
-  "last_checkpoint": "gate-2",
-  "timestamp": "2026-06-27T14:30:00Z",
-  "last_saved": "2026-06-27T14:30:00Z",
-  "current_module": "M2",
-  "agent_running": "code-implementer",
-  "last_action": "implémentation module auth",
-  "files_modified": ["apps/mon-app/src/auth.js"],
-  "status": {
-    "brainstorm": "done",
-    "specs": "done",
-    "architecture": "done",
-    "modules": ["M1-done", "M2-in-progress", "M3-pending"],
-    "review": "pending",
-    "deploy": "pending"
-  },
-  "context": {
-    "spec_file": ".factory/<projet>/specs.md",
-    "arch_file": ".factory/<projet>/architecture.md",
-    "app_path": "apps/<nom-app>/"
-  }
-}
-```
+Si Y → lire les artefacts indiqués (specs.md, architecture.md) avant de continuer.
+Ne jamais repartir de zéro si des artefacts existent.
 
 ### Auto-sauvegarde (hook Stop)
 
 Le hook Stop dans `.claude/settings.json` appelle automatiquement `scripts/autosave.sh`
-à chaque fin de réponse. Ce script met à jour `last_saved` et `files_modified` sans
-modifier la gate — un commit git silencieux est créé si des changements existent.
+à chaque fin de réponse. Il crée un commit git silencieux si des changements existent
+dans `.factory/`, `apps/`, `scripts/` ou `.claude/`.
