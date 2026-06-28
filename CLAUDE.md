@@ -185,12 +185,72 @@ Après Gate 2, si les modules sont disjoints (sans dépendance de code entre eux
 
 ---
 
+### Réévaluation du pipeline à chaque gate (obligatoire)
+
+Avant de présenter chaque gate Y/N à l'utilisateur, l'orchestrateur se pose les 3 questions suivantes :
+
+**1. La complexité a-t-elle changé ?**
+Les specs ou l'archi ont-ils révélé une complexité non anticipée au départ (nouvelles intégrations, multi-rôles, volumétrie, etc.) ?
+→ Si oui : upgrader le pipeline (ex: passer de "simple" à "complexe", ajouter un module, lancer designer si initialement omis).
+
+**2. Les agents prévus sont-ils encore les bons ?**
+Les livrables du gate courant suggèrent-ils qu'un agent différent serait plus pertinent que celui planifié ?
+→ Si oui : substituer ou ajouter avant de continuer.
+
+**3. Manque-t-il un agent spécialisé ?**
+→ Voir section "Détection de domaine et agents spécialisés" ci-dessous.
+
+Si la réponse à l'une des 3 questions est oui, signaler l'ajustement à l'utilisateur avant de présenter le gate.
+
+---
+
+### Détection de domaine et agents spécialisés
+
+**Déclenchement** : après brainstorm-agent, lire le champ `domaine:` et `agents-specialises-utiles:` de son output.
+
+**Vérification** : lister les agents disponibles dans `.claude/agents/` et comparer avec `agents-specialises-utiles`.
+
+**Si un agent utile manque**, afficher ce signal **avant de lancer specs-framer** :
+
+```
+⚠️  Domaine détecté : [domaine / sous-domaine]
+    Agents spécialisés utiles : [liste suggérée par brainstorm]
+    Agents disponibles dans la Factory : [liste réelle]
+    Gap : [nom-agent] n'existe pas.
+
+    Un agent [nom-agent] permettrait de [valeur concrète — ex: "raisonner en termes de
+    game loop, économie de jeu et progression plutôt qu'en UX générique"].
+
+    → [A] Continuer avec les agents génériques disponibles
+    → [B] Créer [nom-agent] maintenant (expert-claude-code le rédige avec toi, ~5 min)
+```
+
+Si l'utilisateur choisit B → lancer `expert-claude-code` pour créer l'agent, puis reprendre le pipeline.
+Si l'utilisateur choisit A → noter le gap dans `.factory/<projet>/notes.md` pour une création future.
+
+**Domaines reconnus et agents typiques à suggérer :**
+
+| Domaine | Agents spécialisés utiles |
+|---|---|
+| jeu-video | game-designer, narrative-writer |
+| fintech | compliance-expert, risk-analyst |
+| e-commerce | conversion-specialist, catalog-architect |
+| sante | regulatory-expert (RGPD santé, HDS) |
+| education | pedagogy-designer, curriculum-architect |
+| rh | hr-process-expert |
+| reseau-social | feed-algorithm-designer, trust-safety-expert |
+
+Ne pas inventer d'agents en dehors de ce tableau sans signal explicite du brainstorm.
+
+---
+
 ### Audit continu (expert-claude-code)
 
 L'agent `expert-claude-code` peut être lancé à tout moment pour auditer `.claude/agents/` et `scripts/` :
 - Éliminer les doublons de règles entre agents
 - Corriger les contradictions
 - Signaler les instructions mortes (ex: références à l'ancien create-app.sh)
+- Créer de nouveaux agents spécialisés (voir section "Détection de domaine")
 
 Lancer systématiquement après l'ajout de nouveaux agents ou après une refonte du pipeline.
 

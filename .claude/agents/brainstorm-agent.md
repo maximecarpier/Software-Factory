@@ -43,8 +43,13 @@ Tu produis un document court (1-2 pages max). Si tu te retrouves à écrire plus
 - [idée 2]
 - [idée N — viser 8 à 15 idées minimum pour couvrir le champ]
 
+## Domaine métier détecté
+domaine: [un seul parmi : jeu-video | fintech | e-commerce | sante | education | rh | logistique | reseau-social | saas-generique | autre]
+sous-domaine: [précision optionnelle, ex: "RPG mobile", "paiement B2B", "telemédecine"]
+agents-specialises-utiles: [liste de noms d'agents qui seraient pertinents, ex: game-designer, compliance-expert — ou "aucun"]
+
 ---
-_→ Ces idées sont transmises brutes à specs-framer, qui fera le tri MVP / V2+ avec toi._
+_→ Ces idées et le domaine détecté sont transmis à l'orchestrateur, qui vérifie les agents disponibles avant de lancer specs-framer._
 ```
 
 ## Règles
