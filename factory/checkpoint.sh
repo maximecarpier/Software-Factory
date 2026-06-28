@@ -9,12 +9,14 @@ set -euo pipefail
 PROJECT="${1:-}"
 GATE="${2:-}"
 CURRENT_MODULE="${3:-none}"
+AGENT_RUNNING="${4:-—}"
+LAST_ACTION="${5:-—}"
 STATE_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/.factory-state.json"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 if [[ -z "$PROJECT" || -z "$GATE" ]]; then
-  echo "Usage: $0 <nom-projet> <gate> [module-courant]"
-  echo "Gates valides : gate-1, gate-2, gate-3, done"
+  echo "Usage: $0 <nom-projet> <gate> [module-courant] [agent-running] [last-action]"
+  echo "Gates valides : gate-0, gate-1, gate-2, gate-3, done"
   exit 1
 fi
 
@@ -26,7 +28,7 @@ else
 fi
 
 # Mettre à jour le fichier d'état
-python3 - <<EOF
+python3 - > "$STATE_FILE" <<EOF
 import json, sys
 
 try:
@@ -37,7 +39,11 @@ except:
 state["project"] = "$PROJECT"
 state["last_checkpoint"] = "$GATE"
 state["timestamp"] = "$TIMESTAMP"
+state["last_saved"] = "$TIMESTAMP"
 state["current_module"] = "$CURRENT_MODULE"
+state["agent_running"] = "$AGENT_RUNNING"
+state["last_action"] = "$LAST_ACTION"
+state["files_modified"] = []
 
 if "status" not in state:
     state["status"] = {
@@ -50,6 +56,7 @@ if "status" not in state:
     }
 
 gate_map = {
+    "gate-0": "brainstorm",
     "gate-1": "specs",
     "gate-2": "architecture",
     "gate-3": "review",
@@ -61,7 +68,6 @@ if "$GATE" in gate_map:
 
 print(json.dumps(state, indent=2, ensure_ascii=False))
 EOF
-) > "$STATE_FILE"
 
 echo "✅ Checkpoint sauvegardé : $GATE (projet: $PROJECT, module: $CURRENT_MODULE)"
 echo "   Fichier : $STATE_FILE"

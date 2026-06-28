@@ -206,21 +206,48 @@ Vérifie : secrets côté client, `process.env` dans le HTML, appels API directs
 
 ## Crash-Proof — Résilience aux coupures de session
 
-### Sauvegarder un checkpoint
+### Démarrage de session — OBLIGATOIRE
 
-À chaque Gate validé, l'orchestrateur doit :
+**Avant toute action**, exécuter :
 
-1. **Écrire le fichier d'état** `.factory-state.json` à la racine :
+```bash
+bash factory/resume.sh
+```
+
+Si le fichier `.factory-state.json` existe, afficher le résumé et demander :
+> "📍 Session précédente trouvée — Projet : [nom], checkpoint : [gate], module : [M], agent : [A]. On reprend là ? [Y/N]"
+
+Si Y → lire les fichiers de référence indiqués dans `context` (specs.md, architecture.md) avant de continuer.
+Ne jamais repartir de zéro si un état valide existe.
+
+### Sauvegarder un checkpoint (aux Gates)
+
+À chaque Gate validé, appeler :
+
+```bash
+factory/checkpoint.sh <nom-projet> <gate> [module] [agent-running] [last-action]
+```
+
+Exemple :
+```bash
+factory/checkpoint.sh mon-app gate-2 M2 code-implementer "implémentation module auth"
+```
+
+Le script écrit `.factory-state.json` avec le format enrichi :
 
 ```json
 {
   "project": "<nom-app>",
   "last_checkpoint": "gate-2",
   "timestamp": "2026-06-27T14:30:00Z",
+  "last_saved": "2026-06-27T14:30:00Z",
+  "current_module": "M2",
+  "agent_running": "code-implementer",
+  "last_action": "implémentation module auth",
+  "files_modified": ["apps/mon-app/src/auth.js"],
   "status": {
     "brainstorm": "done",
     "specs": "done",
-    "design": "done",
     "architecture": "done",
     "modules": ["M1-done", "M2-in-progress", "M3-pending"],
     "review": "pending",
@@ -229,33 +256,13 @@ Vérifie : secrets côté client, `process.env` dans le HTML, appels API directs
   "context": {
     "spec_file": ".factory/<projet>/specs.md",
     "arch_file": ".factory/<projet>/architecture.md",
-    "app_path": "apps/<nom-app>/",
-    "current_module": "M2"
+    "app_path": "apps/<nom-app>/"
   }
 }
 ```
 
-2. **Commit Git local de sauvegarde** :
-```bash
-git add .factory-state.json
-git commit -m "checkpoint: gate-2 validé — M1 done, M2 in-progress"
-```
+### Auto-sauvegarde (hook Stop)
 
-### Reprendre après une déconnexion
-
-Au démarrage d'une nouvelle session, **avant toute action**, lire `.factory-state.json` :
-
-```bash
-cat .factory-state.json 2>/dev/null
-```
-
-Si le fichier existe :
-> "📍 Session précédente trouvée — Projet : [nom], checkpoint : [gate], module courant : [M]. On reprend là ? [Y/N]"
-
-Ne jamais repartir de zéro si un état valide existe.
-
-### Script helper
-
-```bash
-factory/checkpoint.sh <nom-projet> <gate> <module-courant>
-```
+Le hook Stop dans `.claude/settings.json` appelle automatiquement `factory/autosave.sh`
+à chaque fin de réponse. Ce script met à jour `last_saved` et `files_modified` sans
+modifier la gate — un commit git silencieux est créé si des changements existent.

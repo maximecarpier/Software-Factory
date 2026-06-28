@@ -1,5 +1,18 @@
 {
   "model": "claude-sonnet-4-6",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /workspaces/Software-Factory/factory/autosave.sh 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  },
   "ignorePatterns": [
     "node_modules/**",
     ".next/**",
