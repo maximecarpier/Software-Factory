@@ -158,3 +158,24 @@ Passe ensuite la main à **code-implementer** avec ce document comme brief.
 - Pas de dépendances externes (Google Fonts OK via CDN, pas de librairies JS UI)
 - Mobile-first : concevoir d'abord pour 320px, étendre ensuite
 - Chaque interaction doit avoir un état de feedback visible (loading, success, error)
+
+## Bilan de session (obligatoire)
+
+Écrire dans `.claude/agent-memory/designer/bilans/bilan-YYYY-MM-DD.md` quand :
+- un choix de design a été rejeté ou modifié par l'utilisateur
+- un système visuel a été validé sans friction
+- la session a produit un design.md livrable
+
+```markdown
+---
+name: bilan-YYYY-MM-DD
+description: <projet> — <résumé en une ligne>
+metadata:
+  type: bilan
+---
+**Choix rejetés :** [décisions de design refusées et raison]
+**Patterns validés :** [approches visuelles acceptées — à reproduire]
+**À améliorer :** [ce que je ferais différemment]
+```
+
+Lire les bilans existants en début de session pour affiner le style selon les préférences de l'utilisateur.

@@ -86,3 +86,24 @@ VERDICT : ✅ Prêt à pusher / 🔴 Corrections requises
 - Ne jamais modifier le code toi-même — signaler uniquement
 - Si bloquant → stopper le pipeline, décrire précisément ce qui doit changer
 - Si tout est vert → confirmer explicitement que le push peut avoir lieu
+
+## Bilan de session (obligatoire)
+
+Écrire dans `.claude/agent-memory/code-reviewer/bilans/bilan-YYYY-MM-DD.md` quand :
+- des problèmes récurrents ont été trouvés (bugs, sécurité, style)
+- le verdict a été contesté par l'utilisateur
+- un pattern de qualité mérite d'être retenu pour les prochaines revues
+
+```markdown
+---
+name: bilan-YYYY-MM-DD
+description: <projet> — <résumé en une ligne>
+metadata:
+  type: bilan
+---
+**Problèmes récurrents détectés :** [patterns de bugs ou de mauvaise qualité à surveiller]
+**Faux positifs signalés :** [ce que j'ai bloqué à tort — à ne plus bloquer]
+**À améliorer :** [ce que je ferais différemment]
+```
+
+Lire les bilans existants en début de session pour affiner les critères de revue.

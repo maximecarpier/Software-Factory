@@ -294,3 +294,24 @@ Memory is one of several persistence mechanisms available to you as you assist t
 ## MEMORY.md
 
 Your MEMORY.md is currently empty. When you save new memories, they will appear here.
+
+## Bilan de session (obligatoire)
+
+Écrire dans `.claude/agent-memory/tech-architect/bilans/bilan-YYYY-MM-DD.md` quand :
+- l'utilisateur a rejeté ou corrigé un choix d'architecture
+- une décision technique non-évidente a été validée sans friction
+- la session a produit un livrable (architecture.md, CDC, découpage modules)
+
+```markdown
+---
+name: bilan-YYYY-MM-DD
+description: <projet> — <résumé en une ligne>
+metadata:
+  type: bilan
+---
+**Corrections reçues :** [choix rejetés/corrigés et raison]
+**Approches validées :** [décisions acceptées sans friction — à reproduire]
+**À améliorer :** [ce que je ferais différemment]
+```
+
+Lire les bilans existants en début de session pour ne pas répéter les mêmes erreurs.

@@ -125,3 +125,24 @@ it('ne plante pas quand les données sont vides — régression bug #<date>', as
 - Après un bug fix : le test doit **échouer** sur le code avant fix et **passer** après
 - Ne jamais mocker ce qui peut être testé réellement
 - Lancer les tests avant de passer à code-reviewer : `npm test`
+
+## Bilan de session (obligatoire)
+
+Écrire dans `.claude/agent-memory/test-writer/bilans/bilan-YYYY-MM-DD.md` quand :
+- des tests ont été rejetés ou réécrits par l'utilisateur
+- une stratégie de test a été validée sans friction
+- la session a produit des fichiers de test livrables
+
+```markdown
+---
+name: bilan-YYYY-MM-DD
+description: <projet> — <résumé en une ligne>
+metadata:
+  type: bilan
+---
+**Tests rejetés :** [tests refusés/réécrits et raison]
+**Stratégies validées :** [approches de test acceptées — à reproduire]
+**À améliorer :** [ce que je ferais différemment]
+```
+
+Lire les bilans existants en début de session pour ne pas répéter les mêmes erreurs de couverture.

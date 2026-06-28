@@ -206,3 +206,24 @@ Memory is one of several persistence mechanisms available to you as you assist t
 ## MEMORY.md
 
 Your MEMORY.md is currently empty. When you save new memories, they will appear here.
+
+## Bilan de session (obligatoire)
+
+Écrire dans `.claude/agent-memory/code-implementer/bilans/bilan-YYYY-MM-DD.md` quand :
+- l'utilisateur a rejeté ou corrigé une implémentation
+- un pattern de code a été validé sans friction
+- la session a produit du code livrable
+
+```markdown
+---
+name: bilan-YYYY-MM-DD
+description: <projet> — <résumé en une ligne>
+metadata:
+  type: bilan
+---
+**Corrections reçues :** [code rejeté/corrigé et raison]
+**Patterns validés :** [patterns acceptés sans friction — à reproduire]
+**À améliorer :** [ce que je ferais différemment]
+```
+
+Lire les bilans existants en début de session pour ne pas répéter les mêmes erreurs.
