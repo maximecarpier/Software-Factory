@@ -9,6 +9,7 @@ const state = {
   filterType: '',
   filterPriorite: '',
   filterStatut: '',
+  filterProject: '',
   sortKey: 'recent',
 };
 
@@ -52,9 +53,14 @@ function escapeHtml(str) {
 
 /**
  * Génère le HTML de la barre de filtres + tri.
+ * @param {Object[]} projects - items de type "projet" pour le filtre projet
  * @returns {string}
  */
-function renderFilterBar() {
+function renderFilterBar(projects) {
+  const projectOptions = projects
+    .map(p => `<option value="${escapeHtml(p.id)}" ${state.filterProject === p.id ? 'selected' : ''}>${escapeHtml(p.titre)}</option>`)
+    .join('');
+
   return `
     <div class="filter-bar">
       <div class="filter-group">
@@ -83,6 +89,14 @@ function renderFilterBar() {
           <option value="terminé" ${state.filterStatut === 'terminé' ? 'selected' : ''}>Terminé</option>
         </select>
       </div>
+      ${projects.length > 0 ? `
+      <div class="filter-group">
+        <label for="filter-project">Projet</label>
+        <select id="filter-project">
+          <option value="">Tous les projets</option>
+          ${projectOptions}
+        </select>
+      </div>` : ''}
       <div class="filter-group">
         <label for="filter-sort">Tri</label>
         <select id="filter-sort">
@@ -156,10 +170,13 @@ function renderCard(item, allItems) {
 export function renderBacklog(container) {
   const { items: allItems, corrupted } = load();
 
+  const projects = allItems.filter(i => i.type === 'projet');
+
   const filtered = applyFilters(allItems, {
     type: state.filterType,
     priorite: state.filterPriorite,
     statut: state.filterStatut,
+    projectId: state.filterProject,
   });
   const sorted = applySort(filtered, state.sortKey);
 
@@ -180,7 +197,7 @@ export function renderBacklog(container) {
       </div>
     `;
   } else {
-    const filterBarHtml = renderFilterBar();
+    const filterBarHtml = renderFilterBar(projects);
 
     if (sorted.length === 0) {
       // État vide filtré — les filtres actifs excluent tous les items
@@ -228,6 +245,7 @@ function bindFilterEvents(container) {
   const filterTypeEl = container.querySelector('#filter-type');
   const filterPrioEl = container.querySelector('#filter-prio');
   const filterStatutEl = container.querySelector('#filter-statut');
+  const filterProjectEl = container.querySelector('#filter-project');
   const filterSortEl = container.querySelector('#filter-sort');
   const resetBtn = container.querySelector('#reset-filters');
 
@@ -252,6 +270,13 @@ function bindFilterEvents(container) {
     });
   }
 
+  if (filterProjectEl) {
+    filterProjectEl.addEventListener('change', e => {
+      state.filterProject = e.target.value;
+      renderBacklog(container);
+    });
+  }
+
   if (filterSortEl) {
     filterSortEl.addEventListener('change', e => {
       state.sortKey = e.target.value;
@@ -264,6 +289,7 @@ function bindFilterEvents(container) {
       state.filterType = '';
       state.filterPriorite = '';
       state.filterStatut = '';
+      state.filterProject = '';
       renderBacklog(container);
     });
   }

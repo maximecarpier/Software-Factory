@@ -88,12 +88,13 @@ export function validateItem({ type, titre, description, priorite, projectId }, 
  * @param {{ type?: string, priorite?: string, statut?: string }} filters
  * @returns {Object[]}
  */
-export function applyFilters(items, { type, priorite, statut } = {}) {
+export function applyFilters(items, { type, priorite, statut, projectId } = {}) {
   return items.filter(item => {
     const matchType = !type || item.type === type;
     const matchPriorite = !priorite || item.priorite === priorite;
     const matchStatut = !statut || (item.statut || 'à faire') === statut;
-    return matchType && matchPriorite && matchStatut;
+    const matchProject = !projectId || item.id === projectId || item.projectId === projectId;
+    return matchType && matchPriorite && matchStatut && matchProject;
   });
 }
 
