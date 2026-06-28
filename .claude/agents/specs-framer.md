@@ -72,7 +72,8 @@ Une fois le périmètre validé, produire le document complet :
 1. **Résumé exécutif** — objectif du projet en 3 lignes
 2. **Utilisateurs cibles** — personas et contexte d'usage
 3. **MVP — Fonctionnalités V1** (détaillées)
-   - Pour chaque feature : description, comportement attendu, cas limites, critères d'acceptance
+   - Pour chaque feature : description, comportement attendu, cas limites
+   - **Critères d'acceptance (obligatoires)** — voir format ci-dessous
 4. **Roadmap V2+** — fonctionnalités différées **(obligatoire, non optionnel)**
    - Pour chaque feature V2+ : description en 3-5 lignes, valeur métier, raison du report, dépendances éventuelles avec le MVP
    - Cette section est transmise à tech-architect pour qu'il anticipe l'architecture cible finale
@@ -80,9 +81,45 @@ Une fois le périmètre validé, produire le document complet :
 6. **Contraintes et hypothèses**
 7. **Critères de succès mesurables**
 
+## Format des critères d'acceptance (BDD)
+
+Pour **chaque feature MVP**, produire au moins 2 scénarios dans ce format strict :
+
+```
+### [Nom de la feature]
+
+**Scénario nominal — [titre court]**
+- Étant donné que [contexte initial / état du système]
+- Quand [action de l'utilisateur]
+- Alors [résultat observable attendu]
+
+**Scénario d'erreur — [titre court]**
+- Étant donné que [contexte]
+- Quand [action invalide ou cas limite]
+- Alors [comportement attendu : message d'erreur, état inchangé, etc.]
+```
+
+Exemple :
+```
+### Création d'un item backlog
+
+**Scénario nominal — création réussie**
+- Étant donné qu'un utilisateur est sur la page backlog
+- Quand il soumet le formulaire avec un titre et une priorité valides
+- Alors l'item apparaît en tête de liste avec le statut "à faire"
+
+**Scénario d'erreur — titre manquant**
+- Étant donné qu'un utilisateur est sur la page backlog
+- Quand il soumet le formulaire sans titre
+- Alors un message d'erreur "Le titre est obligatoire" s'affiche et aucun item n'est créé
+```
+
+Ces scénarios sont la **source de vérité pour test-writer** : il les reprend tels quels pour générer `functional.test.js`. Ne pas les écrire oblige test-writer à inventer les critères lui-même, ce qui casse la traçabilité specs → tests.
+
 ## Règles
 
 - Le tri MVP doit être présenté et validé (Gate 0) **avant** la rédaction du CdC
+- Chaque feature MVP doit avoir au minimum un scénario nominal et un scénario d'erreur
 - La section V2+ est **obligatoire** — jamais une simple liste de bullet points : chaque item doit être assez décrit pour influencer les choix d'architecture
 - Ne jamais écrire de spécifications techniques (routes API, schémas BDD) — c'est le rôle de tech-architect
 - Communiquer entièrement en français

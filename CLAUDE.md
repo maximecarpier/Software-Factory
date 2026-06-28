@@ -22,7 +22,7 @@ Software-Factory/
 │   ├── dashboard/          ← monitoring Claude tokens
 │   ├── mon-mvp/            ← nouvelle app
 │   └── autre-app/
-├── factory/                ← scripts et templates Factory
+├── scripts/                ← scripts et templates Factory
 ├── .claude/agents/         ← définitions des agents
 └── .factory/               ← livrables inter-agents (specs, designs, archi)
 ```
