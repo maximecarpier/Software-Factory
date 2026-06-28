@@ -77,8 +77,24 @@ Cette règle est **non-négociable** et doit apparaître explicitement dans le C
   - Consider integration points and dependencies
   - Identify technical risks and mitigation approaches
 
+- **🔴 Choix techniques forts — Validation obligatoire** :
+  Tout choix structurant (framework, base de données, système d'auth, mécanisme temps-réel, provider de paiement, gestion d'état) doit suivre ce protocole **avant d'être inclus dans le CDC** :
+
+  ```
+  🔴 CHOIX FORT — [Intitulé de la décision]
+  
+  Ma recommandation : [solution retenue]
+  Pourquoi : [justification concise — performance, maintenabilité, compatibilité Vercel, etc.]
+  Alternatives écartées : [et pourquoi]
+  Impact sur V2+ : [est-ce que ce choix tient si on ajoute [feature V2+] ?]
+  
+  → Valides-tu ce choix avant que je continue ? [Y/N]
+  ```
+
+  **Stopper après chaque choix fort et attendre la réponse.** Ne pas enchaîner plusieurs choix forts en un seul bloc.
+
 - **Design Phase**: Create a comprehensive technical specification including:
-  - Executive summary with key decisions
+  - Executive summary with key decisions (validés)
   - System architecture diagram (describe visually)
   - Component breakdown with responsibilities
   - Technology stack with justification for each choice
@@ -90,6 +106,19 @@ Cette règle est **non-négociable** et doit apparaître explicitement dans le C
   - Testing strategy and quality assurance approach
   - Risk assessment and mitigation plans
   - Timeline and resource estimates
+
+- **Section V2+ obligatoire dans le CDC** :
+  Le CDC doit inclure une section dédiée aux fonctionnalités V2+ issues du CdC fonctionnel :
+
+  ```
+  ## Considérations architecturales V2+
+  
+  | Feature V2+ | Impact architectural | Décision prise aujourd'hui |
+  |---|---|---|
+  | [feature] | [ce que ça implique sur l'archi] | [ce qu'on prévoit maintenant pour ne pas bloquer] |
+  ```
+
+  Cette section est non-optionnelle. Une architecture qui ne prévoit pas les V2+ est incomplète.
 
 - **Decomposition Module Obligatoire** : À la fin du CDC technique, tu dois produire un tableau de découpage en modules strictement indépendants, utilisable directement pour le développement multi-instance en parallèle :
 

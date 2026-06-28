@@ -104,13 +104,15 @@ Ne lancer l'agent qu'après avoir reçu les réponses et les inclure dans le pro
 ### Workflow pipeline adaptatif (ordre obligatoire)
 
 ```
-0. brainstorm-agent  → challenge l'idée + tri MVP / Backlog
+0. brainstorm-agent  → challenge l'idée + génère idées librement (sans trier)
+                                         ↓
+   ORCHESTRATEUR     → pose 2 questions clés à l'utilisateur (voir section ci-dessus)
+                                         ↓
+1. specs-framer      → tri MVP / V2+ avec l'utilisateur + CdC fonctionnel
+                       (MVP détaillé + V2+ documentées pour l'archi)
                                          ↓
                      ┌─── [GATE 0 : périmètre MVP validé ? Y/N] ───┐
                      ↓ (oui)                              ↓ (non → ajuster)
-   ORCHESTRATEUR     → pose 2 questions clés à l'utilisateur (voir section ci-dessus)
-                                         ↓
-1. specs-framer      → CdC fonctionnel (MVP uniquement)
                                          ↓
                      ┌─── [GATE 1 : specs validées ? Y/N] ─────────┐
                      ↓ (oui)                              ↓ (non → révision)
@@ -154,10 +156,10 @@ Avant de présenter Gate 2, l'orchestrateur vérifie la cohérence entre les deu
 
 En tant qu'orchestrateur, tu DOIS demander une confirmation explicite (Y/N) à l'utilisateur :
 
-- **Gate 0** — Après brainstorm, avant specs :
-  > "✅ MVP proposé : [liste]. Backlog : [liste]. On part sur ce périmètre ? [Y/N]"
+- **Gate 0** — Dans specs-framer, après le tri MVP/V2+ et avant la rédaction du CdC :
+  > "✅ MVP : [liste]. V2+ : [liste]. On part sur ce périmètre ? [Y/N]"
 
-- **Gate 1** — Après CdC fonctionnel, avant design + archi :
+- **Gate 1** — Après CdC fonctionnel complet (MVP + V2+ documentées), avant design + archi :
   > "✅ Les specs sont prêtes. Lance-t-on la suite ? [Y/N]"
 
 - **Gate 2** — Après architecture, avant développement :
