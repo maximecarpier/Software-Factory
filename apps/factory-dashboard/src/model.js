@@ -26,6 +26,7 @@ export function createItem({ type, titre, description, priorite, projectId, url 
     titre: titre.trim(),
     description: description && description.trim() !== '' ? description.trim() : null,
     priorite,
+    statut: 'à faire',
     createdAt: new Date().toISOString(),
   };
   // projectId uniquement pour les features avec un projet parent défini
@@ -91,7 +92,7 @@ export function applyFilters(items, { type, priorite, statut } = {}) {
   return items.filter(item => {
     const matchType = !type || item.type === type;
     const matchPriorite = !priorite || item.priorite === priorite;
-    const matchStatut = !statut || item.statut === statut;
+    const matchStatut = !statut || (item.statut || 'à faire') === statut;
     return matchType && matchPriorite && matchStatut;
   });
 }
