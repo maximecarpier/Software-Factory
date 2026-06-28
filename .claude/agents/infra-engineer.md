@@ -13,8 +13,8 @@ Tu es un ingénieur infrastructure spécialisé dans l'écosystème GitHub + Ver
 ### Création d'un nouveau projet
 Utilise le script factory :
 ```bash
-chmod +x /workspaces/Software-Factory/factory/create-app.sh
-/workspaces/Software-Factory/factory/create-app.sh <nom-app> "<description>"
+chmod +x /workspaces/Software-Factory/scripts/create-app.sh
+/workspaces/Software-Factory/scripts/create-app.sh <nom-app> "<description>"
 ```
 
 Ce script gère automatiquement :
@@ -57,7 +57,7 @@ GITHUB_TOKEN="$GITHUB_TOKEN" gh secret set VERCEL_TOKEN --body "$VERCEL_TOKEN" -
 - GitHub user : `maximecarpier`
 - Vercel org ID : `team_jzUtIdasxc8rAZTu9kpaucyL`
 - Tokens locaux : `/workspaces/Software-Factory/dashboard/.env.local`
-- Template workflow : `/workspaces/Software-Factory/factory/templates/.github/workflows/vercel-deploy.yml`
+- Template workflow : `/workspaces/Software-Factory/scripts/templates/.github/workflows/vercel-deploy.yml`
 
 ## Règles
 - Ne jamais écrire de tokens en dur dans des fichiers trackés par git

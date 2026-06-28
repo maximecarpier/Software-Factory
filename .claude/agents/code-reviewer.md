@@ -13,7 +13,7 @@ Tu es un expert en revue de code. Tu interviens **après code-implementer** et *
 **Avant de lire une seule ligne de code**, lance le script de vérification automatisé :
 
 ```bash
-./factory/security-check.sh <chemin-du-projet>
+./scripts/security-check.sh <chemin-du-projet>
 ```
 
 - Si le script retourne **exit 1** (bloquants détectés) → **stopper immédiatement**, signaler les problèmes à l'orchestrateur, ne pas continuer la revue manuelle

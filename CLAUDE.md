@@ -187,7 +187,7 @@ Après Gate 2, si les modules sont disjoints (sans dépendance de code entre eux
 
 ### Audit continu (expert-claude-code)
 
-L'agent `expert-claude-code` peut être lancé à tout moment pour auditer `.claude/agents/` et `factory/` :
+L'agent `expert-claude-code` peut être lancé à tout moment pour auditer `.claude/agents/` et `scripts/` :
 - Éliminer les doublons de règles entre agents
 - Corriger les contradictions
 - Signaler les instructions mortes (ex: références à l'ancien create-app.sh)
@@ -199,7 +199,7 @@ Lancer systématiquement après l'ajout de nouveaux agents ou après une refonte
 ### Pré-vérification automatisée (avant Gate 3)
 
 ```bash
-./factory/security-check.sh <chemin-du-projet>
+./scripts/security-check.sh <chemin-du-projet>
 ```
 
 Vérifie : secrets côté client, `process.env` dans le HTML, appels API directs depuis le frontend, tests stubs, couverture réelle ≥ 75%. Si exit 1 → corriger avant code-reviewer.
@@ -213,7 +213,7 @@ Vérifie : secrets côté client, `process.env` dans le HTML, appels API directs
 **Avant toute action**, exécuter :
 
 ```bash
-bash factory/resume.sh
+bash scripts/resume.sh
 ```
 
 Si le fichier `.factory-state.json` existe, afficher le résumé et demander :
@@ -227,12 +227,12 @@ Ne jamais repartir de zéro si un état valide existe.
 À chaque Gate validé, appeler :
 
 ```bash
-factory/checkpoint.sh <nom-projet> <gate> [module] [agent-running] [last-action]
+scripts/checkpoint.sh <nom-projet> <gate> [module] [agent-running] [last-action]
 ```
 
 Exemple :
 ```bash
-factory/checkpoint.sh mon-app gate-2 M2 code-implementer "implémentation module auth"
+scripts/checkpoint.sh mon-app gate-2 M2 code-implementer "implémentation module auth"
 ```
 
 Le script écrit `.factory-state.json` avec le format enrichi :
@@ -265,6 +265,6 @@ Le script écrit `.factory-state.json` avec le format enrichi :
 
 ### Auto-sauvegarde (hook Stop)
 
-Le hook Stop dans `.claude/settings.json` appelle automatiquement `factory/autosave.sh`
+Le hook Stop dans `.claude/settings.json` appelle automatiquement `scripts/autosave.sh`
 à chaque fin de réponse. Ce script met à jour `last_saved` et `files_modified` sans
 modifier la gate — un commit git silencieux est créé si des changements existent.
