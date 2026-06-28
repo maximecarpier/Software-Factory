@@ -1,11 +1,48 @@
 [
   {
+    "id": "proj-software-factory-001",
+    "type": "projet",
+    "titre": "Software Factory",
+    "description": "Le meta-projet : amélioration continue de la Factory, ses agents, son pipeline et ses outils d'orchestration.",
+    "priorite": "haute",
+    "statut": "en cours",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "proj-travelfinance-001",
+    "type": "projet",
+    "titre": "TravelFinance",
+    "description": "App de suivi financier de voyage. Projet existant déployé sur Vercel (apps/travelfinance/).",
+    "priorite": "haute",
+    "statut": "en cours",
+    "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
     "id": "proj-onepiece-001",
     "type": "projet",
     "titre": "one-piece-speedrun",
     "description": "App de speedrun One Piece. Projet existant déployé sur Vercel (apps/one-piece-speedrun/).",
     "priorite": "moyenne",
+    "statut": "en cours",
     "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "8daa4e57-56f7-40ae-a568-6158abf2e46a",
+    "type": "projet",
+    "titre": "Dashboard-Factory",
+    "description": "Dashboard de gestion du backlog de la Factory.",
+    "priorite": "haute",
+    "statut": "en cours",
+    "createdAt": "2026-06-27T18:41:31.754Z"
+  },
+  {
+    "id": "proj-safecalc-001",
+    "type": "projet",
+    "titre": "safecalc",
+    "description": "App de calcul. Projet existant déployé dans la Factory (apps/safecalc/).",
+    "priorite": "moyenne",
+    "statut": "en cours",
+    "createdAt": "2026-06-28T00:00:00.000Z"
   },
   {
     "id": "proj-maman-sport-001",
@@ -13,6 +50,7 @@
     "titre": "StepQuest",
     "description": "Nouvelle app à créer — sport / fitness.",
     "priorite": "moyenne",
+    "statut": "à faire",
     "createdAt": "2026-06-27T00:00:00.000Z"
   },
   {
@@ -21,6 +59,7 @@
     "titre": "BetXpert",
     "description": "Nouvelle app à créer — suivi et analyse de paris sportifs.",
     "priorite": "moyenne",
+    "statut": "à faire",
     "createdAt": "2026-06-27T00:00:00.000Z"
   },
   {
@@ -29,7 +68,98 @@
     "titre": "FocalGuide",
     "description": "Nouvelle app à créer — évaluation de photos pour améliorer la qualité de ses clichés.",
     "priorite": "basse",
+    "statut": "à faire",
     "createdAt": "2026-06-27T00:00:00.000Z"
+  },
+  {
+    "id": "feat-travelfinance-mvp-001",
+    "type": "feature",
+    "titre": "Finaliser le MVP",
+    "description": "Finaliser et compléter le développement de TravelFinance.",
+    "priorite": "haute",
+    "statut": "en cours",
+    "projectId": "proj-travelfinance-001",
+    "createdAt": "2026-06-28T00:00:00.000Z"
+  },
+  {
+    "id": "feat-dashboard-status-001",
+    "type": "feature",
+    "titre": "Ajouter des statuts À faire / En cours / Terminé",
+    "description": "Ajouter un champ statut sur chaque item du backlog avec les valeurs : à faire, en cours, terminé.",
+    "priorite": "haute",
+    "statut": "en cours",
+    "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a",
+    "createdAt": "2026-06-28T00:00:00.000Z"
+  },
+  {
+    "id": "feat-dashboard-redis-001",
+    "type": "feature",
+    "titre": "Amélioration du stockage avec Upstash Redis",
+    "description": "Remplacer le stockage actuel par Upstash Redis pour plus de persistance et de fiabilité.",
+    "priorite": "haute",
+    "statut": "à faire",
+    "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a",
+    "createdAt": "2026-06-28T00:00:00.000Z"
+  },
+  {
+    "id": "feat-dashboard-import-projets-001",
+    "type": "feature",
+    "titre": "Importer tous les projets du Hub + la Factory",
+    "description": "Ajouter tous les projets existants (Hub + Factory), les classer « en cours », mettre les autres items à « à faire » par défaut.",
+    "priorite": "haute",
+    "statut": "à faire",
+    "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a",
+    "createdAt": "2026-06-28T00:00:00.000Z"
+  },
+  {
+    "id": "feat-factory-repos-doublons-001",
+    "type": "feature",
+    "titre": "Supprimer les repos doublons",
+    "description": "Identifier et supprimer les repos GitHub en doublon.",
+    "priorite": "haute",
+    "statut": "à faire",
+    "projectId": "proj-software-factory-001",
+    "createdAt": "2026-06-28T00:00:00.000Z"
+  },
+  {
+    "id": "feat-factory-session-001",
+    "type": "feature",
+    "titre": "Tester la résilience aux coupures de session",
+    "description": "Vérifier que les sessions de production résistent aux coupures — checkpoint et reprise automatique.",
+    "priorite": "haute",
+    "statut": "à faire",
+    "projectId": "proj-software-factory-001",
+    "createdAt": "2026-06-28T00:00:00.000Z"
+  },
+  {
+    "id": "feat-factory-archi-mvp-001",
+    "type": "feature",
+    "titre": "Refonte pipeline archi MVP — prise en compte des futures features",
+    "description": "Problème : l'archi générée au MVP n'est pas adaptée aux features suivantes. Solution : brainstorm génère toutes les idées, specs-framer priorise le backlog (MVP vs important), architecte conçoit en tenant compte des futures features dès le départ.",
+    "priorite": "haute",
+    "statut": "à faire",
+    "projectId": "proj-software-factory-001",
+    "createdAt": "2026-06-28T00:00:00.000Z"
+  },
+  {
+    "id": "feat-factory-versionning-001",
+    "type": "feature",
+    "titre": "Organiser le versionning dans la doc",
+    "description": "Structurer et documenter le versionning dans la documentation de la Software Factory.",
+    "priorite": "moyenne",
+    "statut": "à faire",
+    "projectId": "proj-software-factory-001",
+    "createdAt": "2026-06-28T00:00:00.000Z"
+  },
+  {
+    "id": "feat-factory-interagent-001",
+    "type": "feature",
+    "titre": "Discussion inter-agents",
+    "description": "Mécanisme de discussion entre agents pour améliorer la cohérence des livrables avant Gate 2.",
+    "priorite": "basse",
+    "statut": "à faire",
+    "projectId": "proj-software-factory-001",
+    "createdAt": "2026-06-28T00:00:00.000Z"
   },
   {
     "id": "feat-onepiece-design-001",
@@ -37,15 +167,8 @@
     "titre": "Améliorer le design de one-piece-speedrun",
     "description": "Refonte visuelle de l'application one-piece-speedrun.",
     "priorite": "basse",
-    "createdAt": "2026-06-27T00:00:00.000Z",
-    "projectId": "proj-onepiece-001"
-  },
-  {
-    "id": "8daa4e57-56f7-40ae-a568-6158abf2e46a",
-    "type": "projet",
-    "titre": "Dashboard-Factory",
-    "description": "Ajouter softwares factory, Dashboard-Factory, et financetravel (bizarre)",
-    "priorite": "haute",
-    "createdAt": "2026-06-27T18:41:31.754Z"
+    "statut": "à faire",
+    "projectId": "proj-onepiece-001",
+    "createdAt": "2026-06-27T00:00:00.000Z"
   }
 ]
