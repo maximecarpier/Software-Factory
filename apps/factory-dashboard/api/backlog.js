@@ -1,49 +1,11 @@
 // api/backlog.js — Vercel Serverless Function
-// Securite : KV_REST_API_TOKEN et GITHUB_TOKEN ne sont accessibles que via process.env cote serveur.
-// Jamais exposes dans une reponse publique ni dans le code frontend.
+// Securite : KV_REST_API_TOKEN ne sont accessibles que via process.env cote serveur.
+// Jamais expose dans une reponse publique ni dans le code frontend.
 
 const REDIS_KEY = 'factory:backlog';
 
-// GitHub fallback (migration unique depuis l'ancien stockage)
-const REPO = 'maximecarpier/Software-Factory';
-const FILE_PATH = '.factory/backlog.json';
-const GITHUB_API_URL = `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`;
-
-/**
- * Valide que la valeur est un tableau.
- * @param {unknown} value
- * @returns {boolean}
- */
 function isValidItemsArray(value) {
   return Array.isArray(value);
-}
-
-/**
- * Lit le backlog depuis GitHub (migration one-shot).
- * Retourne un tableau vide si le fichier n'existe pas ou en cas d'erreur.
- * @param {string} token
- * @returns {Promise<Object[]>}
- */
-async function fetchFromGitHub(token) {
-  try {
-    const response = await fetch(GITHUB_API_URL, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github.v3+json',
-        'User-Agent': 'factory-dashboard/1.0',
-      },
-    });
-
-    if (response.status === 404) return [];
-    if (!response.ok) return [];
-
-    const data = await response.json();
-    const decoded = Buffer.from(data.content, 'base64').toString('utf8');
-    const items = JSON.parse(decoded);
-    return Array.isArray(items) ? items : [];
-  } catch {
-    return [];
-  }
 }
 
 export default async function handler(req, res) {
@@ -71,33 +33,14 @@ export default async function handler(req, res) {
       const data = await response.json();
       let items = [];
 
-      let parsed = [];
       if (data.result !== null && data.result !== undefined) {
         try {
           const p = JSON.parse(data.result);
-          parsed = Array.isArray(p) ? p : [];
+          items = Array.isArray(p) ? p : [];
         } catch {
-          parsed = [];
+          items = [];
         }
       }
-
-      // Migration one-shot : Redis absent ou vide → seed depuis GitHub
-      if (parsed.length === 0) {
-        const githubToken = process.env.GITHUB_TOKEN;
-        if (githubToken) {
-          const migrated = await fetchFromGitHub(githubToken);
-          if (migrated.length > 0) {
-            await fetch(kvUrl, {
-              method: 'POST',
-              headers: kvHeaders,
-              body: JSON.stringify(['SET', REDIS_KEY, JSON.stringify(migrated)]),
-            });
-            parsed = migrated;
-          }
-        }
-      }
-
-      items = parsed;
 
       return res.status(200).json({ items });
     } catch (err) {
