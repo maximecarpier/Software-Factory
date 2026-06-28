@@ -20,11 +20,14 @@ Ne jamais créer de nouveau repo GitHub par application — l'ancien workflow mu
 Software-Factory/
 ├── apps/
 │   ├── dashboard/          ← monitoring Claude tokens
-│   ├── mon-mvp/            ← nouvelle app
+│   ├── mon-mvp/
+│   │   ├── docs/           ← specs.md, architecture.md, design.md
+│   │   ├── src/
+│   │   ├── tests/
+│   │   └── package.json
 │   └── autre-app/
 ├── scripts/                ← scripts et templates Factory
-├── .claude/agents/         ← définitions des agents
-└── .factory/               ← livrables inter-agents (specs, designs, archi)
+└── .claude/agents/         ← définitions des agents
 ```
 
 Chaque `apps/<nom>/` est autonome : son propre `package.json`, ses dépendances, son point d'entrée.
@@ -123,14 +126,14 @@ Ne lancer l'agent qu'après avoir reçu les réponses et les inclure dans le pro
   tech-architect         designer             tech-architect    ← PARALLÈLE
       seul               (UI/UX)           (CDC + modules)
          │                    └──── discussion inter-agents ────┘
-         │                          dans .factory/<projet>/
+         │                          dans apps/<projet>/docs/
          └──────────────────────────────┘
                                          ↓
                      ┌─── [GATE 2 : architecture validée ? Y/N] ───┐
                      ↓ (oui)                              ↓ (non → révision)
 3. test-writer (TDD) → tests par module
 4. code-implementer  → implémentation par module (parallélisable)
-   [+ expert-claude-code en audit continu des configs .factory/]
+   [+ expert-claude-code en audit continu des configs agents]
                                          ↓
                      security-check.sh avant Gate 3
                      ┌─── [GATE 3 : implémentation terminée ? Y/N] ┐
@@ -144,7 +147,7 @@ Ne lancer l'agent qu'après avoir reçu les réponses et les inclure dans le pro
 
 ### Discussion inter-agents (cohérence avant Gate 2)
 
-Quand designer et tech-architect travaillent en parallèle, leurs livrables sont déposés dans `.factory/<projet>/` :
+Quand designer et tech-architect travaillent en parallèle, leurs livrables sont déposés dans `apps/<projet>/docs/` :
 - `design.md` — wireframes et système visuel
 - `architecture.md` — CDC technique et modules
 
@@ -226,7 +229,7 @@ Si la réponse à l'une des 3 questions est oui, signaler l'ajustement à l'util
 ```
 
 Si l'utilisateur choisit B → lancer `expert-claude-code` pour créer l'agent, puis reprendre le pipeline.
-Si l'utilisateur choisit A → noter le gap dans `.factory/<projet>/notes.md` pour une création future.
+Si l'utilisateur choisit A → noter le gap dans `apps/<projet>/docs/notes.md` pour une création future.
 
 **Domaines reconnus et agents typiques à suggérer :**
 
@@ -276,14 +279,14 @@ Vérifie : secrets côté client, `process.env` dans le HTML, appels API directs
 bash scripts/resume.sh
 ```
 
-Le script lit les artefacts dans `.factory/<projet>/` et infère l'état du pipeline :
+Le script lit les artefacts dans `apps/<projet>/docs/` et infère l'état du pipeline :
 
 | Artefact présent | Gate atteint | Prochaine étape |
 |---|---|---|
-| `brainstorm.md` | Gate 0 | specs-framer |
-| `specs.md` | Gate 1 | designer / tech-architect |
-| `architecture.md` ou `design.md` | Gate 2 | test-writer + code-implementer |
-| `apps/<projet>/` avec code | Gate 2+ | code-reviewer + deploy |
+| `docs/brainstorm.md` | Gate 0 | specs-framer |
+| `docs/specs.md` | Gate 1 | designer / tech-architect |
+| `docs/architecture.md` ou `docs/design.md` | Gate 2 | test-writer + code-implementer |
+| `src/` avec code | Gate 2+ | code-reviewer + deploy |
 
 Si un projet en cours est détecté, afficher le résumé et demander :
 > "📍 Projet [nom] détecté — [gate] ([label]). Prochaine étape : [X]. On reprend ? [Y/N]"
@@ -295,4 +298,4 @@ Ne jamais repartir de zéro si des artefacts existent.
 
 Le hook Stop dans `.claude/settings.json` appelle automatiquement `scripts/autosave.sh`
 à chaque fin de réponse. Il crée un commit git silencieux si des changements existent
-dans `.factory/`, `apps/`, `scripts/` ou `.claude/`.
+dans `apps/`, `scripts/` ou `.claude/`.

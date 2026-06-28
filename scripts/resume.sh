@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
-# Infère l'état du projet depuis les artefacts dans .factory/<projet>/
+# Infère l'état du pipeline depuis les artefacts dans apps/<projet>/docs/
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-FACTORY_DIR="$REPO_ROOT/.factory"
+APPS_DIR="$REPO_ROOT/apps"
 
-if [[ ! -d "$FACTORY_DIR" ]]; then
-  echo "ℹ️  Aucun projet en cours trouvé."
+if [[ ! -d "$APPS_DIR" ]]; then
+  echo "ℹ️  Aucun projet trouvé dans apps/."
   exit 0
 fi
 
 PROJECTS=()
 while IFS= read -r -d '' dir; do
-  name=$(basename "$dir")
-  PROJECTS+=("$name")
-done < <(find "$FACTORY_DIR" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null)
+  docs="$dir/docs"
+  [[ -d "$docs" ]] && PROJECTS+=("$(basename "$dir")")
+done < <(find "$APPS_DIR" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null)
 
 if [[ ${#PROJECTS[@]} -eq 0 ]]; then
-  echo "ℹ️  Aucun projet en cours trouvé dans .factory/."
+  echo "ℹ️  Aucun projet avec docs/ trouvé dans apps/."
   exit 0
 fi
 
@@ -29,13 +29,15 @@ repo = Path(sys.argv[1])
 projects = sys.argv[2:]
 
 for proj in projects:
-    factory = repo / ".factory" / proj
-    app_dir = repo / "apps" / proj
+    docs    = repo / "apps" / proj / "docs"
+    src     = repo / "apps" / proj / "src"
 
-    has_brainstorm = (factory / "brainstorm.md").exists()
-    has_specs      = (factory / "specs.md").exists()
-    has_arch       = (factory / "architecture.md").exists() or (factory / "design.md").exists()
-    has_code       = app_dir.exists() and any(f for f in app_dir.iterdir() if f.name not in ("node_modules", ".git"))
+    has_brainstorm = (docs / "brainstorm.md").exists()
+    has_specs      = (docs / "specs.md").exists()
+    has_arch       = (docs / "architecture.md").exists() or (docs / "design.md").exists()
+    has_code       = src.exists() and any(
+        f for f in src.iterdir() if f.name not in ("node_modules", ".git")
+    ) if src.exists() else False
 
     if has_code:
         gate, label, next_step = "gate-2+", "développement en cours", "→ code-reviewer + doc-writer + deploy"
@@ -48,12 +50,12 @@ for proj in projects:
     else:
         continue
 
-    files = sorted(f.name for f in factory.iterdir() if f.is_file())
+    files = sorted(f.name for f in docs.iterdir() if f.is_file())
 
     print("=" * 52)
     print(f"📍 PROJET : {proj}")
     print(f"   Checkpoint     : {gate} ({label})")
-    print(f"   Artefacts      : {', '.join(files) if files else 'aucun'}")
+    print(f"   Docs           : {', '.join(files) if files else 'aucun'}")
     print(f"   Prochaine étape: {next_step}")
     print("=" * 52)
 
