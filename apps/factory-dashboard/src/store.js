@@ -1,20 +1,10 @@
-// M-STORE : persistance localStorage (cache) + synchronisation GitHub via /api/backlog
+// M-STORE : persistance localStorage (cache) + synchronisation Redis via /api/backlog
 
 const KEY = 'factory_backlog';
-const SHA_KEY = 'factory_backlog_sha';
-
-// SHA courant du fichier GitHub, nécessaire pour les mises à jour (PUT).
-// Initialisé depuis localStorage au chargement du module.
-let _sha = null;
-try {
-  const stored = localStorage.getItem(SHA_KEY);
-  if (stored) _sha = stored;
-} catch {
-  // Contexte dégradé (ex: navigateur privé strict) — on ignore
-}
 
 /**
  * Vérifie qu'un objet a la forme minimale attendue d'un item backlog.
+ * Le champ `statut` est optionnel (ajouté récemment, absent des anciens items).
  */
 function isValidItem(item) {
   return (
@@ -92,12 +82,13 @@ export function add(item) {
   }
 }
 
-// ── Synchronisation GitHub ────────────────────────────────────────────────────
+// ── Synchronisation Redis ─────────────────────────────────────────────────────
 
 /**
- * Lit le backlog depuis GitHub via /api/backlog.
- * Met à jour le cache localStorage et le SHA interne si succès.
- * @returns {Promise<{ items: Object[], sha: string|null }>}
+ * Lit le backlog depuis Redis via /api/backlog.
+ * Met à jour le cache localStorage si succès.
+ * Nom conservé pour compatibilité avec les vues existantes.
+ * @returns {Promise<{ items: Object[] }>}
  * @throws {Error} en cas d'erreur réseau ou serveur
  */
 export async function fetchFromGitHub() {
@@ -110,34 +101,25 @@ export async function fetchFromGitHub() {
     throw new Error(data.error);
   }
 
-  // Mettre à jour le SHA et le cache local
-  _sha = data.sha || null;
-  try {
-    if (_sha) localStorage.setItem(SHA_KEY, _sha);
-  } catch {
-    // ignore
-  }
-
   if (Array.isArray(data.items)) {
     save(data.items);
   }
 
-  return { items: data.items || [], sha: data.sha };
+  return { items: data.items || [] };
 }
 
 /**
- * Écrit le backlog sur GitHub via /api/backlog (PUT).
- * Utilise le SHA stocké pour les mises à jour (requis par l'API GitHub).
- * Met à jour le SHA interne si succès.
+ * Écrit le backlog dans Redis via /api/backlog (PUT).
+ * Nom conservé pour compatibilité avec les vues existantes.
  * @param {Object[]} items
- * @returns {Promise<{ sha: string }>}
- * @throws {Error} en cas d'erreur réseau ou conflit de SHA
+ * @returns {Promise<{ ok: true }>}
+ * @throws {Error} en cas d'erreur réseau ou serveur
  */
 export async function pushToGitHub(items) {
   const res = await fetch('/api/backlog', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ items, sha: _sha }),
+    body: JSON.stringify({ items }),
   });
 
   if (!res.ok) {
@@ -147,16 +129,6 @@ export async function pushToGitHub(items) {
   const data = await res.json();
   if (data.error) {
     throw new Error(data.error);
-  }
-
-  // Mettre à jour le SHA après une écriture réussie
-  if (data.sha) {
-    _sha = data.sha;
-    try {
-      localStorage.setItem(SHA_KEY, _sha);
-    } catch {
-      // ignore
-    }
   }
 
   return data;
