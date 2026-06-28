@@ -71,29 +71,33 @@ export default async function handler(req, res) {
       const data = await response.json();
       let items = [];
 
-      if (data.result === null || data.result === undefined) {
-        // Redis vide — tenter la migration depuis GitHub si GITHUB_TOKEN disponible
+      let parsed = [];
+      if (data.result !== null && data.result !== undefined) {
+        try {
+          const p = JSON.parse(data.result);
+          parsed = Array.isArray(p) ? p : [];
+        } catch {
+          parsed = [];
+        }
+      }
+
+      // Migration one-shot : Redis absent ou vide → seed depuis GitHub
+      if (parsed.length === 0) {
         const githubToken = process.env.GITHUB_TOKEN;
         if (githubToken) {
-          items = await fetchFromGitHub(githubToken);
-
-          // Seeder Redis avec les donnees migreees
-          if (items.length > 0) {
+          const migrated = await fetchFromGitHub(githubToken);
+          if (migrated.length > 0) {
             await fetch(kvUrl, {
               method: 'POST',
               headers: kvHeaders,
-              body: JSON.stringify(['SET', REDIS_KEY, JSON.stringify(items)]),
+              body: JSON.stringify(['SET', REDIS_KEY, JSON.stringify(migrated)]),
             });
+            parsed = migrated;
           }
         }
-      } else {
-        try {
-          const parsed = JSON.parse(data.result);
-          items = Array.isArray(parsed) ? parsed : [];
-        } catch {
-          items = [];
-        }
       }
+
+      items = parsed;
 
       return res.status(200).json({ items });
     } catch (err) {
@@ -109,6 +113,9 @@ export default async function handler(req, res) {
       // Validation des inputs
       if (!body || !isValidItemsArray(body.items)) {
         return res.status(400).json({ error: 'Corps invalide : items doit etre un tableau' });
+      }
+      if (body.items.length === 0) {
+        return res.status(400).json({ error: 'Corps invalide : items ne peut pas etre vide' });
       }
 
       const { items } = body;
