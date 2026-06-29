@@ -119,12 +119,6 @@ export async function flushPending() {
     try {
       const { items } = load();
 
-      if (items.length === 0) {
-        // Le PUT rejette les tableaux vides (400) — vider la file sans PUT (§11 risques)
-        clearPending();
-        return;
-      }
-
       await pushToGitHub(items);
       clearPending();
     } catch (e) {
