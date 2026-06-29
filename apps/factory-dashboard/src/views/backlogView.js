@@ -1,6 +1,6 @@
 // M-F2 : vue backlog — liste + filtres + tri + édition + suppression + états vide
 
-import { load, save, pushToGitHub } from '../store.js';
+import { load, save, pushToGitHub, update, remove } from '../store.js';
 import { applyFilters, applySort } from '../model.js';
 import { showToast } from '../components/toast.js';
 
@@ -309,25 +309,18 @@ function bindCardActions(container) {
     });
   });
 
-  // Statut inline — changement immédiat + sync GitHub
+  // Statut inline — store.update gère save + enqueue + flush
   container.querySelectorAll('.statut-select').forEach(select => {
-    select.addEventListener('change', async e => {
+    select.addEventListener('change', e => {
       const id = e.currentTarget.dataset.id;
       const newStatut = e.currentTarget.value;
 
       const { items } = load();
-      const updatedItems = items.map(item =>
-        item.id === id ? { ...item, statut: newStatut } : item
-      );
+      const item = items.find(i => i.id === id);
+      if (!item) return;
 
-      save(updatedItems);
+      update({ ...item, statut: newStatut });
       renderBacklog(container);
-
-      try {
-        await pushToGitHub(updatedItems);
-      } catch {
-        showToast('Mode hors-ligne — données non synchronisées');
-      }
     });
   });
 
