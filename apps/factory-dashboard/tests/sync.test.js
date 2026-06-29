@@ -285,35 +285,36 @@ describe('M-SYNC — File d\'attente offline', () => {
       expect(sync.hasPending()).toBe(true);
     });
 
-    it('vide la file si PUT retourne 400 (tableau vide)', async () => {
+    it('envoie PUT items:[] si cache vide + PUT échoue → file conservée', async () => {
       global.fetch = jest.fn().mockResolvedValue({
         ok: false,
         status: 400,
-        json: async () => ({ error: 'Items cannot be empty' })
+        json: async () => ({ error: 'Bad request' })
       });
 
-      // Enqueuer sans créer d'items (cache vide)
       sync.enqueue('orphan-uuid');
 
       await sync.flushPending();
 
-      // File vidée malgré l'erreur (puisque tableau vide)
-      expect(sync.hasPending()).toBe(false);
+      // PUT envoyé avec tableau vide (API accepte [] depuis v2.1)
+      expect(global.fetch).toHaveBeenCalledWith('/api/backlog', expect.objectContaining({ method: 'PUT' }));
+      // Échec → file conservée
+      expect(sync.hasPending()).toBe(true);
     });
 
-    it('vide la file et l\'app ne plante pas si cache local est vide', async () => {
+    it('envoie PUT items:[] si cache vide + PUT réussit → file vidée', async () => {
       global.fetch = jest.fn().mockResolvedValue({
         ok: true,
         json: async () => ({ ok: true })
       });
 
-      // Enqueuer sans items
       sync.enqueue('orphan-id');
 
       await sync.flushPending();
 
+      // PUT envoyé même pour cache vide
+      expect(global.fetch).toHaveBeenCalled();
       expect(sync.hasPending()).toBe(false);
-      expect(global.fetch).not.toHaveBeenCalled(); // PUT ne doit pas être appelé
     });
   });
 

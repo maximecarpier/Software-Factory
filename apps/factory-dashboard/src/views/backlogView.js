@@ -1,6 +1,6 @@
 // M-F2 : vue backlog — liste + filtres + tri + édition + suppression + états vide
 
-import { load, save, pushToGitHub, update, remove } from '../store.js';
+import { load, update, remove } from '../store.js';
 import { applyFilters, applySort } from '../model.js';
 import { showToast } from '../components/toast.js';
 
@@ -324,25 +324,14 @@ function bindCardActions(container) {
     });
   });
 
-  // Supprimer — confirmation + suppression locale + sync GitHub
+  // Supprimer — confirmation + store.remove gère save + enqueue + flush
   container.querySelectorAll('.btn-delete').forEach(btn => {
-    btn.addEventListener('click', async e => {
+    btn.addEventListener('click', e => {
       const id = e.currentTarget.dataset.id;
       if (!window.confirm('Supprimer cet item définitivement ?')) return;
 
-      const { items } = load();
-      const updatedItems = items.filter(i => i.id !== id);
-
-      // Persistance locale immédiate + re-render
-      save(updatedItems);
+      remove(id);
       renderBacklog(container);
-
-      // Synchronisation GitHub en arrière-plan
-      try {
-        await pushToGitHub(updatedItems);
-      } catch {
-        showToast('Mode hors-ligne — données non synchronisées');
-      }
     });
   });
 }
