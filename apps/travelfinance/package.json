@@ -1,0 +1,17 @@
+{
+  "name": "travelfinance",
+  "version": "1.0.0",
+  "description": "Journal de voyage — suivi des dépenses multi-pays",
+  "scripts": {
+    "start": "npx serve . -p 3003",
+    "test": "jest"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"]
+  }
+}

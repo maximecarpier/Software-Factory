@@ -1,7 +1,7 @@
 const REDIS_KEY = 'travelfinance:journal';
 const LEGACY_KEY = 'journal_de_voyage';
 
-export default async function handler(request, response) {
+module.exports = async function handler(request, response) {
   try {
     const url = process.env.KV_REST_API_URL;
     const token = process.env.KV_REST_API_TOKEN;

@@ -1,6 +1,6 @@
 const REDIS_KEY = 'travelfinance:journal';
 
-export default async function handler(request, response) {
+module.exports = async function handler(request, response) {
   if (request.method !== 'POST') return response.status(405).json({ error: 'Méthode non autorisée' });
 
   try {
