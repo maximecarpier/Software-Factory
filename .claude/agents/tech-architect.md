@@ -152,6 +152,20 @@ Si oui, lire la section `## [designer → tech-architect]` et en tenir compte da
 
 Règles de découpage : chaque module doit être développable sans bloquer les autres. Les dépendances doivent être des **contrats d'interface** (types, schémas JSON) — jamais du code partagé non-finalisé.
 
+- **Section Micro-tâches ordonnées obligatoire** : après le tableau des modules, produire la liste exhaustive et ordonnée des micro-tâches à passer **une par une** à code-implementer. Chaque micro-tâche doit toucher **≤ 2 fichiers** — si plus, découper davantage.
+
+```
+## Micro-tâches — Ordre d'exécution
+
+| # | Micro-tâche | Fichier(s) impacté(s) | Dépend de |
+|---|-------------|----------------------|-----------|
+| T1 | [Action précise et atomique] | [fichier1.js] | — |
+| T2 | [Action précise et atomique] | [fichier2.js] | T1 |
+| T3 | [Action précise et atomique] | [fichier1.js, fichier3.js] | T2 |
+```
+
+L'orchestrateur utilisera ce tableau pour appeler code-implementer une fois par ligne, dans l'ordre. Une micro-tâche qui couvre > 2 fichiers sera rejetée par le Scope Guard de code-implementer.
+
 **Decision-Making Framework:**
 - Prioritize simplicity and maintainability unless performance/scale demands complexity
 - Balance innovation with team expertise and organizational standards
