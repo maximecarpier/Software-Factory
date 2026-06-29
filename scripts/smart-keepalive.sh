@@ -1,34 +1,27 @@
 #!/usr/bin/env bash
-# Empêche le Codespace de dormir pendant une session remote (Claude iOS, iPad).
+# Garde le Codespace éveillé pendant une session remote (Claude iOS, iPad).
 # Pingue toutes les 4 min pour rester sous le seuil d'inactivité GitHub (5 min).
-# S'arrête automatiquement après la durée demandée pour économiser les heures gratuites.
 #
-# Usage : ./scripts/smart-keepalive.sh [durée]
-#   durée : ex. 1h, 90m, 2h (défaut : 2h)
+# Arrêt automatique si AUCUN fichier modifié depuis IDLE_THRESHOLD minutes
+# (signal que Claude Code ne travaille plus → session terminée).
 #
-# Lancer en fond : ./scripts/smart-keepalive.sh 2h &
-# Arrêter manuellement : kill $(cat /tmp/keepalive.pid)
+# Usage  : ./scripts/smart-keepalive.sh [idle_threshold]
+#   idle_threshold : minutes sans activité avant arrêt (défaut : 30)
+#   ex.  : ./scripts/smart-keepalive.sh 45 &
+#
+# Arrêt manuel : kill $(cat /tmp/keepalive.pid)
+# Logs        : tail -f /tmp/keepalive.log
 
 set -euo pipefail
 
-PING_INTERVAL=240  # 4 minutes — sous le seuil de 5 min de GitHub
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+PING_INTERVAL_SECS=240          # 4 min — sous le seuil de 5 min GitHub
+IDLE_THRESHOLD_MINS="${1:-30}"  # minutes sans modif fichier avant arrêt auto
+IDLE_COUNTER_MINS=0
+
 LOG_FILE="/tmp/keepalive.log"
 PID_FILE="/tmp/keepalive.pid"
-
-# Parse durée (ex: 2h → 7200s, 90m → 5400s)
-parse_duration() {
-  local input="${1:-2h}"
-  local value="${input%[hHmM]}"
-  local unit="${input: -1}"
-  case "$unit" in
-    h|H) echo $(( value * 3600 )) ;;
-    m|M) echo $(( value * 60 )) ;;
-    *)   echo $(( input * 60 )) ;;  # nombre seul → minutes
-  esac
-}
-
-MAX_SECONDS=$(parse_duration "${1:-2h}")
-MAX_HUMAN="${1:-2h}"
+ANCHOR_FILE="/tmp/keepalive_anchor"
 
 # Éviter deux instances simultanées
 if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
@@ -38,38 +31,46 @@ if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
 fi
 
 echo $$ > "$PID_FILE"
-
-START=$(date +%s)
-END=$(( START + MAX_SECONDS ))
-
-echo "$(date '+%H:%M:%S') ▶ Keepalive démarré — durée max : $MAX_HUMAN" | tee "$LOG_FILE"
-echo "$(date '+%H:%M:%S')   Arrêt automatique à $(date -d "@$END" '+%H:%M' 2>/dev/null || date -r "$END" '+%H:%M' 2>/dev/null || echo '?')" | tee -a "$LOG_FILE"
-echo "$(date '+%H:%M:%S')   PID $$ — pour arrêter : kill \$(cat $PID_FILE)" | tee -a "$LOG_FILE"
+touch "$ANCHOR_FILE"
 
 cleanup() {
-  rm -f "$PID_FILE"
+  rm -f "$PID_FILE" "$ANCHOR_FILE"
   echo ""
-  echo "$(date '+%H:%M:%S') ■ Keepalive arrêté." | tee -a "$LOG_FILE"
+  echo "$(date '+%H:%M:%S') ■ Keepalive arrêté (idle ${IDLE_COUNTER_MINS}min / seuil ${IDLE_THRESHOLD_MINS}min)." | tee -a "$LOG_FILE"
 }
 trap cleanup EXIT INT TERM
 
+echo "$(date '+%H:%M:%S') ▶ Keepalive démarré — arrêt auto après ${IDLE_THRESHOLD_MINS}min sans activité fichier" | tee "$LOG_FILE"
+echo "$(date '+%H:%M:%S')   PID $$ — arrêt manuel : kill \$(cat $PID_FILE)" | tee -a "$LOG_FILE"
+
 TICK=0
 while true; do
-  NOW=$(date +%s)
-  REMAINING=$(( END - NOW ))
+  # Compte les fichiers modifiés depuis le dernier ping (hors node_modules et .git)
+  CHANGES=$(find "$REPO_ROOT/apps" "$REPO_ROOT/scripts" "$REPO_ROOT/.claude" \
+    -newer "$ANCHOR_FILE" -type f \
+    ! -path "*/node_modules/*" \
+    ! -path "*/.git/*" \
+    2>/dev/null | wc -l)
 
-  if [[ $REMAINING -le 0 ]]; then
-    echo "$(date '+%H:%M:%S') ⏹  Durée écoulée ($MAX_HUMAN) — arrêt." | tee -a "$LOG_FILE"
+  if [[ "$CHANGES" -gt 0 ]]; then
+    IDLE_COUNTER_MINS=0
+    touch "$ANCHOR_FILE"
+  else
+    IDLE_COUNTER_MINS=$(( IDLE_COUNTER_MINS + PING_INTERVAL_SECS / 60 ))
+  fi
+
+  if [[ "$IDLE_COUNTER_MINS" -ge "$IDLE_THRESHOLD_MINS" ]]; then
+    echo "$(date '+%H:%M:%S') 💤 Aucune activité depuis ${IDLE_THRESHOLD_MINS}min — session terminée, arrêt." | tee -a "$LOG_FILE"
     break
   fi
 
   TICK=$(( TICK + 1 ))
-  MINS_LEFT=$(( REMAINING / 60 ))
+  IDLE_REMAINING=$(( IDLE_THRESHOLD_MINS - IDLE_COUNTER_MINS ))
 
-  # Activité réelle : git status (détecté par GitHub comme activité Codespace)
-  git -C "$(dirname "$0")/.." status --short > /dev/null 2>&1 || true
+  # Activité réelle détectée par GitHub
+  git -C "$REPO_ROOT" status --short > /dev/null 2>&1 || true
 
-  echo "$(date '+%H:%M:%S') ♥ ping #$TICK — encore ${MINS_LEFT}min" | tee -a "$LOG_FILE"
+  echo "$(date '+%H:%M:%S') ♥ ping #$TICK — modifs depuis dernier ping: ${CHANGES} — idle: ${IDLE_COUNTER_MINS}min / seuil: ${IDLE_THRESHOLD_MINS}min (arrêt dans ${IDLE_REMAINING}min sans activité)" | tee -a "$LOG_FILE"
 
-  sleep "$PING_INTERVAL"
+  sleep "$PING_INTERVAL_SECS"
 done
