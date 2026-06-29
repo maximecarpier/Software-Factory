@@ -1,7 +1,7 @@
 ## Changelog
 | Version | Date | Changements |
 |---|---|---|
-| v2.0 | 2026-06-29 | Correction persistance (Redis/Upstash KV remplace localStorage comme source de vérité), ajout F3 (support offline — cache, création et modification hors-ligne, sync automatique), ajout F4 (modification d'items) |
+| v2.0 | 2026-06-29 | Correction persistance (Redis/Upstash KV remplace localStorage comme source de vérité), ajout F3 (support offline — cache, création et modification hors-ligne, sync automatique), ajout F4 (modification d'items), ajout F5 (PWA — app installable et ouvrable sans réseau) |
 | v1.0 | 2026-06-27 | MVP initial — F1 (formulaire création), F2 (vue backlog) |
 
 ---
@@ -50,6 +50,7 @@ Permettre à l'utilisateur de créer, modifier et consulter des items de backlog
 - **F2** : Vue liste du backlog avec filtres et tri
 - **F3** : Support offline — cache local, création et modification hors-ligne, sync automatique au retour du réseau *(nouveau v2.0)*
 - **F4** : Modification d'un item existant *(nouveau v2.0)*
+- **F5** : PWA — app installable, ouvrable sans réseau (app shell cachée par Service Worker) *(nouveau v2.0)*
 
 ### 2.2 Ce que l'application NE FAIT PAS (hors périmètre)
 
