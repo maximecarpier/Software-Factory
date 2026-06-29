@@ -40,7 +40,8 @@ Chaque `apps/<nom>/` est autonome : son propre `package.json`, ses dépendances,
 
 ### Règle infra (obligatoire pour tech-architect)
 
-Toujours proposer l'option la plus simple et gratuite (Vercel hobby, SQLite, localStorage, fichiers JSON…).
+Stack libre, préférence : léger, web-first, bien rendu sur mobile/tablette (responsive ou PWA — pas de natif iOS/Android).
+Toujours proposer l'option la plus simple et gratuite (Vercel hobby, SQLite, localStorage, fichiers JSON...).
 Si une option payante ou complexe est nécessaire → présenter les alternatives avec coût/complexité et **valider avec l'utilisateur** avant de l'inclure dans l'architecture.
 
 ### Vercel (option par défaut pour le web) — Instructions iPad (manuel)
