@@ -16,6 +16,12 @@ if [ -z "$ITEMS" ] || [ "$ITEMS" = "null" ]; then
   exit 0
 fi
 
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Snapshot complet avant nettoyage (avec terminés) pour historique git
+mkdir -p "$REPO_ROOT/backlog"
+echo "$RESULT" | jq '{items: (.items // .)}' > "$REPO_ROOT/backlog/latest.json" 2>/dev/null || true
+
 # Suppression automatique des terminés (hors projets) au démarrage
 TERMINES_COUNT=$(echo "$ITEMS" | jq '[.[] | select(.statut == "terminé" and .type != "projet")] | length')
 if [ "$TERMINES_COUNT" -gt 0 ]; then
