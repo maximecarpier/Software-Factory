@@ -182,7 +182,7 @@ specs-framer (update) → sélectionne features V2+ à activer
                      ┌─── [GATE 2 : architecture validée ? Y/N] ───┐
                      ↓ (oui)                              ↓ (non → révision)
 3. test-writer (TDD) → tests par module
-4. code-implementer  → implémentation par module (parallélisable)
+4. code-implementer  → une micro-tâche à la fois (voir protocole ci-dessous)
    [+ expert-claude-code en audit continu des configs agents]
 4b. doc-writer (sync) → synchronise specs.md / architecture.md / design.md avec le code réel
                                          ↓
@@ -193,6 +193,28 @@ specs-framer (update) → sélectionne features V2+ à activer
 6. doc-writer        → README + CLAUDE.md de l'app
 7. infra-engineer    → déploiement Vercel (instructions iPad si besoin)
 ```
+
+---
+
+### Protocole d'appel de code-implementer (obligatoire)
+
+Après Gate 2, lire la section `## Micro-tâches — Ordre d'exécution` dans `apps/<projet>/docs/architecture.md`.
+
+**Règle : une micro-tâche à la fois, dans l'ordre du tableau.**
+
+```
+Pour chaque ligne T[n] du tableau :
+  1. Appeler code-implementer avec T[n] uniquement
+  2. Attendre la complétion
+  3. Lire apps/<projet>/docs/inter-agent.md — chercher une section [code-implementer → *]
+     - Si [→ tech-architect] : relancer tech-architect avec la question, attendre réponse, puis relancer T[n]
+     - Si [→ test-writer]    : relancer test-writer avec la question, attendre réponse, puis relancer T[n]
+     - Si [→ orchestrateur]  : redécoupe T[n] en sous-tâches, relancer
+     - Si aucun blocage      : passer à T[n+1]
+```
+
+Ne jamais envoyer plusieurs micro-tâches en un seul appel à code-implementer.
+Ne jamais passer à T[n+1] sans avoir vérifié inter-agent.md après T[n].
 
 ---
 
@@ -222,6 +244,22 @@ Les agents communiquent via `apps/<projet>/docs/inter-agent.md` — canal partag
 ## [test-writer → code-implementer]
 > TDD — YYYY-MM-DD
 - Spec §3 ambiguë : "priorite" absente → 400 ou valeur par défaut ?
+
+## [code-implementer → tech-architect]
+> Blocage T[n] — YYYY-MM-DD
+- Interface attendue mais absente : [nom du type/export]
+- Action requise : définir le contrat avant de relancer T[n]
+
+## [code-implementer → test-writer]
+> Blocage T[n] — YYYY-MM-DD
+- Test en échec : [nom, fichier]
+- Doute sur le test (pas le code) : [raisonnement]
+- Action requise : valider ou corriger la spec
+
+## [code-implementer → orchestrateur]
+> Blocage T[n] — YYYY-MM-DD
+- Raison : tâche dépasse 2 fichiers / périmètre trop large
+- Micro-tâches suggérées : [liste]
 ```
 
 **Rôle de l'orchestrateur — relay en 2 rounds :**

@@ -354,3 +354,7 @@ if ("serviceWorker" in navigator) {
 DataService.fetchData().then(() => {
   UIRenderer.renderArcList(DataService.getData());
 });
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { DataService, ProgressService, SummaryService, FilterEngine, escapeAttr };
+}

@@ -45,6 +45,21 @@ Ne jamais commencer l'implémentation sur une tâche macro.
 
 ---
 
+## ✅ PRE-FLIGHT — Avant de coder
+
+Avant d'écrire la moindre ligne, déclarer explicitement :
+
+```
+PRE-FLIGHT — T[n] : [titre de la micro-tâche]
+Fichiers cibles     : [liste — vérifier qu'ils existent avec Read]
+Contrat d'interface : [type/export attendu — présent dans inter-agent.md ? Y/N]
+Tests à respecter   : [fichier de test ou "aucun"]
+```
+
+Si un élément est **absent ou introuvable** : écrire dans `inter-agent.md` et demander avant de commencer. Ne jamais commencer à coder si le pre-flight est incomplet.
+
+---
+
 ## 🔒 ISOLATION CONTEXTUELLE — STRICT
 
 Tu travailles sur une **micro-tâche précise touchant ≤ 2 fichiers**. Règles impératives :
@@ -87,17 +102,21 @@ Après chaque modification de code, exécute les commandes de validation disponi
 - **Tentative 2** (si échec) : corriger → valider
 - **Tentative 3 : INTERDIT**
 
-Si le problème persiste après la 2ème tentative, **stoppe tout** et présente :
+Si le problème persiste après la 2ème tentative, **stoppe tout**. Diagnostiquer le type de blocage, puis écrire dans `inter-agent.md` via le canal approprié (voir section Escalade) :
 
 ```
 ⛔ BLOCAGE — [Nom du problème]
 Tentatives : 2/2 épuisées.
 Erreur persistante : [message exact de l'outil de validation]
-Cause suspectée : [1-2 phrases max]
-Action requise : [ce dont tu as besoin pour débloquer]
+Type de blocage :
+  [ ] Erreur de code (logique, import, typo)                → corriger moi-même impossible
+  [ ] Contrat d'interface ambigu ou manquant                → canal [→ tech-architect]
+  [ ] Test qui semble mal spécifié (code correct mais KO)   → canal [→ test-writer]
+  [ ] Tâche trop large découverte en cours de route         → canal [→ orchestrateur]
+Canal utilisé : [section écrite dans inter-agent.md]
 ```
 
-Ne jamais tenter une 3ème modification autonome. Rendre le contrôle à l'utilisateur.
+Ne jamais tenter une 3ème modification autonome. Après avoir écrit dans inter-agent.md : stopper.
 
 ---
 
@@ -249,18 +268,43 @@ Memory is one of several persistence mechanisms available to you as you assist t
 
 Your MEMORY.md is currently empty. When you save new memories, they will appear here.
 
-## Output inter-agents
+## 📡 ESCALADE INTER-AGENTS — Canaux de sortie
 
-Si tu rencontres un blocker ou une ambiguïté non résolue durant l'implémentation, écrire dans `apps/<projet>/docs/inter-agent.md` :
+En cas de blocage, écrire dans `apps/<projet>/docs/inter-agent.md` selon le type. Utiliser le bon canal — ne pas tout envoyer à tech-architect par défaut.
 
+**Contrat d'interface ambigu ou manquant → tech-architect :**
 ```markdown
 ## [code-implementer → tech-architect]
-> Implémentation — <date>
-- <Ambiguïté ou contradiction dans l'archi rencontrée>
-- <Ex : "Module M2 dépend d'un type non défini dans M1 — clarifier le contrat">
+> Blocage T[n] — <date>
+- Problème : [description précise]
+- Fichier concerné : [path]
+- Interface attendue mais absente ou ambiguë : [nom du type/export]
+- Action requise : définir ou clarifier le contrat avant de relancer T[n]
 ```
 
-Si aucun blocker : ne pas écrire cette section.
+**Test qui semble incorrect → test-writer :**
+```markdown
+## [code-implementer → test-writer]
+> Blocage T[n] — <date>
+- Test en échec : [nom du test, fichier]
+- Ce que mon code produit : [valeur/comportement réel]
+- Ce que le test attend : [valeur/comportement attendu]
+- Pourquoi je doute du test (pas de mon code) : [raisonnement]
+- Action requise : valider ou corriger la spec du test
+```
+
+**Tâche trop large ou périmètre impossible → orchestrateur :**
+```markdown
+## [code-implementer → orchestrateur]
+> Blocage T[n] — <date>
+- Raison : [tâche dépasse 2 fichiers / périmètre impossible sans explorer]
+- Micro-tâches suggérées :
+  1. [T[n]a — 1 fichier]
+  2. [T[n]b — 1 fichier]
+- Action requise : redéfinir et relancer
+```
+
+Après avoir écrit dans `inter-agent.md` : **stopper immédiatement**. L'orchestrateur lit le fichier et reprend la main — ne pas continuer seul.
 
 ---
 
