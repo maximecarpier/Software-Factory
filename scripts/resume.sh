@@ -66,10 +66,33 @@ DASHBOARD_URL="https://factory-dashboard-alpha.vercel.app/api/backlog"
 BACKLOG_JSON=$(curl -sf --max-time 5 "$DASHBOARD_URL" 2>/dev/null || echo "")
 
 if [[ -n "$BACKLOG_JSON" ]]; then
-  # Sauvegarde snapshot pour historique git (autosave committera)
+  # Sauvegarde snapshot complet (terminés inclus) + nettoyage Redis
   mkdir -p "$REPO_ROOT/backlog"
-  echo "$BACKLOG_JSON" | python3 -c "import sys,json; print(json.dumps(json.loads(sys.stdin.read()), ensure_ascii=False, indent=2))" \
-    > "$REPO_ROOT/backlog/latest.json" 2>/dev/null || true
+  python3 - "$BACKLOG_JSON" "$REPO_ROOT/backlog/latest.json" "$DASHBOARD_URL" <<'PYCLEAN'
+import sys, json, urllib.request
+
+raw, snapshot_path, url = sys.argv[1], sys.argv[2], sys.argv[3]
+try:
+    data = json.loads(raw)
+    items = data.get("items", data) if isinstance(data, dict) else data
+except Exception:
+    sys.exit(0)
+
+# Snapshot complet (avec terminés) pour historique git
+with open(snapshot_path, "w") as f:
+    json.dump({"items": items}, f, ensure_ascii=False, indent=2)
+
+# Suppression des terminés dans Redis
+actifs = [i for i in items if i.get("statut") != "terminé"]
+if len(actifs) < len(items):
+    body = json.dumps({"items": actifs}).encode()
+    req = urllib.request.Request(url, data=body, method="PUT",
+          headers={"Content-Type": "application/json"})
+    try:
+        urllib.request.urlopen(req)
+    except Exception:
+        pass
+PYCLEAN
 
   python3 - "$BACKLOG_JSON" <<'PYEOF2'
 import sys, json

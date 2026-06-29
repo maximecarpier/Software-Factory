@@ -80,26 +80,6 @@
       "createdAt": "2026-06-27T00:00:00.000Z"
     },
     {
-      "id": "feat-factory-session-001",
-      "type": "feature",
-      "titre": "Tester la résilience aux coupures de session",
-      "description": "Vérifier que les sessions de production résistent aux coupures — checkpoint et reprise automatique.",
-      "priorite": "haute",
-      "statut": "terminé",
-      "projectId": "proj-software-factory-001",
-      "createdAt": "2026-06-28T00:00:00.000Z"
-    },
-    {
-      "id": "feat-factory-archi-mvp-001",
-      "type": "feature",
-      "titre": "Refonte pipeline archi MVP — prise en compte des futures features",
-      "description": "Problème : l'archi générée au MVP n'est pas adaptée aux features suivantes. Solution : brainstorm génère toutes les idées, specs-framer priorise le backlog (MVP vs important), architecte conçoit en tenant compte des futures features dès le départ.",
-      "priorite": "haute",
-      "statut": "terminé",
-      "projectId": "proj-software-factory-001",
-      "createdAt": "2026-06-28T00:00:00.000Z"
-    },
-    {
       "id": "feat-factory-versionning-001",
       "type": "feature",
       "titre": "Organiser le versionning dans la doc",
@@ -141,77 +121,6 @@
       "statut": "à faire",
       "url": null,
       "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
-    },
-    {
-      "id": "4604dc0f-cc01-453e-875d-fd512e4b0700",
-      "type": "feature",
-      "titre": "Le dossier backlog sert-il toujours ? Comment Claude recup les infos redis automatiquement ?",
-      "description": null,
-      "priorite": "haute",
-      "createdAt": "2026-06-28T15:34:33.313Z",
-      "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a",
-      "statut": "terminé"
-    },
-    {
-      "id": "f03e4ba2-7b56-48e2-812e-2346b2504e78",
-      "type": "feature",
-      "titre": "Test writer fonctionnel et technique ?",
-      "description": null,
-      "priorite": "haute",
-      "createdAt": "2026-06-28T15:36:18.618Z",
-      "projectId": "proj-software-factory-001",
-      "statut": "terminé"
-    },
-    {
-      "id": "069f1440-a64d-4f70-9627-322efa433774",
-      "type": "feature",
-      "titre": "Workflow agentique poussé",
-      "description": "à chaque étape voir si besoin d’un agent spécialiste supplémentaire ou pas nécessaire et me faire valider avec proposition d’ajout d’agent spécialisé supplémentaire si besoin (exemple game designer ou storyteller pour jeux )",
-      "priorite": "moyenne",
-      "createdAt": "2026-06-28T15:36:57.988Z",
-      "projectId": "proj-software-factory-001",
-      "statut": "terminé"
-    },
-    {
-      "id": "4fc79b53-ab1b-46bb-9f9f-9815814a6de6",
-      "type": "feature",
-      "titre": "Vérifier la liaison redis et l’état de la base",
-      "description": null,
-      "priorite": "haute",
-      "createdAt": "2026-06-28T15:39:08.064Z",
-      "projectId": "proj-travelfinance-001",
-      "statut": "terminé"
-    },
-    {
-      "id": "d3d67ca9-bb32-4999-a1ef-7a94ef53fb46",
-      "type": "feature",
-      "titre": "Deux dossiers factory utile correspond aux bonnes pratiques ?",
-      "description": null,
-      "priorite": "haute",
-      "createdAt": "2026-06-28T15:44:54.097Z",
-      "projectId": "proj-software-factory-001",
-      "statut": "terminé"
-    },
-    {
-      "id": "e9c2dea7-7eb9-4da9-8b2a-a172e1f54700",
-      "type": "feature",
-      "titre": "Problème de filtre ( les nouvelles création s’affichent à faire mais le filtre ne les affiche pas)",
-      "description": null,
-      "priorite": "haute",
-      "createdAt": "2026-06-28T15:50:30.316Z",
-      "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a",
-      "statut": "terminé"
-    },
-    {
-      "id": "111331d1-a3cb-4ca6-8272-e914c47fc392",
-      "type": "feature",
-      "titre": "Redis",
-      "description": "Uniformiser les préfixes",
-      "priorite": "haute",
-      "createdAt": "2026-06-28T17:30:23.677Z",
-      "statut": "terminé",
-      "url": null,
-      "projectId": "proj-travelfinance-001"
     },
     {
       "id": "10b16ab7-fc05-4d5e-a3d9-f8a4b9a60a8f",
@@ -277,16 +186,6 @@
       "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
     },
     {
-      "id": "d0434758-4e9f-42db-bcca-634f28ab105f",
-      "type": "feature",
-      "titre": "Code et doc cohérente",
-      "description": "Lors d’un processus de création doc faites en premier mais doit être mis à jour si la réalité ne correspond plus, la doc doit toujours être cohérente avec le code",
-      "priorite": "haute",
-      "statut": "terminé",
-      "createdAt": "2026-06-28T18:03:44.977Z",
-      "projectId": "proj-software-factory-001"
-    },
-    {
       "id": "0c3cf729-f960-4a03-bb48-294a379eb81f",
       "type": "feature",
       "titre": "Liberté totale architectural",
@@ -314,16 +213,6 @@
       "priorite": "moyenne",
       "statut": "à faire",
       "createdAt": "2026-06-29T01:49:57.729Z",
-      "projectId": "proj-software-factory-001"
-    },
-    {
-      "id": "814b3a3b-84cb-4c81-8b5c-77dd4a8664d0",
-      "type": "feature",
-      "titre": "Faire en sorte de recup le backlog redis a chaque démarrage de Claude",
-      "description": null,
-      "priorite": "haute",
-      "statut": "à faire",
-      "createdAt": "2026-06-29T01:51:01.636Z",
       "projectId": "proj-software-factory-001"
     },
     {
