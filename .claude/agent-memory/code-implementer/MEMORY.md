@@ -1,1 +1,2 @@
 - [Dashboard project](project_dashboard.md) — Claude token + Codespace monitoring dashboard at dashboard/, Express + vanilla JS, reads ~/.claude JSONL files
+- [Bilan 2026-06-29](bilans/bilan-2026-06-29.md) — factory-dashboard M-PWA : vite-plugin-pwa config-only, runtimeCaching:[] exclut /api/backlog
