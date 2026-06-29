@@ -1,7 +1,7 @@
 // M-F1 : vue formulaire — création ET édition d'un item backlog
 
 import { validateItem, createItem } from '../model.js';
-import { load, save, pushToGitHub, add } from '../store.js';
+import { load, add, update } from '../store.js';
 import { showToast } from '../components/toast.js';
 
 // ID de l'item en cours d'édition (null = mode création)
@@ -250,41 +250,25 @@ async function handleSubmit(e) {
     return;
   }
 
-  let updatedItems;
-
   if (_editId) {
-    // ── Mode édition : mettre à jour l'item existant ──
-    updatedItems = allItems.map(item => {
-      if (item.id !== _editId) return item;
-      const updated = {
-        id: item.id,
-        type: data.type,
-        titre: data.titre.trim(),
-        description: data.description && data.description.trim() !== '' ? data.description.trim() : null,
-        priorite: data.priorite,
-        createdAt: item.createdAt,
-      };
-      // Préserver le statut existant (non modifiable depuis le formulaire)
-      if (item.statut !== undefined) updated.statut = item.statut;
-      // url depuis le formulaire (projet uniquement, null sinon)
-      updated.url = data.url || null;
-      // projectId uniquement pour les features avec un projet parent valide
-      if (data.type === 'feature' && data.projectId) {
-        updated.projectId = data.projectId;
-      }
-      return updated;
-    });
-
-    save(updatedItems);
+    // ── Mode édition : store.update gère save + enqueue + flush ──
+    const existing = allItems.find(i => i.id === _editId);
+    const updatedItem = {
+      id: existing.id,
+      type: data.type,
+      titre: data.titre.trim(),
+      description: data.description && data.description.trim() !== '' ? data.description.trim() : null,
+      priorite: data.priorite,
+      createdAt: existing.createdAt,
+    };
+    if (existing.statut !== undefined) updatedItem.statut = existing.statut;
+    updatedItem.url = data.url || null;
+    if (data.type === 'feature' && data.projectId) {
+      updatedItem.projectId = data.projectId;
+    }
+    update(updatedItem);
     window.location.hash = '#/backlog';
     showToast('Item modifié.');
-
-    // ── Synchronisation arrière-plan (mode édition — T5 remplacera par store.update) ──
-    try {
-      await pushToGitHub(updatedItems);
-    } catch {
-      showToast('Mode hors-ligne — données non synchronisées');
-    }
   } else {
     // ── Mode création : store.add gère save + enqueue + flush ──
     const newItem = createItem(data);
