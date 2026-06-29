@@ -16,7 +16,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PING_INTERVAL_SECS=240          # 4 min — sous le seuil de 5 min GitHub
-IDLE_THRESHOLD_MINS="${1:-30}"  # minutes sans modif fichier avant arrêt auto
+IDLE_THRESHOLD_MINS="${1:-15}"  # minutes sans modif fichier avant arrêt auto
 IDLE_COUNTER_MINS=0
 
 LOG_FILE="/tmp/keepalive.log"
