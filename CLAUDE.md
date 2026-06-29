@@ -104,6 +104,46 @@ Ne lancer l'agent qu'après avoir reçu les réponses et les inclure dans le pro
 
 ---
 
+### Versionnage des apps (V1 → V2+)
+
+**Un seul fichier vivant** : `docs/specs.md` évolue en place à chaque itération. Pas de `specs_v2.md` — le git log assure la traçabilité.
+
+#### Structure obligatoire du changelog en tête de specs.md
+
+```markdown
+## Changelog
+| Version | Date | Changements |
+|---|---|---|
+| v2.0 | 2026-07-01 | Ajout F4 (export CSV), F5 (filtres avancés) |
+| v1.0 | 2026-06-27 | MVP initial — F1, F2, F3 |
+```
+
+#### Règles de mise à jour
+
+- **Lancer une itération V2+** : specs-framer lit `specs.md` existant, sélectionne les features V2+ à activer, les déplace dans la section MVP, incrémente la version, ajoute une ligne de changelog
+- **Section V2+** : les features activées disparaissent de V2+, les restantes demeurent
+- **architecture.md** suit le même principe (un fichier, changelog en tête)
+- **design.md** idem si l'UI est impactée
+
+#### Pipeline pour une itération V2+
+
+Le brainstorm est **optionnel** si les features V2+ sont déjà dans la roadmap de specs.md. Le pipeline démarre directement à specs-framer en mode "mise à jour" :
+
+```
+specs-framer (update) → sélectionne features V2+ à activer
+                       → met à jour specs.md (version + changelog + sections)
+                                    ↓
+                 [GATE 1 : specs V2 validées ? Y/N]
+                                    ↓
+         tech-architect (update)  ±  designer (update si UI impactée)
+                                    ↓
+                 [GATE 2 : architecture V2 validée ? Y/N]
+                                    ↓
+         test-writer → code-implementer → doc-writer sync → code-reviewer → doc-writer
+```
+
+---
+
 ### Workflow pipeline adaptatif (ordre obligatoire)
 
 ```
