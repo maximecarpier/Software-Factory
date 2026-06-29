@@ -34,7 +34,16 @@ Chaque `apps/<nom>/` est autonome : son propre `package.json`, ses dépendances,
 
 ---
 
-## Déploiement Vercel — Instructions iPad (manuel)
+## Déploiement — Liberté et pragmatisme
+
+**Aucun hébergeur n'est imposé.** La règle est : **gratuit et simple en premier**.
+
+### Règle infra (obligatoire pour tech-architect)
+
+Toujours proposer l'option la plus simple et gratuite (Vercel hobby, SQLite, localStorage, fichiers JSON…).
+Si une option payante ou complexe est nécessaire → présenter les alternatives avec coût/complexité et **valider avec l'utilisateur** avant de l'inclure dans l'architecture.
+
+### Vercel (option par défaut pour le web) — Instructions iPad (manuel)
 
 Pour connecter un nouveau `apps/<nom>/` à Vercel depuis Safari :
 

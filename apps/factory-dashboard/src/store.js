@@ -1,4 +1,11 @@
 // M-STORE : persistance localStorage (cache) + synchronisation Redis via /api/backlog
+//
+// Importe sync.js en namespace (import * as) pour que les jest.spyOn sur les exports
+// de sync.js soient visibles depuis ce module (les deux partagent le même namespace object).
+// Dépendance circulaire avec sync.js : sûre car les fonctions sync ne sont appelées
+// qu'à l'intérieur des corps de fonction, jamais au top-level.
+
+import * as syncModule from './sync.js';
 
 const KEY = 'factory_backlog';
 
@@ -69,16 +76,44 @@ export function save(items) {
 }
 
 /**
- * Ajoute un item au tableau persisté (localStorage uniquement).
+ * Ajoute un item au cache local, puis enfile la mutation et déclenche le flush (fire-and-forget).
+ * L'item est immédiatement disponible hors-ligne ; la sync réseau est opportuniste.
  * @param {Object} item
  */
 export function add(item) {
   try {
     const { items } = load();
     items.push(item);
-    localStorage.setItem(KEY, JSON.stringify(items));
+    save(items);
+    syncModule.enqueue(item.id, 'upsert');
+    syncModule.flushPending().catch(e => {
+      console.error('[store] Background flush error (add):', e);
+    });
   } catch (e) {
-    console.error('[store] Erreur écriture localStorage:', e);
+    console.error('[store] Erreur add:', e);
+  }
+}
+
+/**
+ * Remplace un item existant (même id) dans le cache local.
+ * Si l'item n'existe pas, la mise à jour est ignorée (soft skip — upsert-like).
+ * Enfile la mutation et déclenche le flush (fire-and-forget).
+ * @param {Object} item
+ */
+export function update(item) {
+  try {
+    const { items } = load();
+    const idx = items.findIndex(i => i.id === item.id);
+    if (idx !== -1) {
+      items[idx] = item;
+    }
+    save(items);
+    syncModule.enqueue(item.id, 'upsert');
+    syncModule.flushPending().catch(e => {
+      console.error('[store] Background flush error (update):', e);
+    });
+  } catch (e) {
+    console.error('[store] Erreur update:', e);
   }
 }
 
