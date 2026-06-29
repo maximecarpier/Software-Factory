@@ -1,8 +1,9 @@
 import 'jest-localstorage-mock';
+import { jest } from '@jest/globals';
 
 // En mode native ESM (--experimental-vm-modules), `jest` n'est pas injecté automatiquement
-// comme global dans les modules de test. On le propage manuellement ici (il est disponible
-// dans le contexte setupFilesAfterEnv).
+// comme global dans les modules de test. On l'importe depuis @jest/globals et on le propage
+// sur globalThis pour qu'il soit accessible dans les fichiers de test sans import explicite.
 global.jest = jest;
 
 // Mock navigator.onLine
