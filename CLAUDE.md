@@ -188,11 +188,39 @@ specs-framer (update) → sélectionne features V2+ à activer
 
 ### Discussion inter-agents (cohérence avant Gate 2)
 
-Quand designer et tech-architect travaillent en parallèle, leurs livrables sont déposés dans `apps/<projet>/docs/` :
-- `design.md` — wireframes et système visuel
-- `architecture.md` — CDC technique et modules
+Les agents communiquent via `apps/<projet>/docs/inter-agent.md` — canal partagé structuré par sections.
 
-Avant de présenter Gate 2, l'orchestrateur vérifie la cohérence entre les deux fichiers et signale les divergences à résoudre (ex: composants prévus dans design mais absents de l'archi).
+**Format du fichier :**
+```markdown
+## [designer → tech-architect]
+> Round 1 — YYYY-MM-DD
+- La sidebar est fixe (sticky). Compatible plan Vercel hobby ?
+
+## [tech-architect → designer]
+> Round 1 — YYYY-MM-DD
+- Auth via cookies HTTP-only — prévoir état visuel si session expirée.
+
+## [tech-architect → code-implementer]
+> Gate 2 — YYYY-MM-DD
+- Interface commune : `Item { id, type, titre, statut, priorite, projectId }`
+- M1 (API) à finaliser avant M2 (UI).
+
+## [tech-architect → test-writer]
+> Gate 2 — YYYY-MM-DD
+- Redis down → retourner 503, pas liste vide.
+
+## [test-writer → code-implementer]
+> TDD — YYYY-MM-DD
+- Spec §3 ambiguë : "priorite" absente → 400 ou valeur par défaut ?
+```
+
+**Rôle de l'orchestrateur — relay en 2 rounds :**
+
+- **Round 1** : lancer designer + tech-architect en parallèle. Chacun écrit sa section dans `inter-agent.md`.
+- **Relay** : lire `inter-agent.md`, extraire les questions croisées, relancer chaque agent avec les questions de l'autre (second appel Agent avec le fichier en contexte).
+- **Gate 2** : vérifier que toutes les questions dans `inter-agent.md` ont une réponse avant de valider.
+
+Si aucune question croisée après Round 1 → pas de Round 2, passer directement à Gate 2.
 
 ---
 
