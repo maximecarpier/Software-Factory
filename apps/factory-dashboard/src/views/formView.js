@@ -1,7 +1,7 @@
 // M-F1 : vue formulaire — création ET édition d'un item backlog
 
 import { validateItem, createItem } from '../model.js';
-import { load, save, pushToGitHub } from '../store.js';
+import { load, save, pushToGitHub, add } from '../store.js';
 import { showToast } from '../components/toast.js';
 
 // ID de l'item en cours d'édition (null = mode création)
@@ -224,16 +224,16 @@ async function handleSubmit(e) {
   clearErrors();
 
   const form = e.target;
-  const type = form.type.value;
+  const type = form.elements['type']?.value ?? '';
   const projectIdEl = document.getElementById('field-project');
 
   const data = {
     type,
-    titre: form.titre.value,
-    description: form.description.value || null,
-    priorite: form.priorite.value,
+    titre: form.elements['titre']?.value ?? '',
+    description: form.elements['description']?.value || null,
+    priorite: form.elements['priorite']?.value ?? '',
     projectId: projectIdEl ? projectIdEl.value : undefined,
-    url: form.url?.value?.trim() || null,
+    url: form.elements['url']?.value?.trim() || null,
   };
 
   // Validation — passe allItems pour vérifier le projet parent des features
@@ -278,24 +278,22 @@ async function handleSubmit(e) {
     save(updatedItems);
     window.location.hash = '#/backlog';
     showToast('Item modifié.');
-  } else {
-    // ── Mode création : ajouter un nouvel item ──
-    const newItem = createItem(data);
-    updatedItems = [...allItems, newItem];
 
-    save(updatedItems);
+    // ── Synchronisation arrière-plan (mode édition — T5 remplacera par store.update) ──
+    try {
+      await pushToGitHub(updatedItems);
+    } catch {
+      showToast('Mode hors-ligne — données non synchronisées');
+    }
+  } else {
+    // ── Mode création : store.add gère save + enqueue + flush ──
+    const newItem = createItem(data);
+    add(newItem);
     form.reset();
     // Masquer le champ projet après reset (le type revient à vide)
     const groupEl = document.getElementById('field-group-project');
     if (groupEl) groupEl.style.display = 'none';
     window.location.hash = '#/backlog';
     showToast('Item ajouté au backlog.');
-  }
-
-  // ── Synchronisation GitHub en arrière-plan ──
-  try {
-    await pushToGitHub(updatedItems);
-  } catch {
-    showToast('Mode hors-ligne — données non synchronisées');
   }
 }
