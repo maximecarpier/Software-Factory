@@ -57,9 +57,6 @@ export default async function handler(req, res) {
       if (!body || !isValidItemsArray(body.items)) {
         return res.status(400).json({ error: 'Corps invalide : items doit etre un tableau' });
       }
-      if (body.items.length === 0) {
-        return res.status(400).json({ error: 'Corps invalide : items ne peut pas etre vide' });
-      }
 
       const { items } = body;
 
