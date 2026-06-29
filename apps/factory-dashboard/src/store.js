@@ -117,6 +117,23 @@ export function update(item) {
   }
 }
 
+/**
+ * Retire un item du cache local, enfile la suppression et déclenche le flush.
+ * @param {string} id
+ */
+export function remove(id) {
+  try {
+    const { items } = load();
+    save(items.filter(i => i.id !== id));
+    syncModule.enqueue(id, 'delete');
+    syncModule.flushPending().catch(e => {
+      console.error('[store] Background flush error (remove):', e);
+    });
+  } catch (e) {
+    console.error('[store] Erreur remove:', e);
+  }
+}
+
 // ── Synchronisation Redis ─────────────────────────────────────────────────────
 
 /**
