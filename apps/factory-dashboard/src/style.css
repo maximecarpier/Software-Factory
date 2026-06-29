@@ -67,6 +67,17 @@ body {
   white-space: nowrap;
 }
 
+.badge-offline {
+  background: #e53e3e;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
 .nav-links {
   display: flex;
   gap: 0.25rem;
