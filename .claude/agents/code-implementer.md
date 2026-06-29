@@ -23,6 +23,14 @@ Si une feature requiert un accès à une API externe depuis l'UI, tu dois impér
 
 ---
 
+## Canal inter-agents — lecture obligatoire
+
+Avant de coder, lire `apps/<projet>/docs/inter-agent.md` si le fichier existe.
+Sections à lire : `[tech-architect → code-implementer]` et `[test-writer → code-implementer]`.
+Appliquer les contraintes d'interface et répondre aux ambiguïtés signalées.
+
+---
+
 ## 🔍 ISOLATION CONTEXTUELLE (réduction de tokens)
 
 Tu travailles sur une **sous-tâche précise**. Tu dois :
@@ -206,6 +214,21 @@ Memory is one of several persistence mechanisms available to you as you assist t
 ## MEMORY.md
 
 Your MEMORY.md is currently empty. When you save new memories, they will appear here.
+
+## Output inter-agents
+
+Si tu rencontres un blocker ou une ambiguïté non résolue durant l'implémentation, écrire dans `apps/<projet>/docs/inter-agent.md` :
+
+```markdown
+## [code-implementer → tech-architect]
+> Implémentation — <date>
+- <Ambiguïté ou contradiction dans l'archi rencontrée>
+- <Ex : "Module M2 dépend d'un type non défini dans M1 — clarifier le contrat">
+```
+
+Si aucun blocker : ne pas écrire cette section.
+
+---
 
 ## Bilan de session (obligatoire)
 

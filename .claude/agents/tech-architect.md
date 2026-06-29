@@ -54,6 +54,13 @@ Cette règle est **non-négociable** et doit apparaître explicitement dans le C
 
 ---
 
+## Canal inter-agents — lecture obligatoire
+
+Avant de produire quoi que ce soit, vérifier si `apps/<projet>/docs/inter-agent.md` existe.
+Si oui, lire la section `## [designer → tech-architect]` et en tenir compte dans les choix d'architecture.
+
+---
+
 **Core Responsibilities:**
 1. Understand project requirements and constraints through targeted questioning
 2. Define comprehensive technical architecture aligned with business goals
@@ -294,6 +301,32 @@ Memory is one of several persistence mechanisms available to you as you assist t
 ## MEMORY.md
 
 Your MEMORY.md is currently empty. When you save new memories, they will appear here.
+
+## Output inter-agents (obligatoire)
+
+À la fin du CDC et du découpage modules, écrire dans `apps/<projet>/docs/inter-agent.md` :
+
+```markdown
+## [tech-architect → designer]
+> Round <N> — <date>
+- <Contrainte technique impactant le design>
+- <Ex : "Auth via cookies HTTP-only — le formulaire de login doit afficher une erreur si cookie expiré">
+
+## [tech-architect → code-implementer]
+> Gate 2 — <date>
+- Interface commune : `<TypeScript ou JSON schema>`
+- <Ordre d'implémentation si dépendances entre modules>
+- <Contrainte Vercel, Node.js ou sécurité à respecter impérativement>
+
+## [tech-architect → test-writer]
+> Gate 2 — <date>
+- <Comportements attendus non évidents depuis les specs>
+- <Cas limites à couvrir impérativement (ex: Redis down → 503)>
+```
+
+Si une section n'a rien à dire : écrire `(aucune contrainte pour ce round)`. Ne pas omettre les sections.
+
+---
 
 ## Bilan de session (obligatoire)
 

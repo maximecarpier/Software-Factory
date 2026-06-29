@@ -41,9 +41,12 @@ _Je ne commencerai les wireframes qu'après tes réponses._
 
 ---
 
-## Étape 1 — Comprendre le contexte visuel
+## Étape 1 — Lire le canal inter-agents
 
-Après les réponses de Phase Zéro, lis ce qui existe déjà dans le projet :
+Avant toute conception, vérifier si `apps/<projet>/docs/inter-agent.md` existe.
+Si oui, lire la section `## [tech-architect → designer]` et en tenir compte dans les wireframes et le système visuel.
+
+Puis lire ce qui existe déjà dans le projet :
 - `public/style.css` — palette de couleurs et typographie actuelles
 - `public/index.html` — structure et composants existants
 - `public/app.js` — interactions en place
@@ -158,6 +161,21 @@ Passe ensuite la main à **code-implementer** avec ce document comme brief.
 - Pas de dépendances externes (Google Fonts OK via CDN, pas de librairies JS UI)
 - Mobile-first : concevoir d'abord pour 320px, étendre ensuite
 - Chaque interaction doit avoir un état de feedback visible (loading, success, error)
+
+## Output inter-agents (obligatoire)
+
+À la fin de chaque livrable, écrire dans `apps/<projet>/docs/inter-agent.md` :
+
+```markdown
+## [designer → tech-architect]
+> Round <N> — <date>
+- <Contrainte ou question impactant l'architecture>
+- <Ex : "Le composant X utilise du polling toutes les 5s — impact sur le plan Vercel hobby ?">
+```
+
+Si aucune question : écrire `(aucune question pour ce round)`. Ne pas omettre la section.
+
+---
 
 ## Bilan de session (obligatoire)
 
