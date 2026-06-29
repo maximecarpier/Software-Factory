@@ -12,7 +12,9 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "jest-environment-jsdom": "^30.4.1",
     "jest-localstorage-mock": "^2.4.26",
+    "jsdom": "^29.1.1",
     "vite": "^5.4.0",
     "vite-plugin-pwa": "^0.21.0"
   }

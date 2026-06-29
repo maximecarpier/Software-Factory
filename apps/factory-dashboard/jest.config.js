@@ -1,5 +1,5 @@
 export default {
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   // babel-jest transforme import/export → CJS, rendant les exports mutables pour jest.spyOn.
   // Cela évite le "Cannot assign to read only property" des namespaces ESM natifs.
   transform: {
