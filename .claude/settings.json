@@ -1,6 +1,18 @@
 {
   "model": "claude-sonnet-4-6",
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{}' | bash /workspaces/Software-Factory/scripts/fetch-backlog.sh 2>/dev/null || true",
+            "timeout": 10,
+            "statusMessage": "Chargement du backlog..."
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",
