@@ -134,6 +134,7 @@ Ne lancer l'agent qu'après avoir reçu les réponses et les inclure dans le pro
 3. test-writer (TDD) → tests par module
 4. code-implementer  → implémentation par module (parallélisable)
    [+ expert-claude-code en audit continu des configs agents]
+4b. doc-writer (sync) → synchronise specs.md / architecture.md / design.md avec le code réel
                                          ↓
                      security-check.sh avant Gate 3
                      ┌─── [GATE 3 : implémentation terminée ? Y/N] ┐
@@ -256,6 +257,28 @@ L'agent `expert-claude-code` peut être lancé à tout moment pour auditer `.cla
 - Créer de nouveaux agents spécialisés (voir section "Détection de domaine")
 
 Lancer systématiquement après l'ajout de nouveaux agents ou après une refonte du pipeline.
+
+---
+
+### Cohérence documentation-code (obligatoire)
+
+**Le code est la source de vérité.** Si l'implémentation s'écarte de la doc, c'est la doc qui doit être corrigée — jamais l'inverse.
+
+**Déclenchement** : après chaque run de `code-implementer` (étape 4b), avant de présenter Gate 3.
+
+**L'orchestrateur lance doc-writer en mode sync** avec pour mission :
+1. Lire `apps/<projet>/docs/specs.md`, `architecture.md`, `design.md`
+2. Lire le code produit dans `apps/<projet>/src/`
+3. Identifier les divergences (module supprimé, API renommée, composant substitué, modèle de données modifié, bibliothèque changée)
+4. Mettre à jour les docs pour qu'elles reflètent ce qui est réellement construit
+
+**Divergences typiques à corriger :**
+- Un module planifié a été simplifié ou fusionné avec un autre → mettre à jour architecture.md
+- Une route API a changé de nom ou de signature → mettre à jour architecture.md et specs.md
+- Un composant UI a été remplacé par une approche différente → mettre à jour design.md
+- Une dépendance a été substituée → mettre à jour architecture.md
+
+Si aucune divergence : doc-writer le note explicitement et passe la main.
 
 ---
 

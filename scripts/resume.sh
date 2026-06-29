@@ -60,3 +60,48 @@ for proj in projects:
     print("=" * 52)
 
 PYEOF
+
+# ── Backlog Redis ─────────────────────────────────────────────────────────────
+DASHBOARD_URL="https://factory-dashboard-alpha.vercel.app/api/backlog"
+BACKLOG_JSON=$(curl -sf --max-time 5 "$DASHBOARD_URL" 2>/dev/null || echo "")
+
+if [[ -n "$BACKLOG_JSON" ]]; then
+  python3 - "$BACKLOG_JSON" <<'PYEOF2'
+import sys, json
+
+raw = sys.argv[1]
+try:
+    data = json.loads(raw)
+    items = data.get("items", data) if isinstance(data, dict) else data
+except Exception:
+    sys.exit(0)
+
+PRIO_ORDER = {"haute": 0, "moyenne": 1, "basse": 2}
+PRIO_ICON  = {"haute": "🔴", "moyenne": "🟡", "basse": "⚪"}
+
+projects = {i["id"]: i["titre"] for i in items if i.get("type") == "projet"}
+todo = [i for i in items if i.get("statut") in ("à faire", None) and i.get("type") != "projet"]
+todo.sort(key=lambda x: (PRIO_ORDER.get(x.get("priorite", "basse"), 2), x.get("titre", "")))
+
+by_proj = {}
+for i in todo:
+    pid = i.get("projectId", "_orphan")
+    by_proj.setdefault(pid, []).append(i)
+
+print("\n" + "─" * 52)
+print("📋 BACKLOG — items à faire")
+if not todo:
+    print("   (aucun item à faire)")
+else:
+    for pid, group in sorted(by_proj.items(), key=lambda kv: PRIO_ORDER.get(kv[1][0].get("priorite","basse"), 2)):
+        proj_name = projects.get(pid, pid)
+        top_prio  = group[0].get("priorite", "basse")
+        print(f"\n   {PRIO_ICON.get(top_prio,'⚪')} {proj_name}")
+        for item in group:
+            icon = PRIO_ICON.get(item.get("priorite", "basse"), "⚪")
+            print(f"      {icon} {item['titre']}")
+print("─" * 52)
+PYEOF2
+else
+  echo "   ⚠️  Backlog Redis inaccessible (dashboard hors ligne ?)"
+fi
