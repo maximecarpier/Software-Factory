@@ -31,6 +31,17 @@ if [ -z "$ITEMS" ] || [ "$ITEMS" = "null" ]; then
   exit 0
 fi
 
+# Suppression automatique des terminés (hors projets) au démarrage
+TERMINES_COUNT=$(echo "$ITEMS" | jq '[.[] | select(.statut == "terminé" and .type != "projet")] | length')
+if [ "$TERMINES_COUNT" -gt 0 ]; then
+  ACTIFS=$(echo "$ITEMS" | jq '[.[] | select(.statut != "terminé" or .type == "projet")]')
+  curl -sf -X PUT "https://factory-dashboard-alpha.vercel.app/api/backlog" \
+    -H "Content-Type: application/json" \
+    -d "{\"items\": $ACTIFS}" \
+    --max-time 5 >/dev/null 2>&1 || true
+  ITEMS="$ACTIFS"
+fi
+
 COUNT=$(echo "$ITEMS" | jq 'length')
 
 LINES=$(echo "$ITEMS" | jq -r '.[] | "- [\(.statut // "à faire")] \(.titre // .name // "sans titre") (\(.type // "?"))"' 2>/dev/null)
