@@ -4,10 +4,19 @@
   "description": "One Piece Episode Tracker PWA",
   "main": "app.js",
   "scripts": {
-    "scrape": "node scrape.js"
+    "scrape": "node scrape.js",
+    "start": "npx serve . -p 3002",
+    "test": "jest"
   },
   "license": "ISC",
   "dependencies": {
     "axios": "^1.18.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"]
   }
 }
