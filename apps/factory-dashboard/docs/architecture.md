@@ -11,6 +11,13 @@
 
 ## Changelog
 
+### v2.1 — 2026-06-29 — Correctifs offline-mutations (review Gate 2)
+- **Règle vues** ajoutée (§9.7) : les vues ne peuvent appeler que `store.add/update/remove` — jamais `save/pushToGitHub` directement.
+- **`store.remove(id)`** ajouté (§9.3) : seul chemin correct pour supprimer un item et alimenter `factory_pending`.
+- **`flushPending()` step 6 supprimée** (§9.2) : le court-circuit `items.length === 0 → clearPending sans PUT` est retiré — le PUT tableau-vide est désormais autorisé.
+- **API `PUT /api/backlog`** : accepte `items: []` (tableau vide valide, réinitialisé côté Redis).
+- **Tableau micro-tâches** (§12) remplace l'ancienne section "modules parallèles" — 7 tâches séquentielles.
+
 ### v2.0 — 2026-06-29 — Support offline complet
 - **Nouveau** : stratégie offline-first documentée (§9). Mutations possibles hors-ligne, file d'attente `factory_pending` en localStorage, flush automatique au retour réseau.
 - **Nouveau** : app transformée en PWA (§10) — `vite-plugin-pwa` + Service Worker Workbox (cache-first app shell). L'app s'ouvre désormais sans réseau depuis zéro.
@@ -155,7 +162,7 @@ Map indexée par `id` d'item. **L'indexation par id garantit l'anti-doublon** : 
 ### 4.4 Stockage distant (Redis Upstash)
 
 - **Clé** : `factory:backlog`, valeur = `JSON.stringify(Item[])`.
-- Accédé exclusivement par `api/backlog.js`. **Contrainte forte** : le PUT **rejette un tableau vide** (HTTP 400) — voir §9.5 et Risques §11.
+- Accédé exclusivement par `api/backlog.js`. **Le PUT accepte un tableau vide** `[]` depuis v2.1 — cela réinitialise Redis à vide (suppression de tous les items).
 
 ---
 
@@ -195,7 +202,7 @@ La stratégie offline v2.0 **n'ajoute aucune dépendance** — conformité expli
 | Méthode | Entrée | Sortie OK | Erreurs |
 |---|---|---|---|
 | `GET` | — | `200 { items: Item[] }` | `500 { error }` (Redis indispo / env manquante) |
-| `PUT` | `{ items: Item[] }` (non vide) | `200 { ok: true }` | `400 { error }` (items absent / vide), `500 { error }` |
+| `PUT` | `{ items: Item[] }` (tableau vide autorisé) | `200 { ok: true }` | `400 { error }` (body absent ou items non-array), `500 { error }` |
 | autre | — | — | `405 { error }` |
 
 Côté client (`store.js`) :
@@ -234,16 +241,18 @@ export async function flushPending()        // pousse l'état local complet vers
 3. Si `!hasPending()` → retour (rien à faire).
 4. `flushing = true`.
 5. `const { items } = store.load()` → reconstitue **l'état complet** depuis localStorage.
-6. Si `items.length === 0` → `clearPending()` et retour (le PUT rejette un tableau vide ; rien de valide à pousser — cf. §11).
-7. `await store.pushToGitHub(items)` (PUT, écrase Redis = last-write-wins).
-8. Succès → `clearPending()`. Échec (throw) → **conserver la file**, log silencieux ; réessai au prochain `online`.
-9. `finally { flushing = false }`.
+6. `await store.pushToGitHub(items)` (PUT, écrase Redis = last-write-wins). **Tableau vide autorisé** — indique une suppression totale offline.
+7. Succès → `clearPending()`. Échec (throw) → **conserver la file**, log silencieux ; réessai au prochain `online`.
+8. `finally { flushing = false }`.
+
+> **Supprimé en v2.1** : l'ancien step 6 (`items.length === 0 → clearPending sans PUT`) est retiré. Il vidait silencieusement la file sans mettre Redis à jour, causant la restauration des items supprimés au prochain boot.
 
 ### 9.3 Modifications de `src/store.js`
 
-- **`add(item)`** : (1) `save` local (push dans le tableau), (2) `sync.enqueue(item.id)`, (3) `sync.flushPending()` (fire-and-forget — flushe immédiatement si online, sinon ne fait rien et la file attend).
-- **`update(item)`** (NOUVEAU) : (1) charge, remplace l'item de même `id` dans le tableau, `save`, (2) `sync.enqueue(item.id)`, (3) `sync.flushPending()`.
-- En **ligne**, le parcours est donc : écriture locale immédiate → PUT immédiat → file vidée. En **hors-ligne** : écriture locale immédiate → file conservée → flush au retour réseau.
+- **`add(item)`** : (1) `save` local (push dans le tableau), (2) `sync.enqueue(item.id, 'upsert')`, (3) `sync.flushPending()` (fire-and-forget).
+- **`update(item)`** : (1) charge, remplace l'item de même `id` dans le tableau, `save`, (2) `sync.enqueue(item.id, 'upsert')`, (3) `sync.flushPending()`.
+- **`remove(id)`** (NOUVEAU v2.1) : (1) charge, filtre l'item hors du tableau, `save`, (2) `sync.enqueue(id, 'delete')`, (3) `sync.flushPending()`.
+- En **ligne** : écriture locale immédiate → PUT immédiat → file vidée. En **hors-ligne** : écriture locale immédiate → file conservée → flush au retour réseau.
 
 > Découplage : `store.js` importe `sync.js`, mais `sync.js` n'importe de `store.js` que `load`/`pushToGitHub`. Pour éviter une dépendance circulaire dure, `sync.flushPending()` reçoit ces fonctions par import direct (les deux modules sont stables) — l'interface est figée (cf. inter-agent).
 
@@ -267,16 +276,36 @@ Ordre **critique** (corrige un bug latent : `fetchFromGitHub()` écrase le cache
 - `nav.js` : nouvel élément badge masqué par défaut, affiché quand `!navigator.onLine`. Mis à jour par `updateOnlineBadge()` branchée sur les events `online`/`offline` (et appelée une fois au boot pour l'état initial).
 - Léger, non bloquant : informe l'utilisateur que ses changements sont locaux et seront synchronisés au retour du réseau.
 
+### 9.7 RÈGLE VUES — Accès au store (v2.1, obligatoire)
+
+**Les vues (`formView.js`, `backlogView.js`, `projectsView.js`) n'appellent JAMAIS directement :**
+- `save()` — écriture brute sans enqueue
+- `pushToGitHub()` — PUT direct sans enqueue
+- `fetchFromGitHub()` — réservé à `main.js` (boot + listener online)
+
+**Les vues utilisent UNIQUEMENT les 3 fonctions de mutation du store :**
+
+| Action utilisateur | Fonction à appeler | Fichier |
+|---|---|---|
+| Créer un item (formulaire) | `store.add(newItem)` | `formView.js` |
+| Modifier un item (formulaire) | `store.update(updatedItem)` | `formView.js` |
+| Changer le statut (select inline) | `store.update({ ...item, statut })` | `backlogView.js` |
+| Supprimer un item (bouton) | `store.remove(id)` | `backlogView.js` |
+
+Ces fonctions encapsulent save + enqueue + flushPending. C'est le **seul chemin autorisé** vers la synchronisation Redis. Toute tentative de contournement brise la garantie offline.
+
 ### 9.6 Flux complet (résumé)
 
 ```
-Création/édition  → store.add/update → save(localStorage) → enqueue(id) → flushPending()
-                                                                              │
-                                          online ? ──oui──> PUT /api/backlog → clearPending()
-                                              │
-                                             non → file conservée
-                                                      │
-                              event 'online' ────────> flushPending() → PUT → clearPending()
+Création    → store.add(item)       → save(localStorage) → enqueue(id,'upsert') → flushPending()
+Édition     → store.update(item)    → save(localStorage) → enqueue(id,'upsert') → flushPending()
+Suppression → store.remove(id)      → save(localStorage) → enqueue(id,'delete') → flushPending()
+                                                                                        │
+                                              online ? ──oui──> PUT /api/backlog ──────>│
+                                                  │                                 clearPending()
+                                                 non → file conservée
+                                                          │
+                                event 'online' ──────────> flushPending() → PUT → clearPending()
 
 Boot → render(cache) → [hasPending ? flush d'abord] → fetchFromGitHub() → cache à jour → re-render
 ```
@@ -362,7 +391,7 @@ Aucune modification de `src/` requise — le plugin s'intègre au build Vite.
 | Risque | Impact | Mitigation |
 |---|---|---|
 | **`fetchFromGitHub()` au boot écrase des mutations offline non flushées** | Perte de données locales | Séquence boot **flush-puis-fetch** (§9.4) : ne jamais fetch tant que `factory_pending` n'est pas vide |
-| **PUT rejette un tableau vide (400)** | Flush échoue si le backlog local est vidé alors qu'il reste des entrées en file | `flushPending()` court-circuite et vide la file si `items.length === 0` (§9.2). À revoir si suppression d'item arrive (V2+ §10) |
+| ~~PUT rejette un tableau vide (400)~~ | ~~Flush échoue si le backlog local est vidé~~ | **Résolu en v2.1** : l'API accepte `items: []` ; `flushPending()` n'a plus de court-circuit sur items vides. |
 | Double flush (`online` + boot concurrents) | Deux PUT simultanés | Garde de réentrance `flushing` dans `sync.js` |
 | Flush réseau échoue en cours de session | Mutations non synchronisées | File conservée, réessai automatique au prochain event `online` ; toast informatif |
 | Données localStorage corrompues | App ne charge pas | Garde-fou `store.load()` (reset + flag `corrupted`) — déjà implémenté |
@@ -372,19 +401,27 @@ Aucune modification de `src/` requise — le plugin s'intègre au build Vite.
 
 ---
 
-## MODULES INDÉPENDANTS — Développement parallèle (v2.0)
+## 12. Micro-tâches — Ordre d'exécution (v2.1)
 
-Le contrat clé à figer en premier est la **surface publique de `sync.js`** (§9.2) et les signatures `store.add()/update()`. Une fois ces interfaces gelées, les modules se développent en parallèle.
+**Règle** : une micro-tâche à la fois, dans l'ordre du tableau. Chaque tâche est un fichier unique avec un périmètre strict. Ne pas combiner plusieurs tâches dans un même appel à code-implementer.
 
-| Module | Description | Fichiers concernés | Dépendances | Branche suggérée |
-|--------|-------------|-------------------|-------------|-----------------|
-| M-SYNC | File `factory_pending`, `flushPending()`, helpers réseau, garde de réentrance | `src/sync.js` | M-STORE (contrat `load`/`pushToGitHub` figé) | feat/fd-sync-offline |
-| M-STORE | Ajout `update()`, branchement `enqueue`+`flushPending` dans `add()`/`update()` | `src/store.js` | M-SYNC (contrat `enqueue`/`flushPending` figé) | feat/fd-store-mutations |
-| M-SHELL | Séquence boot flush→fetch, listener `online`, branchement badge | `src/main.js` | M-SYNC (`flushPending`/`hasPending`), M-NAV (`updateOnlineBadge`) | feat/fd-boot-online |
-| M-NAV | Badge « Hors ligne », `updateOnlineBadge()`, events online/offline | `src/components/nav.js`, `src/style.css` (classe `.badge-offline`) | Aucune (contrat = `updateOnlineBadge()`) | feat/fd-offline-badge |
-| M-PWA | Config vite-plugin-pwa + manifest + cache app shell | `vite.config.js`, `public/manifest.json` | Aucune (indépendant) | feat/fd-pwa |
+| T# | Fichier | Périmètre exact | Entrée attendue | Sortie attendue |
+|----|---------|-----------------|-----------------|-----------------|
+| T1 | `api/backlog.js` | Accepter `items: []` dans le PUT — retirer le rejet 400 pour tableau vide. Conserver le rejet 400 si `items` est absent ou n'est pas un array. | Corps PUT `{ items: [] }` | `200 { ok: true }` |
+| T2 | `src/store.js` | Ajouter `export function remove(id)` : (1) `load()`, (2) `filter(i => i.id !== id)`, (3) `save(filtered)`, (4) `syncModule.enqueue(id, 'delete')`, (5) `syncModule.flushPending().catch(...)`. Ne pas modifier `add()` ni `update()`. | `remove('uuid-1')` | item absent du cache, id dans `factory_pending` |
+| T3 | `src/sync.js` | Dans `flushPending()`, supprimer le bloc `if (items.length === 0) { clearPending(); return; }` — laisser `pushToGitHub(items)` s'exécuter même pour `[]`. | file non vide + cache vide | `fetch` appelé avec `PUT { items: [] }` |
+| T4 | `src/views/formView.js` | Dans `handleSubmit`, mode **création** uniquement (branche `else`) : remplacer `save(updatedItems)` + `pushToGitHub()` par un unique appel `store.add(newItem)`. Supprimer l'import `{ save, pushToGitHub }` si plus utilisé après T5. | Soumission formulaire création offline | `factory_pending` contient le nouvel item |
+| T5 | `src/views/formView.js` | Dans `handleSubmit`, mode **édition** uniquement (branche `if (_editId)`) : remplacer `save(updatedItems)` + `pushToGitHub()` par `store.update(updatedItem)`. Après T4+T5, retirer les imports `save` et `pushToGitHub` de ce fichier. | Soumission formulaire édition offline | `factory_pending` contient l'item modifié |
+| T6 | `src/views/backlogView.js` | Handler **statut-select change** : remplacer `save(updatedItems)` + `pushToGitHub()` par `store.update({ ...item, statut: newStatut })`. | Changement statut offline | `factory_pending` contient l'item |
+| T7 | `src/views/backlogView.js` | Handler **btn-delete click** : remplacer `save(updatedItems)` + `pushToGitHub()` par `store.remove(id)`. Après T6+T7, retirer les imports `save` et `pushToGitHub` de ce fichier. | Suppression offline | item absent du cache, id dans `factory_pending` |
 
-**Ordre de finalisation** : figer le contrat M-SYNC ↔ M-STORE en premier (interfaces croisées), puis M-SHELL, M-NAV et M-PWA en parallèle. M-MODEL et les vues F1/F2 sont inchangés par cette itération.
+**Dépendances entre tâches** :
+- T2 et T3 peuvent s'exécuter dans n'importe quel ordre (fichiers disjoints).
+- T4 et T5 sont indépendants de T2/T3 du point de vue code (store.add/update existent déjà) — mais T4/T5 doivent être validés après T3 pour que les tests E2E passent.
+- T6 dépend de rien de nouveau (store.update existe).
+- T7 dépend de T2 (store.remove doit exister).
+
+**Tests de validation** : après chaque tâche, lancer `npm test` depuis `apps/factory-dashboard/`. Les tests `offline-mutations.test.js` doivent passer progressivement (T1→T7 : 0→6 tests verts).
 
 ---
 
