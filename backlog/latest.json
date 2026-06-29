@@ -80,28 +80,6 @@
       "createdAt": "2026-06-27T00:00:00.000Z"
     },
     {
-      "id": "feat-factory-versionning-001",
-      "type": "feature",
-      "titre": "Organiser le versionning dans la doc",
-      "description": "Comment est organisé une doc type avec le versioning ? MVP,V0…",
-      "priorite": "moyenne",
-      "createdAt": "2026-06-28T00:00:00.000Z",
-      "statut": "à faire",
-      "url": null,
-      "projectId": "proj-software-factory-001"
-    },
-    {
-      "id": "feat-factory-interagent-001",
-      "type": "feature",
-      "titre": "Discussion inter-agents",
-      "description": "Mécanisme de discussion entre agents pour améliorer la cohérence des livrables",
-      "priorite": "moyenne",
-      "createdAt": "2026-06-28T00:00:00.000Z",
-      "statut": "à faire",
-      "url": null,
-      "projectId": "proj-software-factory-001"
-    },
-    {
       "id": "feat-onepiece-design-001",
       "type": "feature",
       "titre": "Améliorer le design de one-piece-speedrun",
@@ -123,17 +101,6 @@
       "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
     },
     {
-      "id": "10b16ab7-fc05-4d5e-a3d9-f8a4b9a60a8f",
-      "type": "feature",
-      "titre": "Backlog",
-      "description": "Je voudrais que tu puisse récupérer les données redis du Dashboard pour avoir connaissance de mon backlog, quelle stratégie adopter ? Démarrage ? A la demande automatique ?",
-      "priorite": "moyenne",
-      "createdAt": "2026-06-28T17:36:00.498Z",
-      "statut": "à faire",
-      "url": null,
-      "projectId": "proj-software-factory-001"
-    },
-    {
       "id": "a501420c-ad83-4484-b91d-7d1fb4a50e08",
       "type": "feature",
       "titre": "Consommation tokens et heures",
@@ -152,16 +119,6 @@
       "createdAt": "2026-06-28T17:46:22.511Z",
       "statut": "à faire",
       "url": null,
-      "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
-    },
-    {
-      "id": "c7b39c76-f19b-4067-90f7-de032d35d499",
-      "type": "feature",
-      "titre": "Suppression auto",
-      "description": "Automatiquement supprimer les items terminés sauf les projets au bout de 24h après  avoir prit le status terminé",
-      "priorite": "moyenne",
-      "statut": "à faire",
-      "createdAt": "2026-06-28T17:56:55.485Z",
       "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
     },
     {
@@ -213,16 +170,6 @@
       "priorite": "moyenne",
       "statut": "à faire",
       "createdAt": "2026-06-29T01:49:57.729Z",
-      "projectId": "proj-software-factory-001"
-    },
-    {
-      "id": "fe54fae0-da7c-4b84-8873-ab1f0e36d8d2",
-      "type": "feature",
-      "titre": "Maj redis backlog par claude",
-      "description": "Mettre à jour le redis backlog à la fin de création d’une app pour y ajouter le lien de prod et modifier le status à « en cours »",
-      "priorite": "haute",
-      "statut": "à faire",
-      "createdAt": "2026-06-29T03:17:15.558Z",
       "projectId": "proj-software-factory-001"
     },
     {
