@@ -66,6 +66,11 @@ DASHBOARD_URL="https://factory-dashboard-alpha.vercel.app/api/backlog"
 BACKLOG_JSON=$(curl -sf --max-time 5 "$DASHBOARD_URL" 2>/dev/null || echo "")
 
 if [[ -n "$BACKLOG_JSON" ]]; then
+  # Sauvegarde snapshot pour historique git (autosave committera)
+  mkdir -p "$REPO_ROOT/backlog"
+  echo "$BACKLOG_JSON" | python3 -c "import sys,json; print(json.dumps(json.loads(sys.stdin.read()), ensure_ascii=False, indent=2))" \
+    > "$REPO_ROOT/backlog/latest.json" 2>/dev/null || true
+
   python3 - "$BACKLOG_JSON" <<'PYEOF2'
 import sys, json
 

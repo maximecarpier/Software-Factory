@@ -1,0 +1,359 @@
+{
+  "items": [
+    {
+      "id": "proj-software-factory-001",
+      "type": "projet",
+      "titre": "Software Factory",
+      "description": "Le meta-projet : amélioration continue de la Factory, ses agents, son pipeline et ses outils d'orchestration.",
+      "priorite": "haute",
+      "statut": "en cours",
+      "createdAt": "2026-06-27T00:00:00.000Z",
+      "url": "https://github.com/maximecarpier/Software-Factory"
+    },
+    {
+      "id": "proj-travelfinance-001",
+      "type": "projet",
+      "titre": "TravelFinance",
+      "description": "App de suivi financier de voyage. Projet existant déployé sur Vercel (apps/travelfinance/).",
+      "priorite": "haute",
+      "statut": "en cours",
+      "createdAt": "2026-06-27T00:00:00.000Z",
+      "url": "https://travelfinance-livid.vercel.app"
+    },
+    {
+      "id": "proj-onepiece-001",
+      "type": "projet",
+      "titre": "one-piece-speedrun",
+      "description": "App de speedrun One Piece. Projet existant déployé sur Vercel (apps/one-piece-speedrun/).",
+      "priorite": "moyenne",
+      "statut": "en cours",
+      "createdAt": "2026-06-27T00:00:00.000Z",
+      "url": "https://one-piece-speedrun.vercel.app"
+    },
+    {
+      "id": "8daa4e57-56f7-40ae-a568-6158abf2e46a",
+      "type": "projet",
+      "titre": "Dashboard-Factory",
+      "description": "Dashboard de gestion du backlog de la Factory.",
+      "priorite": "haute",
+      "statut": "en cours",
+      "createdAt": "2026-06-27T18:41:31.754Z",
+      "url": "https://factory-dashboard-alpha.vercel.app"
+    },
+    {
+      "id": "proj-safecalc-001",
+      "type": "projet",
+      "titre": "safecalc",
+      "description": "App de calcul. Projet existant déployé dans la Factory (apps/safecalc/).",
+      "priorite": "basse",
+      "createdAt": "2026-06-28T00:00:00.000Z",
+      "statut": "en cours",
+      "url": "https://safecalc.vercel.app"
+    },
+    {
+      "id": "proj-maman-sport-001",
+      "type": "projet",
+      "titre": "StepQuest",
+      "description": "Nouvelle app à créer — sport / fitness.",
+      "priorite": "haute",
+      "createdAt": "2026-06-27T00:00:00.000Z",
+      "statut": "à faire",
+      "url": null
+    },
+    {
+      "id": "proj-pari-sportif-001",
+      "type": "projet",
+      "titre": "BetXpert",
+      "description": "📱 L'Application & Sources\nUne PWA fluide dédiée à la Coupe du Monde. Elle centralise 3 piliers :\n1. Tactique : Wiloo (via transcripts YouTube gratuits).\n2. Parieur : Winamax FC/X (via scraping/transcripts).\n3. Cotes : The Odds API (500 requêtes gratuites/mois).\n⚙️ L'Architecture Tech (0 €)\nDéveloppée avec Claude sur un Repo Git unique, hébergée sur Vercel. Un script en tâche de fond (Cron/Worker) pré-calcule les analyses et les stocke dans Upstash Redis. L'utilisateur accède ainsi aux pronos instantanément (<50 ms).\n🤖 Le Cerveau (Gemini 1.5 Flash)\nIntégré dans ton code pour un coût dérisoire (~2€/compétition). Tu lui injectes un System Prompt Persona : \"Ingénieur Analyste Data & Scout Football\". Ce rôle le force à arbitrer entre la tactique et les cotes pour éviter les résumés scolaires.\n📊 L'Output\nGemini compile tout et renvoie un JSON strict pour ton interface : issue du match, scores probables et synthèse.",
+      "priorite": "haute",
+      "createdAt": "2026-06-27T00:00:00.000Z",
+      "statut": "à faire",
+      "url": null
+    },
+    {
+      "id": "proj-photo-eval-001",
+      "type": "projet",
+      "titre": "FocalGuide",
+      "description": "Nouvelle app à créer — évaluation de photos pour améliorer la qualité de ses clichés.",
+      "priorite": "basse",
+      "statut": "à faire",
+      "createdAt": "2026-06-27T00:00:00.000Z"
+    },
+    {
+      "id": "feat-factory-session-001",
+      "type": "feature",
+      "titre": "Tester la résilience aux coupures de session",
+      "description": "Vérifier que les sessions de production résistent aux coupures — checkpoint et reprise automatique.",
+      "priorite": "haute",
+      "statut": "terminé",
+      "projectId": "proj-software-factory-001",
+      "createdAt": "2026-06-28T00:00:00.000Z"
+    },
+    {
+      "id": "feat-factory-archi-mvp-001",
+      "type": "feature",
+      "titre": "Refonte pipeline archi MVP — prise en compte des futures features",
+      "description": "Problème : l'archi générée au MVP n'est pas adaptée aux features suivantes. Solution : brainstorm génère toutes les idées, specs-framer priorise le backlog (MVP vs important), architecte conçoit en tenant compte des futures features dès le départ.",
+      "priorite": "haute",
+      "statut": "terminé",
+      "projectId": "proj-software-factory-001",
+      "createdAt": "2026-06-28T00:00:00.000Z"
+    },
+    {
+      "id": "feat-factory-versionning-001",
+      "type": "feature",
+      "titre": "Organiser le versionning dans la doc",
+      "description": "Comment est organisé une doc type avec le versioning ? MVP,V0…",
+      "priorite": "moyenne",
+      "createdAt": "2026-06-28T00:00:00.000Z",
+      "statut": "à faire",
+      "url": null,
+      "projectId": "proj-software-factory-001"
+    },
+    {
+      "id": "feat-factory-interagent-001",
+      "type": "feature",
+      "titre": "Discussion inter-agents",
+      "description": "Mécanisme de discussion entre agents pour améliorer la cohérence des livrables",
+      "priorite": "moyenne",
+      "createdAt": "2026-06-28T00:00:00.000Z",
+      "statut": "à faire",
+      "url": null,
+      "projectId": "proj-software-factory-001"
+    },
+    {
+      "id": "feat-onepiece-design-001",
+      "type": "feature",
+      "titre": "Améliorer le design de one-piece-speedrun",
+      "description": "Refonte visuelle de l'application one-piece-speedrun.",
+      "priorite": "basse",
+      "statut": "à faire",
+      "projectId": "proj-onepiece-001",
+      "createdAt": "2026-06-27T00:00:00.000Z"
+    },
+    {
+      "id": "275a43ad-693b-44ca-a27c-fea94fe3b744",
+      "type": "feature",
+      "titre": "Refonte graphique",
+      "description": null,
+      "priorite": "moyenne",
+      "createdAt": "2026-06-28T15:30:51.450Z",
+      "statut": "à faire",
+      "url": null,
+      "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
+    },
+    {
+      "id": "4604dc0f-cc01-453e-875d-fd512e4b0700",
+      "type": "feature",
+      "titre": "Le dossier backlog sert-il toujours ? Comment Claude recup les infos redis automatiquement ?",
+      "description": null,
+      "priorite": "haute",
+      "createdAt": "2026-06-28T15:34:33.313Z",
+      "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a",
+      "statut": "terminé"
+    },
+    {
+      "id": "f03e4ba2-7b56-48e2-812e-2346b2504e78",
+      "type": "feature",
+      "titre": "Test writer fonctionnel et technique ?",
+      "description": null,
+      "priorite": "haute",
+      "createdAt": "2026-06-28T15:36:18.618Z",
+      "projectId": "proj-software-factory-001",
+      "statut": "terminé"
+    },
+    {
+      "id": "069f1440-a64d-4f70-9627-322efa433774",
+      "type": "feature",
+      "titre": "Workflow agentique poussé",
+      "description": "à chaque étape voir si besoin d’un agent spécialiste supplémentaire ou pas nécessaire et me faire valider avec proposition d’ajout d’agent spécialisé supplémentaire si besoin (exemple game designer ou storyteller pour jeux )",
+      "priorite": "moyenne",
+      "createdAt": "2026-06-28T15:36:57.988Z",
+      "projectId": "proj-software-factory-001",
+      "statut": "terminé"
+    },
+    {
+      "id": "4fc79b53-ab1b-46bb-9f9f-9815814a6de6",
+      "type": "feature",
+      "titre": "Vérifier la liaison redis et l’état de la base",
+      "description": null,
+      "priorite": "haute",
+      "createdAt": "2026-06-28T15:39:08.064Z",
+      "projectId": "proj-travelfinance-001",
+      "statut": "terminé"
+    },
+    {
+      "id": "d3d67ca9-bb32-4999-a1ef-7a94ef53fb46",
+      "type": "feature",
+      "titre": "Deux dossiers factory utile correspond aux bonnes pratiques ?",
+      "description": null,
+      "priorite": "haute",
+      "createdAt": "2026-06-28T15:44:54.097Z",
+      "projectId": "proj-software-factory-001",
+      "statut": "terminé"
+    },
+    {
+      "id": "e9c2dea7-7eb9-4da9-8b2a-a172e1f54700",
+      "type": "feature",
+      "titre": "Problème de filtre ( les nouvelles création s’affichent à faire mais le filtre ne les affiche pas)",
+      "description": null,
+      "priorite": "haute",
+      "createdAt": "2026-06-28T15:50:30.316Z",
+      "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a",
+      "statut": "terminé"
+    },
+    {
+      "id": "111331d1-a3cb-4ca6-8272-e914c47fc392",
+      "type": "feature",
+      "titre": "Redis",
+      "description": "Uniformiser les préfixes",
+      "priorite": "haute",
+      "createdAt": "2026-06-28T17:30:23.677Z",
+      "statut": "terminé",
+      "url": null,
+      "projectId": "proj-travelfinance-001"
+    },
+    {
+      "id": "10b16ab7-fc05-4d5e-a3d9-f8a4b9a60a8f",
+      "type": "feature",
+      "titre": "Backlog",
+      "description": "Je voudrais que tu puisse récupérer les données redis du Dashboard pour avoir connaissance de mon backlog, quelle stratégie adopter ? Démarrage ? A la demande automatique ?",
+      "priorite": "moyenne",
+      "createdAt": "2026-06-28T17:36:00.498Z",
+      "statut": "à faire",
+      "url": null,
+      "projectId": "proj-software-factory-001"
+    },
+    {
+      "id": "a501420c-ad83-4484-b91d-7d1fb4a50e08",
+      "type": "feature",
+      "titre": "Consommation tokens et heures",
+      "description": "Faire une nouvelle page qui indique ma consommation de tokens sur la session et d’un point de vue hebdo par rapport à mes limites de plan PRO",
+      "priorite": "moyenne",
+      "statut": "à faire",
+      "createdAt": "2026-06-28T17:40:40.101Z",
+      "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
+    },
+    {
+      "id": "bec9e01a-6452-4de5-af9f-2659226b4663",
+      "type": "feature",
+      "titre": "Ajouter une fonctionnalité session",
+      "description": "Lorsque je parcours les items du backlog je dois pouvoir les ajouter facilement à une « session » pour un item, tous les items intégré à la session peuvent être retrouvés seulement eux via un filtre cochable on peux aussi réinitialiser la session c’est à dire enlever tous les flags ajoutés le fonctionnement est un peu similaire aux flags des listes de rappel",
+      "priorite": "moyenne",
+      "createdAt": "2026-06-28T17:46:22.511Z",
+      "statut": "à faire",
+      "url": null,
+      "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
+    },
+    {
+      "id": "c7b39c76-f19b-4067-90f7-de032d35d499",
+      "type": "feature",
+      "titre": "Suppression auto",
+      "description": "Automatiquement supprimer les items terminés sauf les projets au bout de 24h après  avoir prit le status terminé",
+      "priorite": "moyenne",
+      "statut": "à faire",
+      "createdAt": "2026-06-28T17:56:55.485Z",
+      "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
+    },
+    {
+      "id": "519a3038-7c01-40a2-9d1b-55d0693aec35",
+      "type": "feature",
+      "titre": "Optimisation conso de token",
+      "description": "Lors d’un process multi agent (transmission des infos par le texte pour éviter les relecture de fichier, répertoire github spécialisé pour la réduction, mise en place de skills ou tools ?",
+      "priorite": "moyenne",
+      "statut": "à faire",
+      "createdAt": "2026-06-28T17:59:54.027Z",
+      "projectId": "proj-software-factory-001"
+    },
+    {
+      "id": "cb497986-594e-475c-a252-771ac4259738",
+      "type": "feature",
+      "titre": "Gestion du hors connexion et disponibilité immédiate pour facilité la saisie d’idées",
+      "description": "Voir notes",
+      "priorite": "moyenne",
+      "createdAt": "2026-06-28T18:01:05.506Z",
+      "statut": "à faire",
+      "url": null,
+      "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
+    },
+    {
+      "id": "d0434758-4e9f-42db-bcca-634f28ab105f",
+      "type": "feature",
+      "titre": "Code et doc cohérente",
+      "description": "Lors d’un processus de création doc faites en premier mais doit être mis à jour si la réalité ne correspond plus, la doc doit toujours être cohérente avec le code",
+      "priorite": "haute",
+      "statut": "terminé",
+      "createdAt": "2026-06-28T18:03:44.977Z",
+      "projectId": "proj-software-factory-001"
+    },
+    {
+      "id": "0c3cf729-f960-4a03-bb48-294a379eb81f",
+      "type": "feature",
+      "titre": "Liberté totale architectural",
+      "description": "L’architecte a le droit de me proposer n’importe quelle solution à partir du moment que c’est la plus adapté nouvelle bdd, utilisation d’un nouvel outil pas de problème il faut quand même me dire si il y a des coûts de fonctionnement ou un free plan et expliquer pourquoi le choix",
+      "priorite": "moyenne",
+      "statut": "à faire",
+      "createdAt": "2026-06-28T18:38:21.924Z",
+      "projectId": "proj-software-factory-001"
+    },
+    {
+      "id": "6d8af19d-08e7-458f-bdf9-9f4de5fb7b46",
+      "type": "feature",
+      "titre": "Décompte jour total",
+      "description": "Vérifier que l’ajout d’une autre dépense sur le même jour n’ajoute pas un jour supplémentaire au décompte total",
+      "priorite": "moyenne",
+      "statut": "à faire",
+      "createdAt": "2026-06-29T01:10:26.106Z",
+      "projectId": "proj-travelfinance-001"
+    },
+    {
+      "id": "e8deffb7-2565-4402-95e7-0d0cba3f818b",
+      "type": "feature",
+      "titre": "Faire le keep alive pour l’app mobile",
+      "description": "Agis en tant qu'expert DevOps/GitHub Actions. Crée un script Bash `smart-keepalive.sh` pour maintenir ce Codespace éveillé (timeout 5 min) uniquement si une activité distante est détectée. Le script doit tourner en tâche de fond et vérifier toutes les 4 min les conditions suivantes :\n\n1. Activité Git : Vérifier si le timestamp du dernier commit (`git log -1 --format=%ct`) a moins de 10 minutes.\n2. Activité Redis : Interroger notre instance Upstash Redis (utilise nos variables d'env ou `curl`) pour récupérer la clé `claude:last_active` (timestamp Unix). Vérifier si elle a moins de 10 minutes.\n\nSi l'une des deux conditions est vraie (activité < 10 min), le script doit simuler une activité système (ex: `touch .codespace-keepalive`) pour réinitialiser le timeout GitHub. Sinon, il ne fait rien pour laisser le Codespace s'endormir normalement au bout de 5 min.\n\nInstalle le script, rends-le exécutable et configure-le pour qu'il se lance automatiquement en tâche de fond.",
+      "priorite": "moyenne",
+      "statut": "à faire",
+      "createdAt": "2026-06-29T01:49:57.729Z",
+      "projectId": "proj-software-factory-001"
+    },
+    {
+      "id": "814b3a3b-84cb-4c81-8b5c-77dd4a8664d0",
+      "type": "feature",
+      "titre": "Faire en sorte de recup le backlog redis a chaque démarrage de Claude",
+      "description": null,
+      "priorite": "haute",
+      "statut": "à faire",
+      "createdAt": "2026-06-29T01:51:01.636Z",
+      "projectId": "proj-software-factory-001"
+    },
+    {
+      "id": "fe54fae0-da7c-4b84-8873-ab1f0e36d8d2",
+      "type": "feature",
+      "titre": "Maj redis backlog par claude",
+      "description": "Mettre à jour le redis backlog à la fin de création d’une app pour y ajouter le lien de prod et modifier le status à « en cours »",
+      "priorite": "haute",
+      "statut": "à faire",
+      "createdAt": "2026-06-29T03:17:15.558Z",
+      "projectId": "proj-software-factory-001"
+    },
+    {
+      "id": "b53914d9-4698-4cad-9419-f64b79ac9c13",
+      "type": "feature",
+      "titre": "Vérifier pourquoi les apps ne fonctionnent pas en wifi",
+      "description": null,
+      "priorite": "moyenne",
+      "statut": "à faire",
+      "createdAt": "2026-06-29T03:20:00.966Z",
+      "projectId": "proj-software-factory-001"
+    },
+    {
+      "id": "8b3623b0-aae6-42ac-956f-a7576738c184",
+      "type": "projet",
+      "titre": "Apprentissage Dashboard",
+      "description": "Sur n’importe quel sujet définir un plan d’apprentissage et à chaque étape évaluer les connaissances acquises.\nGraphique de montée en compétence pour visualiser la progression et ce qu’il manque encore",
+      "priorite": "basse",
+      "statut": "à faire",
+      "createdAt": "2026-06-29T08:09:56.825Z"
+    }
+  ]
+}
