@@ -3,6 +3,10 @@ export default async function handler(request, response) {
     const url = process.env.KV_REST_API_URL;
     const token = process.env.KV_REST_API_TOKEN;
 
+    if (!url || !token) {
+      return response.status(500).json({ error: 'KV_REST_API_URL ou KV_REST_API_TOKEN non configure' });
+    }
+
     const redisResponse = await fetch(`${url}/get/journal_de_voyage`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
