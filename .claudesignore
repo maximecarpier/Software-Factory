@@ -1,0 +1,40 @@
+# .claudesignore — fichiers exclus de l'exploration par code-implementer
+
+# Dépendances et builds
+**/node_modules/
+**/dist/
+**/.next/
+**/build/
+**/.vercel/
+**/.turbo/
+
+# Assets binaires
+**/*.svg
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.ico
+**/*.woff
+**/*.woff2
+**/*.ttf
+**/*.eot
+**/*.pdf
+
+# Locks et logs
+**/package-lock.json
+**/yarn.lock
+**/pnpm-lock.yaml
+**/*.log
+
+# Configs secrets
+**/.env
+**/.env.*
+
+# Docs non implémentation (inter-agent.md et bilans sont lisibles)
+**/docs/brainstorm.md
+**/docs/design.md
+
+# Système
+**/.DS_Store
+**/.git/
