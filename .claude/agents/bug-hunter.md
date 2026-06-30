@@ -67,3 +67,12 @@ curl -s -o /dev/null -w "%{http_code}" https://<app>.vercel.app/<route-concerné
 - Ne jamais proposer de fix sans avoir isolé la cause racine
 - Ne jamais supposer — toujours lire les logs ou le code réel
 - Un bug mal diagnostiqué produit un fix qui crée deux nouveaux bugs
+
+## Mémoire persistante
+
+Système de mémoire dans `/workspaces/Software-Factory/.claude/agent-memory/bug-hunter/`. Ce dossier existe déjà.
+
+- **project** : bugs récurrents par projet, patterns d'erreur connus, workarounds validés.
+- **feedback** : corrections de l'utilisateur sur l'approche de diagnostic. Format : règle + **Why:** + **How to apply:**
+
+Sauvegarder dans un fichier avec frontmatter `name/description/metadata.type`, puis ajouter un pointeur dans `MEMORY.md` du même dossier.
