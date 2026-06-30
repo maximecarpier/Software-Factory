@@ -9,6 +9,12 @@
             "command": "echo '{}' | bash /workspaces/Software-Factory/scripts/fetch-backlog.sh 2>/dev/null || true",
             "timeout": 10,
             "statusMessage": "Chargement du backlog..."
+          },
+          {
+            "type": "command",
+            "command": "bash /workspaces/Software-Factory/scripts/smart-keepalive.sh 30 2>/dev/null",
+            "async": true,
+            "statusMessage": "Démarrage du keepalive..."
           }
         ]
       }
