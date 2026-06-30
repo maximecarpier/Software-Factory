@@ -1,8 +1,8 @@
 # CDC Technique — factory-dashboard
 
-**Version** : 2.0
-**Date** : 2026-06-29
-**Statut** : Gate 2 — support offline (v2.0)
+**Version** : 3.0
+**Date** : 2026-06-30
+**Statut** : Gate 2 — v3.0 refonte graphique
 **Auteur** : tech-architect
 **Projet** : `apps/factory-dashboard/`
 **Specs source** : `apps/factory-dashboard/docs/specs.md`
@@ -10,6 +10,20 @@
 ---
 
 ## Changelog
+
+| Version | Date | Changements |
+|---|---|---|
+| v3.0 | 2026-06-30 | Refonte graphique iPhone-first — tab bar bottom, FAB, swipe, filter chips, skeleton, pull-to-refresh, toggle forms, vue Projets redessinée |
+
+### v3.0 — 2026-06-30 — Refonte graphique iPhone-first
+- **Aucune modification de la couche offline/données.** `store.js`, `sync.js`, `api/backlog.js`, `model.js` restent inchangés (la logique `statut` et `remove(id)` était déjà en place depuis v2.1). La v3.0 est une refonte **présentation pure** (§13).
+- **Nouvelle pile z-index officielle** (§13.1) : filter-strip 30, FAB 40, tab bar 50, toast 60, overlay 70.
+- **Tab bar fixed bottom** remplace la nav top sticky (`nav.js`). 2 onglets (Backlog, Projets) ; la création passe par le **FAB** (plus de lien « + Nouvel item »).
+- **Gestes tactiles** : swipe cartes (droite = terminé, gauche = éditer), pull-to-refresh, désambiguïsation `|deltaX| > |deltaY|` + `touch-action: pan-y` sur `.card-list`.
+- **Filtres repensés** : chips multi-sélection + barre de recherche full-text client (remplacent les `<select>`). Skeleton loading au chargement.
+- **Formulaires** : toggle buttons (type / priorité / statut) à la place des `<select>` ; champ statut visible en édition uniquement ; bouton suppression en zone danger.
+- **PWA** : `theme_color` → `#2563eb`, `background_color` → `#f9fafb`, `orientation: portrait`, apple-touch-icon 180×180.
+- **Découpage** : 10 micro-tâches R1–R10 (§13), `style.css` scindé en R1 (fondations) + R5 (composants) car fichier le plus volumineux.
 
 ### v2.1 — 2026-06-29 — Correctifs offline-mutations (review Gate 2)
 - **Règle vues** ajoutée (§9.7) : les vues ne peuvent appeler que `store.add/update/remove` — jamais `save/pushToGitHub` directement.
@@ -401,19 +415,21 @@ Aucune modification de `src/` requise — le plugin s'intègre au build Vite.
 
 ---
 
-## 12. Micro-tâches — Ordre d'exécution (v2.1)
+## 12. Micro-tâches — Ordre d'exécution (v2.1) — ✅ TOUTES COMPLÈTES
+
+**Statut au 2026-06-30** : les 7 micro-tâches v2.1 sont **implémentées et vérifiées dans le code**. Conservées ici pour traçabilité. La v3.0 ne les rejoue pas.
 
 **Règle** : une micro-tâche à la fois, dans l'ordre du tableau. Chaque tâche est un fichier unique avec un périmètre strict. Ne pas combiner plusieurs tâches dans un même appel à code-implementer.
 
-| T# | Fichier | Périmètre exact | Entrée attendue | Sortie attendue |
-|----|---------|-----------------|-----------------|-----------------|
-| T1 | `api/backlog.js` | Accepter `items: []` dans le PUT — retirer le rejet 400 pour tableau vide. Conserver le rejet 400 si `items` est absent ou n'est pas un array. | Corps PUT `{ items: [] }` | `200 { ok: true }` |
-| T2 | `src/store.js` | Ajouter `export function remove(id)` : (1) `load()`, (2) `filter(i => i.id !== id)`, (3) `save(filtered)`, (4) `syncModule.enqueue(id, 'delete')`, (5) `syncModule.flushPending().catch(...)`. Ne pas modifier `add()` ni `update()`. | `remove('uuid-1')` | item absent du cache, id dans `factory_pending` |
-| T3 | `src/sync.js` | Dans `flushPending()`, supprimer le bloc `if (items.length === 0) { clearPending(); return; }` — laisser `pushToGitHub(items)` s'exécuter même pour `[]`. | file non vide + cache vide | `fetch` appelé avec `PUT { items: [] }` |
-| T4 | `src/views/formView.js` | Dans `handleSubmit`, mode **création** uniquement (branche `else`) : remplacer `save(updatedItems)` + `pushToGitHub()` par un unique appel `store.add(newItem)`. Supprimer l'import `{ save, pushToGitHub }` si plus utilisé après T5. | Soumission formulaire création offline | `factory_pending` contient le nouvel item |
-| T5 | `src/views/formView.js` | Dans `handleSubmit`, mode **édition** uniquement (branche `if (_editId)`) : remplacer `save(updatedItems)` + `pushToGitHub()` par `store.update(updatedItem)`. Après T4+T5, retirer les imports `save` et `pushToGitHub` de ce fichier. | Soumission formulaire édition offline | `factory_pending` contient l'item modifié |
-| T6 | `src/views/backlogView.js` | Handler **statut-select change** : remplacer `save(updatedItems)` + `pushToGitHub()` par `store.update({ ...item, statut: newStatut })`. | Changement statut offline | `factory_pending` contient l'item |
-| T7 | `src/views/backlogView.js` | Handler **btn-delete click** : remplacer `save(updatedItems)` + `pushToGitHub()` par `store.remove(id)`. Après T6+T7, retirer les imports `save` et `pushToGitHub` de ce fichier. | Suppression offline | item absent du cache, id dans `factory_pending` |
+| T# | État | Fichier | Périmètre exact | Vérifié dans le code |
+|----|------|---------|-----------------|----------------------|
+| T1 | ✅ Fait | `api/backlog.js` | Accepter `items: []` dans le PUT — retirer le rejet 400 pour tableau vide. Conserver le rejet 400 si `items` est absent ou n'est pas un array. | `isValidItemsArray` = `Array.isArray` ; `[]` passe, seul non-array → 400 |
+| T2 | ✅ Fait | `src/store.js` | Ajouter `export function remove(id)` : `load()` → `filter` → `save` → `enqueue(id,'delete')` → `flushPending().catch()`. Ne pas modifier `add()` ni `update()`. | `remove(id)` présent (l.124-135), `add`/`update` intacts |
+| T3 | ✅ Fait | `src/sync.js` | Dans `flushPending()`, supprimer le bloc `if (items.length === 0) { clearPending(); return; }` — laisser `pushToGitHub(items)` s'exécuter même pour `[]`. | Aucun court-circuit `length===0` ; PUT exécuté pour `[]` |
+| T4 | ✅ Fait | `src/views/formView.js` | Mode **création** : appel unique `store.add(newItem)`. Supprimer l'import `{ save, pushToGitHub }`. | Branche `else` appelle `add(newItem)` ; import = `{ load, add, update }` |
+| T5 | ✅ Fait | `src/views/formView.js` | Mode **édition** : `store.update(updatedItem)`. Retirer les imports `save`/`pushToGitHub`. | Branche `if (_editId)` appelle `update(updatedItem)` |
+| T6 | ✅ Fait | `src/views/backlogView.js` | Handler **statut change** : `store.update({ ...item, statut })`. | `update({ ...item, statut: newStatut })` (l.322) |
+| T7 | ✅ Fait | `src/views/backlogView.js` | Handler **delete** : `store.remove(id)`. Retirer imports `save`/`pushToGitHub`. | `remove(id)` (l.333) ; import = `{ load, update, remove }` |
 
 **Dépendances entre tâches** :
 - T2 et T3 peuvent s'exécuter dans n'importe quel ordre (fichiers disjoints).
@@ -422,6 +438,56 @@ Aucune modification de `src/` requise — le plugin s'intègre au build Vite.
 - T7 dépend de T2 (store.remove doit exister).
 
 **Tests de validation** : après chaque tâche, lancer `npm test` depuis `apps/factory-dashboard/`. Les tests `offline-mutations.test.js` doivent passer progressivement (T1→T7 : 0→6 tests verts).
+
+---
+
+## 13. Micro-tâches v3.0 — Refonte graphique
+
+**Nature de la v3.0** : refonte **présentation pure**. La couche données/offline (`store.js`, `sync.js`, `api/backlog.js`, `model.js`) n'est **pas modifiée** — toutes les fonctions nécessaires (`add`, `update`, `remove`, `getAll`, `load`, `fetchFromGitHub`, filtre `statut`, default `statut: 'à faire'`) existent déjà depuis v2.1. Les vues continuent d'appeler **uniquement** `store.add/update/remove` (règle §9.7 inchangée).
+
+**Règle** : une micro-tâche = un fichier, périmètre strict, dans l'ordre. Ne jamais combiner deux Rn dans un même appel à code-implementer. `style.css` est scindé en **R1 (fondations)** et **R5 (composants)** car c'est le plus gros fichier — les fondations doivent exister avant que les composants y fassent référence.
+
+### 13.1 Pile z-index officielle (à respecter dans tout `style.css`)
+
+| Couche | z-index |
+|---|---|
+| Contenu / cartes | auto (0) |
+| Filter strip sticky | 30 |
+| FAB | 40 |
+| Tab bar (fixed bottom) | 50 |
+| Toast | 60 |
+| Overlay / bottom-sheet | 70 |
+
+### 13.2 Contrats inter-tâches (interfaces figées)
+
+- **Routes inchangées** : `#/backlog`, `#/projects`, `#/new`, `#/edit/:id`. Le tab bar pointe sur `#/backlog` et `#/projects` ; le FAB navigue vers `#/new`.
+- **Exports `nav.js` à préserver** (importés par `main.js` et `router.js`) : `renderNav()`, `updateActiveNav(hash)`, `updateOnlineBadge()`. R4 réécrit leur corps mais **conserve ces signatures**.
+- **Variables CSS** : R1 définit le nouveau `:root`. R4–R9 ne consomment QUE des variables définies par R1. Toute couleur/rayon/espacement passe par une variable (pas de valeur en dur hors `:root`).
+- **Swipe → statut** : l'action swipe-droite appelle `store.update({ ...item, statut: 'terminé' })`. Swipe-gauche navigue vers `#/edit/:id`. Aucun nouvel export store.
+- **`haptic(type)`** : helper best-effort avec guard `'vibrate' in navigator`. À placer dans `main.js` ou un petit util ; importé par les vues qui en ont besoin (périmètre : défini dans le fichier qui le déclenche, ne pas créer de nouveau module dédié pour rester ≤ fichiers existants).
+
+### 13.3 Tableau des micro-tâches
+
+| R# | Fichier | Périmètre exact | Entrée attendue | Sortie attendue | Dépend de |
+|----|---------|-----------------|-----------------|-----------------|-----------|
+| R1 | `src/style.css` | **Fondations uniquement** : remplacement intégral du bloc `:root` par les variables design §1.1 (couleurs, priorités, statuts, swipe, rayons, ombres, typo, espacements, layout mobile, transitions) ; reset `body` (`overscroll-behavior-y: contain`, `padding-bottom: calc(tab-bar + safe-area)`, font) ; `#app` (max-width 560px, centrage, padding) ; classes utilitaires globales (`.badge`, `.chip` base sans état, `.toggle-btn` base). **NE PAS** styler les composants spécifiques (swipe, skeleton, filter-strip, tab-bar, fab, card v3, toast repositionné, project-card) — réservés à R5. | Anciennes variables `--color-primary`, `--radius`, etc. | `:root` v3.0 complet, body/#app reset, app non cassée (composants encore non stylés) | — |
+| R2 | `index.html` | `<meta name="theme-color" content="#2563eb">` (remplace `#1a1a2e`) ; ajouter `<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">` ; conserver `<link rel="manifest">` et le `viewport` existants. Aucune autre modif. | `theme-color #1a1a2e`, pas d'apple-touch-icon | theme-color `#2563eb`, apple-touch-icon déclaré | — |
+| R3 | `public/manifest.json` | `theme_color: "#2563eb"`, `background_color: "#f9fafb"`, ajouter `"orientation": "portrait"`. Conserver `name`, `short_name`, `start_url`, `display`, `icons` existants. | manifest v2 (`theme_color #1a1a2e`, pas d'orientation) | manifest v3 cohérent avec R2 | — |
+| R4 | `src/components/nav.js` | Réécrire `renderNav()` : tab bar `fixed bottom` 2 onglets (Backlog → `#/backlog`, Projets → `#/projects`) avec structure `.tab-bar > .tab-bar-item > (.tab-bar-icon + .tab-bar-label)`. Adapter `updateActiveNav(hash)` à `.tab-bar-item.active`. Repositionner le badge offline (`updateOnlineBadge()`) selon design §3.9 (dans le filter-strip / non dans le tab bar). **Conserver les 3 exports.** Retirer le lien « + Nouvel item » (remplacé par FAB en R6). | nav top 3 liens | tab bar 2 onglets, exports préservés | R1 (variables) |
+| R5 | `src/style.css` | **Composants uniquement** : ajouter les règles `.tab-bar`/`.tab-bar-item`/`.tab-bar-icon`/`.tab-bar-label`, `.fab`, `.card` (nouvelle structure : `.card-prio-stripe`, `.card-body`, `.card-title`, `.card-desc`, `.sync-indicator`, variantes prio), `.swipe-wrapper`/`.swipe-action-left`/`.swipe-action-right`, `.filter-strip`/`.search-bar`/`.chip-row`/`.chip.active`/`.filter-count`, `.toggle-group`/`.toggle-btn.active`, `.skeleton-card` + `@keyframes skeleton-shimmer`, `.toast` repositionné (bottom au-dessus tab bar, z-index 60), `.project-card`/`.project-icon`/badges statut/section labels. `touch-action: pan-y` sur `.card-list`. Respecter la pile z-index §13.1. | `:root` v3.0 (R1) en place | composants stylés, app visuellement complète | R1 |
+| R6 | `src/main.js` | Injecter le FAB dans le DOM (bouton `.fab` + listener `click` → `window.location.hash = '#/new'`) ; déclarer le helper `haptic(type)` (guard `'vibrate' in navigator`) et l'appeler au tap FAB (light). Initialiser le pull-to-refresh (touch sur `#app` : `scrollTop===0` + `deltaY>60` → `fetchFromGitHub()` puis re-render). Ne pas toucher à la séquence boot flush→fetch existante. | shell v2 sans FAB | FAB fonctionnel, pull-to-refresh actif, haptic disponible | R1, R5 |
+| R7 | `src/views/backlogView.js` | Refonte présentation : remplacer la `.filter-bar` (`<select>`) par filter-strip (search bar + chips multi-sélection type/priorité) ; recherche full-text client (titre+description, AND avec chips) ; skeleton au chargement initial ; rendu cartes nouvelle structure `.swipe-wrapper > (.swipe-action-* + .card)` ; gestes swipe (`touchstart/move/end`, seuil 80px, `|deltaX|>|deltaY|`) → droite `store.update({...item, statut:'terminé'})`, gauche `#/edit/:id` ; **retirer** `.card-actions`, `.btn-edit`, `.btn-delete` et le `.statut-select` inline. Conserver l'usage de `applyFilters`/`applySort`. | items du store, `:root`+composants stylés | liste v3 (chips, search, swipe, skeleton), plus de boutons edit/delete | R1, R5 |
+| R8 | `src/views/formView.js` | Remplacer les `<select>` type & priorité par toggle buttons (`.toggle-group`/`.toggle-btn`) ; ajouter un toggle statut **visible uniquement en mode édition** (`[À faire][En cours][Terminé]`, défaut = valeur actuelle) ; bouton « Supprimer » en zone danger en bas (édition uniquement) → `confirm()` puis `store.remove(_editId)` + toast + retour `#/backlog`. Conserver `validateItem`/`createItem` et les appels `add`/`update`. Pas de `maxlength` sur la description. | formView v2 (selects) | form v3 (toggles, statut édition, suppression), logique store inchangée | R1, R5 |
+| R9 | `src/views/projectsView.js` | Refonte : vue dérivée `getAll().filter(i => i.type==='projet')` groupée en sections « EN COURS » (statut ≠ terminé) / « TERMINÉS » (statut === terminé), triées alphabétiquement par titre dans chaque groupe. Cartes `.project-card` : `.project-icon` (initiale colorée par hash), badge statut, URL Vercel cliquable (`item.url`, sinon « Pas encore déployé »). | items projet du store | vue Projets v3 groupée/triée | R1, R5 |
+| R10 | `src/model.js` | **Vérification/garde** : confirmer que `createItem` initialise `statut: 'à faire'` (déjà le cas) et que `applyFilters` gère le filtre statut avec fallback `(item.statut || 'à faire')` (déjà le cas). N'ajouter du code QUE si une lacune est constatée. Probable **no-op** — tâche de contrôle, pas de régression. | model v2 | logique statut confirmée/complète | — |
+
+**Notes de dépendances** :
+- R1, R2, R3, R10 sont **indépendants** entre eux (parallélisables).
+- R5 dépend de R1 (les composants consomment les variables `:root`).
+- R4, R6, R7, R8, R9 dépendent de R1 **et** R5 (structure HTML stylée). Entre eux, R4/R6/R7/R8/R9 touchent des fichiers disjoints → parallélisables une fois R1+R5 faits.
+- Ordre recommandé en séquentiel : **R1 → R5 → R2 → R3 → R10 → R4 → R6 → R7 → R8 → R9** (fondations, puis composants, puis assets/garde, puis vues).
+
+**Tests** : aucun test data/offline ne doit régresser (`store.test.js`, `sync.test.js` inchangés). Après chaque Rn, lancer `npm test` depuis `apps/factory-dashboard/` et vérifier qu'aucun test existant ne casse. La refonte étant présentation, les tests fonctionnels store restent verts.
 
 ---
 

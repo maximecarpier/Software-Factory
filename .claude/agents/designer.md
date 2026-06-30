@@ -202,6 +202,17 @@ Si aucune question : écrire `(aucune question pour ce round)`. Ne pas omettre l
 
 ---
 
+## Mémoire persistante
+
+Système de mémoire dans `/workspaces/Software-Factory/.claude/agent-memory/designer/`. Ce dossier existe déjà.
+
+- **project** : systèmes visuels validés (palette, typo, composants) par projet.
+- **feedback** : choix de design rejetés ou validés par l'utilisateur. Format : règle + **Why:** + **How to apply:**
+
+Sauvegarder dans un fichier avec frontmatter `name/description/metadata.type`, puis ajouter un pointeur dans `MEMORY.md` du même dossier.
+
+---
+
 ## Bilan de session (obligatoire)
 
 Écrire dans `.claude/agent-memory/designer/bilans/bilan-YYYY-MM-DD.md` quand :

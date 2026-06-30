@@ -1,47 +1,25 @@
-// M-F2 : vue backlog — liste + filtres + tri + édition + suppression + états vide
+// M-F2 v3 : vue backlog — filtres 3 lignes + pas de swipe + bouton terminé + clic édition
 
-import { load, update, remove } from '../store.js';
-import { applyFilters, applySort } from '../model.js';
+import { load, update } from '../store.js';
+import { applySort } from '../model.js';
 import { showToast } from '../components/toast.js';
 
-// État local des filtres/tri (non persisté, reset au rechargement)
+// ── État local ────────────────────────────────────────────────────────────────
 const state = {
-  filterType: '',
-  filterPriorite: '',
-  filterStatut: '',
-  filterProject: '',
+  activeTypes:   new Set(['projet', 'feature']),
+  activePrios:   new Set(['haute', 'moyenne', 'basse']),
+  activeStatuts: new Set(['à faire', 'en cours']),
   sortKey: 'recent',
 };
 
-/**
- * Formate une date ISO 8601 en JJ/MM/AAAA.
- * @param {string} isoString
- * @returns {string}
- */
-function formatDate(isoString) {
-  const d = new Date(isoString);
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year = d.getFullYear();
-  return `${day}/${month}/${year}`;
-}
+let isFirstRender = true;
 
-/**
- * Tronque une chaîne à max caractères avec ellipse si nécessaire.
- * @param {string} str
- * @param {number} max
- * @returns {string}
- */
+// ── Utilitaires ───────────────────────────────────────────────────────────────
 function truncate(str, max) {
   if (!str) return '';
   return str.length > max ? str.slice(0, max) + '...' : str;
 }
 
-/**
- * Échappe les caractères HTML pour éviter les injections XSS.
- * @param {string} str
- * @returns {string}
- */
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -51,287 +29,294 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-/**
- * Génère le HTML de la barre de filtres + tri.
- * @param {Object[]} projects - items de type "projet" pour le filtre projet
- * @returns {string}
- */
-function renderFilterBar(projects) {
-  const projectOptions = projects
-    .map(p => `<option value="${escapeHtml(p.id)}" ${state.filterProject === p.id ? 'selected' : ''}>${escapeHtml(p.titre)}</option>`)
-    .join('');
+function isPendingItem(id) {
+  try {
+    const raw = localStorage.getItem('factory_pending');
+    if (!raw) return false;
+    const pending = JSON.parse(raw);
+    return id in pending;
+  } catch {
+    return false;
+  }
+}
 
+// ── Filtrage ──────────────────────────────────────────────────────────────────
+function applyLocalFilters(items) {
+  return items.filter(item => {
+    const statut = item.statut || 'à faire';
+    if (!state.activeStatuts.has(statut)) return false;
+    if (!state.activeTypes.has(item.type)) return false;
+    if (!state.activePrios.has(item.priorite)) return false;
+    return true;
+  });
+}
+
+// ── Générateurs HTML ──────────────────────────────────────────────────────────
+function buildSkeletonHTML() {
+  const cards = Array.from({ length: 4 }, () => `
+    <div class="skeleton-card">
+      <div class="skel-badge"></div>
+      <div class="skel-line-lg"></div>
+      <div class="skel-line-sm"></div>
+    </div>
+  `).join('');
   return `
-    <div class="filter-bar">
-      <div class="filter-group">
-        <label for="filter-type">Type</label>
-        <select id="filter-type">
-          <option value="">Tous les types</option>
-          <option value="projet" ${state.filterType === 'projet' ? 'selected' : ''}>Projet</option>
-          <option value="feature" ${state.filterType === 'feature' ? 'selected' : ''}>Feature</option>
-        </select>
+    <div class="backlog-container">
+      <div class="filter-strip">
+        <div class="chip-row"><div class="skeleton-card" style="width:70px;height:32px;border-radius:999px"></div></div>
       </div>
-      <div class="filter-group">
-        <label for="filter-prio">Priorité</label>
-        <select id="filter-prio">
-          <option value="">Toutes les priorités</option>
-          <option value="haute" ${state.filterPriorite === 'haute' ? 'selected' : ''}>Haute</option>
-          <option value="moyenne" ${state.filterPriorite === 'moyenne' ? 'selected' : ''}>Moyenne</option>
-          <option value="basse" ${state.filterPriorite === 'basse' ? 'selected' : ''}>Basse</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="filter-statut">Statut</label>
-        <select id="filter-statut">
-          <option value="">Tous les statuts</option>
-          <option value="à faire" ${state.filterStatut === 'à faire' ? 'selected' : ''}>À faire</option>
-          <option value="en cours" ${state.filterStatut === 'en cours' ? 'selected' : ''}>En cours</option>
-          <option value="terminé" ${state.filterStatut === 'terminé' ? 'selected' : ''}>Terminé</option>
-        </select>
-      </div>
-      ${projects.length > 0 ? `
-      <div class="filter-group">
-        <label for="filter-project">Projet</label>
-        <select id="filter-project">
-          <option value="">Tous les projets</option>
-          ${projectOptions}
-        </select>
-      </div>` : ''}
-      <div class="filter-group">
-        <label for="filter-sort">Tri</label>
-        <select id="filter-sort">
-          <option value="recent" ${state.sortKey === 'recent' ? 'selected' : ''}>Plus récent d'abord</option>
-          <option value="ancien" ${state.sortKey === 'ancien' ? 'selected' : ''}>Plus ancien d'abord</option>
-          <option value="prio-desc" ${state.sortKey === 'prio-desc' ? 'selected' : ''}>Priorité décroissante</option>
-          <option value="prio-asc" ${state.sortKey === 'prio-asc' ? 'selected' : ''}>Priorité croissante</option>
-        </select>
-      </div>
+      <div class="card-list">${cards}</div>
     </div>
   `;
 }
 
-/**
- * Génère le HTML d'une carte item.
- * @param {Object} item
- * @param {Object[]} allItems - tableau complet pour résoudre le nom du projet parent
- * @returns {string}
- */
-function renderCard(item, allItems) {
-  const desc = item.description ? truncate(item.description, 120) : null;
+function chipRow(label, chips) {
+  return `
+    <div class="filter-row">
+      <span class="filter-row-label">${escapeHtml(label)}</span>
+      <div class="chip-row">${chips}</div>
+    </div>
+  `;
+}
 
-  // Badge projet parent pour les features
+function buildFilterStrip(total, shown) {
+  const typeChips = [
+    { value: 'projet',  label: 'Projet' },
+    { value: 'feature', label: 'Feature' },
+  ].map(({ value, label }) =>
+    `<button class="chip${state.activeTypes.has(value) ? ' active' : ''}" data-filter="type" data-value="${value}">${label}</button>`
+  ).join('');
+
+  const prioChips = [
+    { value: 'basse',   label: 'Basse' },
+    { value: 'moyenne', label: 'Moyenne' },
+    { value: 'haute',   label: 'Haute' },
+  ].map(({ value, label }) =>
+    `<button class="chip${state.activePrios.has(value) ? ' active' : ''}" data-filter="prio" data-value="${value}">${label}</button>`
+  ).join('');
+
+  const statutChips = [
+    { value: 'à faire',  label: 'À faire' },
+    { value: 'en cours', label: 'En cours' },
+    { value: 'terminé',  label: 'Terminé' },
+  ].map(({ value, label }) =>
+    `<button class="chip${state.activeStatuts.has(value) ? ' active' : ''}" data-filter="statut" data-value="${value}">${label}</button>`
+  ).join('');
+
+  const countLabel = total === 0
+    ? ''
+    : shown === total
+      ? `${shown} item${shown !== 1 ? 's' : ''}`
+      : `${shown} / ${total}`;
+
+  return `
+    <div class="filter-strip">
+      ${chipRow('Type', typeChips)}
+      ${chipRow('Priorité', prioChips)}
+      ${chipRow('Statut', statutChips)}
+      <div class="filter-count" id="filter-count">${countLabel}</div>
+    </div>
+  `;
+}
+
+function piorLabel(priorite) {
+  const map = { haute: 'Haute', moyenne: 'Moyenne', basse: 'Basse' };
+  return map[priorite] || priorite;
+}
+
+function statutLabel(statut) {
+  const map = { 'à faire': 'À faire', 'en cours': 'En cours', 'terminé': 'Terminé' };
+  return map[statut] || statut;
+}
+
+function buildCard(item, allItems) {
+  const prioClass  = `card-prio-${escapeHtml(item.priorite)}`;
+  const statut     = item.statut || 'à faire';
+  const isTermine  = statut === 'terminé';
+
   let projectBadge = '';
   if (item.type === 'feature' && item.projectId) {
-    const parentProject = allItems.find(i => i.id === item.projectId);
-    if (parentProject) {
-      projectBadge = `<span class="badge badge-project">${escapeHtml(parentProject.titre)}</span>`;
+    const parent = allItems.find(i => i.id === item.projectId);
+    if (parent) {
+      projectBadge = `<span class="badge badge-project">${escapeHtml(parent.titre)}</span>`;
     }
   }
 
-  const statutSlug = item.statut ? item.statut.replace(/\s+/g, '-') : '';
-  const statutBadge = item.statut
-    ? `<span class="badge badge-statut statut-${escapeHtml(statutSlug)}">${escapeHtml(item.statut)}</span>`
+  const syncIndicator = isPendingItem(item.id)
+    ? `<span class="sync-indicator" title="En attente de sync">⏳</span>`
     : '';
 
+  const typeBadgeClass = item.type === 'projet' ? 'badge-projet' : 'badge-feature';
+
+  const doneBtn = isTermine
+    ? `<button class="card-done-btn card-done-btn--done" data-id="${escapeHtml(item.id)}" title="Marquer À faire" aria-label="Retirer de terminé">↩</button>`
+    : `<button class="card-done-btn" data-id="${escapeHtml(item.id)}" title="Marquer Terminé" aria-label="Marquer comme terminé">✓</button>`;
+
   return `
-    <div class="card" data-id="${escapeHtml(item.id)}">
-      <div class="card-header">
-        <div class="card-badges">
-          <span class="badge badge-type badge-${escapeHtml(item.type)}">${escapeHtml(item.type)}</span>
-          <span class="badge badge-prio prio-${escapeHtml(item.priorite)}">${escapeHtml(item.priorite)}</span>
-          ${statutBadge}
+    <div class="card ${prioClass}" data-id="${escapeHtml(item.id)}" role="button" tabindex="0" style="cursor:pointer">
+      <div class="card-prio-stripe ${prioClass}"></div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="badge ${typeBadgeClass}">${escapeHtml(item.type.toUpperCase())}</span>
           ${projectBadge}
+          ${syncIndicator}
         </div>
-        <span class="card-date">${formatDate(item.createdAt)}</span>
+        <div class="card-title">${escapeHtml(item.titre)}</div>
+        <div class="card-info-row">
+          <span class="badge-prio prio-${escapeHtml(item.priorite)}">${piorLabel(item.priorite)}</span>
+          <span class="badge-statut statut-${escapeHtml(statut)}">${statutLabel(statut)}</span>
+        </div>
       </div>
-      <h3 class="card-title">${escapeHtml(item.titre)}</h3>
-      ${desc ? `<p class="card-desc">${escapeHtml(desc)}</p>` : ''}
-      <div class="card-statut">
-        <select class="statut-select" data-id="${escapeHtml(item.id)}">
-          <option value="à faire" ${(item.statut || 'à faire') === 'à faire' ? 'selected' : ''}>À faire</option>
-          <option value="en cours" ${item.statut === 'en cours' ? 'selected' : ''}>En cours</option>
-          <option value="terminé" ${item.statut === 'terminé' ? 'selected' : ''}>Terminé</option>
-        </select>
-      </div>
-      <div class="card-actions">
-        <button class="btn-edit" data-id="${escapeHtml(item.id)}" aria-label="Modifier cet item">Éditer</button>
-        <button class="btn-delete" data-id="${escapeHtml(item.id)}" aria-label="Supprimer cet item">Supprimer</button>
+      <div class="card-actions-right">
+        ${doneBtn}
       </div>
     </div>
   `;
 }
 
-/**
- * Point d'entrée unique pour le rendu de la vue backlog.
- * Appelée à chaque changement de filtre/tri, navigation vers #/backlog,
- * et après synchronisation GitHub.
- * @param {HTMLElement} container — typiquement #app
- */
-export function renderBacklog(container) {
+// ── Points d'entrée publics ───────────────────────────────────────────────────
+export function renderBacklogSkeleton(container) {
+  container.innerHTML = buildSkeletonHTML();
+}
+
+export async function renderBacklog(container) {
+  if (isFirstRender) {
+    isFirstRender = false;
+    renderBacklogSkeleton(container);
+    await new Promise(r => requestAnimationFrame(r));
+  }
+
   const { items: allItems, corrupted } = load();
+  const filtered = applyLocalFilters(allItems);
+  const sorted   = applySort(filtered, state.sortKey);
 
-  const projects = allItems.filter(i => i.type === 'projet');
-
-  const filtered = applyFilters(allItems, {
-    type: state.filterType,
-    priorite: state.filterPriorite,
-    statut: state.filterStatut,
-    projectId: state.filterProject,
-  });
-  const sorted = applySort(filtered, state.sortKey);
-
-  // Bandeau d'avertissement si données corrompues au démarrage
   const corruptedBanner = corrupted
     ? `<div class="banner-warning" role="alert">Données locales illisibles, backlog réinitialisé.</div>`
     : '';
 
-  let innerContent = '';
+  let innerContent;
+
+  const totalVisible = allItems.filter(i => {
+    const s = i.statut || 'à faire';
+    return state.activeStatuts.has(s);
+  }).length;
 
   if (allItems.length === 0) {
-    // État vide absolu — aucun item dans le store
     innerContent = `
       <div class="empty-state">
+        <span class="empty-icon">📋</span>
         <p class="empty-title">Aucun item dans le backlog.</p>
-        <p class="empty-sub">Commencez par ajouter votre premier item.</p>
-        <a href="#/new" class="btn-primary">+ Ajouter un item</a>
+        <p class="empty-sub">Commence par ajouter un item.</p>
       </div>
     `;
   } else {
-    const filterBarHtml = renderFilterBar(projects);
+    const stripHtml = buildFilterStrip(totalVisible, sorted.length);
 
     if (sorted.length === 0) {
-      // État vide filtré — les filtres actifs excluent tous les items
-      innerContent = filterBarHtml + `
+      innerContent = stripHtml + `
         <div class="empty-state">
-          <p class="empty-title">Aucun item ne correspond à ces filtres.</p>
-          <button class="btn-secondary" id="reset-filters">Réinitialiser les filtres</button>
+          <span class="empty-icon">🔍</span>
+          <p class="empty-title">Aucun item ne correspond.</p>
+          <button class="btn-secondary" id="reset-filters">Réinitialiser</button>
         </div>
       `;
     } else {
-      // État normal — compteur + cartes
-      const total = allItems.length;
-      const shown = sorted.length;
-      const counterLabel = shown === total
-        ? `${shown} item${shown > 1 ? 's' : ''}`
-        : `${shown} item${shown > 1 ? 's' : ''} sur ${total}`;
-
-      const cardsHtml = sorted.map(item => renderCard(item, allItems)).join('');
-
-      innerContent = filterBarHtml + `
-        <p class="counter">${counterLabel}</p>
-        <div class="card-list">${cardsHtml}</div>
+      const cardsHtml = sorted.map(item => buildCard(item, allItems)).join('');
+      innerContent = stripHtml + `
+        <div class="card-list" style="opacity:0">${cardsHtml}</div>
       `;
     }
   }
 
   container.innerHTML = `
     <div class="backlog-container">
-      <h1>Backlog</h1>
       ${corruptedBanner}
       ${innerContent}
     </div>
   `;
 
-  // Liaison des événements (après injection dans le DOM)
+  const cardList = container.querySelector('.card-list');
+  if (cardList) {
+    requestAnimationFrame(() => {
+      cardList.style.transition = 'opacity 200ms ease';
+      cardList.style.opacity = '1';
+    });
+  }
+
   bindFilterEvents(container);
-  bindCardActions(container);
+  bindCardEvents(container, sorted, allItems);
 }
 
-/**
- * Attache les listeners sur les selects de filtre/tri et le bouton reset.
- * @param {HTMLElement} container
- */
+// ── Événements ────────────────────────────────────────────────────────────────
 function bindFilterEvents(container) {
-  const filterTypeEl = container.querySelector('#filter-type');
-  const filterPrioEl = container.querySelector('#filter-prio');
-  const filterStatutEl = container.querySelector('#filter-statut');
-  const filterProjectEl = container.querySelector('#filter-project');
-  const filterSortEl = container.querySelector('#filter-sort');
   const resetBtn = container.querySelector('#reset-filters');
+  const chips    = container.querySelectorAll('.chip[data-filter]');
 
-  if (filterTypeEl) {
-    filterTypeEl.addEventListener('change', e => {
-      state.filterType = e.target.value;
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const filter = chip.dataset.filter;
+      const value  = chip.dataset.value;
+
+      if (filter === 'type') {
+        toggleChip(state.activeTypes, value, ['projet', 'feature']);
+      } else if (filter === 'prio') {
+        toggleChip(state.activePrios, value, ['haute', 'moyenne', 'basse']);
+      } else if (filter === 'statut') {
+        toggleChip(state.activeStatuts, value, ['à faire', 'en cours', 'terminé']);
+      }
       renderBacklog(container);
     });
-  }
-
-  if (filterPrioEl) {
-    filterPrioEl.addEventListener('change', e => {
-      state.filterPriorite = e.target.value;
-      renderBacklog(container);
-    });
-  }
-
-  if (filterStatutEl) {
-    filterStatutEl.addEventListener('change', e => {
-      state.filterStatut = e.target.value;
-      renderBacklog(container);
-    });
-  }
-
-  if (filterProjectEl) {
-    filterProjectEl.addEventListener('change', e => {
-      state.filterProject = e.target.value;
-      renderBacklog(container);
-    });
-  }
-
-  if (filterSortEl) {
-    filterSortEl.addEventListener('change', e => {
-      state.sortKey = e.target.value;
-      renderBacklog(container);
-    });
-  }
+  });
 
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
-      state.filterType = '';
-      state.filterPriorite = '';
-      state.filterStatut = '';
-      state.filterProject = '';
+      state.activeTypes   = new Set(['projet', 'feature']);
+      state.activePrios   = new Set(['haute', 'moyenne', 'basse']);
+      state.activeStatuts = new Set(['à faire', 'en cours']);
       renderBacklog(container);
     });
   }
 }
 
-/**
- * Attache les listeners Éditer et Supprimer sur les cartes.
- * La suppression : confirmation → localStorage → re-render → push GitHub async.
- * @param {HTMLElement} container
- */
-function bindCardActions(container) {
-  // Éditer — navigation vers #/edit/:id
-  container.querySelectorAll('.btn-edit').forEach(btn => {
-    btn.addEventListener('click', e => {
-      const id = e.currentTarget.dataset.id;
+function toggleChip(set, value, allValues) {
+  if (set.has(value)) {
+    set.delete(value);
+    if (set.size === 0) allValues.forEach(v => set.add(v));
+  } else {
+    set.add(value);
+  }
+}
+
+function bindCardEvents(container, sortedItems, allItems) {
+  container.querySelectorAll('.card[data-id]').forEach(card => {
+    const id   = card.dataset.id;
+    const item = sortedItems.find(i => i.id === id);
+    if (!item) return;
+
+    // Bouton ✓ terminé (ne pas propager le clic vers la carte)
+    const doneBtn = card.querySelector('.card-done-btn');
+    if (doneBtn) {
+      doneBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        const isTermine = (item.statut || 'à faire') === 'terminé';
+        const newStatut = isTermine ? 'à faire' : 'terminé';
+        update({ ...item, statut: newStatut });
+        if ('vibrate' in navigator) navigator.vibrate(20);
+        showToast(isTermine ? 'Remis en À faire' : 'Terminé ✓', 'success');
+        renderBacklog(container);
+      });
+    }
+
+    // Clic sur la carte → édition
+    card.addEventListener('click', () => {
       window.location.hash = `#/edit/${id}`;
     });
-  });
 
-  // Statut inline — store.update gère save + enqueue + flush
-  container.querySelectorAll('.statut-select').forEach(select => {
-    select.addEventListener('change', e => {
-      const id = e.currentTarget.dataset.id;
-      const newStatut = e.currentTarget.value;
-
-      const { items } = load();
-      const item = items.find(i => i.id === id);
-      if (!item) return;
-
-      update({ ...item, statut: newStatut });
-      renderBacklog(container);
-    });
-  });
-
-  // Supprimer — confirmation + store.remove gère save + enqueue + flush
-  container.querySelectorAll('.btn-delete').forEach(btn => {
-    btn.addEventListener('click', e => {
-      const id = e.currentTarget.dataset.id;
-      if (!window.confirm('Supprimer cet item définitivement ?')) return;
-
-      remove(id);
-      renderBacklog(container);
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        window.location.hash = `#/edit/${id}`;
+      }
     });
   });
 }

@@ -10,54 +10,59 @@ Tu es un ingénieur infrastructure spécialisé dans l'écosystème GitHub + Ver
 
 ## Responsabilités
 
-### Création d'un nouveau projet
-Utilise le script factory :
+### Création d'un nouveau projet (mono-repo)
+
+Toutes les apps vivent dans `apps/<nom>/` du repo `maximecarpier/Software-Factory`. **Ne jamais créer de repo GitHub séparé.**
+
+**1. Créer le dossier dans le mono-repo**
 ```bash
-chmod +x /workspaces/Software-Factory/scripts/create-app.sh
-/workspaces/Software-Factory/scripts/create-app.sh <nom-app> "<description>"
+mkdir -p /workspaces/Software-Factory/apps/<nom>/{src,docs,tests,public}
 ```
 
-Ce script gère automatiquement :
-- Création du repo GitHub (`maximecarpier/<nom>`)
-- Création du projet Vercel (`team_jzUtIdasxc8rAZTu9kpaucyL`)
-- Configuration des 3 GitHub Secrets (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID)
-- Configuration de GITHUB_TOKEN sur Vercel
-- Push initial et premier déploiement
+**2. Connecter à Vercel (manuel depuis iPad)**
+1. Aller sur vercel.com → Add New → Project
+2. Importer `maximecarpier/Software-Factory`
+3. Root Directory : `apps/<nom>/`
+4. Ajouter la variable d'env `GITHUB_TOKEN` si nécessaire
+5. Cliquer Deploy
+
+**3. Push initial**
+```bash
+git add apps/<nom>/
+git commit -m "feat: init <nom>"
+git push
+```
+Vercel redéploie automatiquement à chaque push sur `main` (intégration GitHub native, pas de GitHub Actions).
 
 ### Vérification de la config Vercel
 Avant tout déploiement, vérifie :
-- `package.json` contient `"vercel-build"` et `"start"` scripts
+- `package.json` contient les scripts `"build"` (ou `"vercel-build"`) et `"start"`
 - Pas de `vercel.json` avec config serverless si c'est une app Node.js classique
-- Workflow utilise Vercel CLI (pas BetaHuhn — incompatible Node 24) :
-  ```yaml
-  run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
-  ```
-- Les 3 secrets GitHub sont bien configurés
+- Root Directory bien configuré sur `apps/<nom>/` dans le projet Vercel
+- L'app bind sur `process.env.PORT` (Vercel injecte le port dynamiquement)
 
 ### Diagnostic de déploiement
-En cas d'échec CI/CD :
-```bash
-GITHUB_TOKEN=<token> gh run view <run-id> -R maximecarpier/<repo> --log-failed
-```
+En cas d'échec sur Vercel :
+- Vérifier les logs de build sur vercel.com → projet → onglet Deployments
+- Via MCP Vercel si disponible : `get_deployment_build_logs`
+- Tester l'URL de prod : `curl -s -o /dev/null -w "%{http_code}" https://<app>.vercel.app`
 
-Types d'erreurs connus :
-- `Resource not accessible by integration` → ajouter `permissions: deployments: write` au workflow
-- `Cannot read properties of null (reading 'login')` → bug BetaHuhn, passer à Vercel CLI
-- `Input required` → secret GitHub manquant
+Types d'erreurs fréquentes :
+- `Cannot find module` → dépendance manquante dans `package.json` de l'app
 - Timeout Vercel → vérifier que l'app bind sur `process.env.PORT`
+- 500 en prod uniquement → variable d'env manquante dans Vercel (configurer manuellement)
 
 ### Rotation des tokens
 Si les tokens expirent :
 ```bash
-source /workspaces/Software-Factory/dashboard/.env.local
-GITHUB_TOKEN="$GITHUB_TOKEN" gh secret set VERCEL_TOKEN --body "$VERCEL_TOKEN" -R maximecarpier/<repo>
+source /workspaces/Software-Factory/.env.local
+# Mettre à jour les variables d'env sur le projet Vercel manuellement (iPad)
 ```
 
 ## Constantes de l'infrastructure
 - GitHub user : `maximecarpier`
 - Vercel org ID : `team_jzUtIdasxc8rAZTu9kpaucyL`
-- Tokens locaux : `/workspaces/Software-Factory/dashboard/.env.local`
-- Template workflow : `/workspaces/Software-Factory/scripts/templates/.github/workflows/vercel-deploy.yml`
+- Tokens locaux : `/workspaces/Software-Factory/.env.local`
 
 ## Règles
 - Ne jamais écrire de tokens en dur dans des fichiers trackés par git

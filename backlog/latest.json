@@ -94,7 +94,7 @@
       "type": "feature",
       "titre": "Refonte graphique",
       "description": null,
-      "priorite": "moyenne",
+      "priorite": "haute",
       "createdAt": "2026-06-28T15:30:51.450Z",
       "statut": "à faire",
       "url": null,
@@ -125,10 +125,11 @@
       "id": "519a3038-7c01-40a2-9d1b-55d0693aec35",
       "type": "feature",
       "titre": "Optimisation conso de token",
-      "description": "Lors d'un process multi agent (transmission des infos par le texte pour éviter les relecture de fichier, répertoire github spécialisé pour la réduction, mise en place de skills ou tools ?",
-      "priorite": "moyenne",
-      "statut": "à faire",
+      "description": "Skills ? Tools ?\nAméliorer le gitignore \nForcer l’agent principale à travailler avec un état résumé \nRègle du diff \nCherche à améliorer le ciblage au max",
+      "priorite": "haute",
       "createdAt": "2026-06-28T17:59:54.027Z",
+      "statut": "à faire",
+      "url": null,
       "projectId": "proj-software-factory-001"
     },
     {
@@ -141,16 +142,6 @@
       "statut": "à faire",
       "url": null,
       "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
-    },
-    {
-      "id": "0c3cf729-f960-4a03-bb48-294a379eb81f",
-      "type": "feature",
-      "titre": "Liberté totale architectural",
-      "description": "L'architecte a le droit de me proposer n'importe quelle solution à partir du moment que c'est la plus adapté nouvelle bdd, utilisation d'un nouvel outil pas de problème il faut quand même me dire si il y a des coûts de fonctionnement ou un free plan et expliquer pourquoi le choix",
-      "priorite": "moyenne",
-      "statut": "terminé",
-      "createdAt": "2026-06-28T18:38:21.924Z",
-      "projectId": "proj-software-factory-001"
     },
     {
       "id": "6d8af19d-08e7-458f-bdf9-9f4de5fb7b46",
@@ -173,16 +164,6 @@
       "projectId": "proj-software-factory-001"
     },
     {
-      "id": "b53914d9-4698-4cad-9419-f64b79ac9c13",
-      "type": "feature",
-      "titre": "Vérifier pourquoi les apps ne fonctionnent pas en wifi",
-      "description": null,
-      "priorite": "moyenne",
-      "statut": "à faire",
-      "createdAt": "2026-06-29T03:20:00.966Z",
-      "projectId": "proj-software-factory-001"
-    },
-    {
       "id": "8b3623b0-aae6-42ac-956f-a7576738c184",
       "type": "projet",
       "titre": "Apprentissage Dashboard",
@@ -190,6 +171,25 @@
       "priorite": "basse",
       "statut": "à faire",
       "createdAt": "2026-06-29T08:09:56.825Z"
+    },
+    {
+      "id": "b3f9a2dd-6c36-4ecd-963b-97de6890c3cc",
+      "type": "projet",
+      "titre": "Site de resa transport + Dashboard pour l’espace pro",
+      "description": null,
+      "priorite": "moyenne",
+      "createdAt": "2026-06-30T11:06:07.480Z",
+      "statut": "à faire",
+      "url": null
+    },
+    {
+      "id": "973381ea-51f0-4998-8220-6db01bd3077d",
+      "type": "projet",
+      "titre": "hub de réservations",
+      "description": null,
+      "priorite": "moyenne",
+      "statut": "à faire",
+      "createdAt": "2026-06-30T11:22:52.668Z"
     }
   ]
 }

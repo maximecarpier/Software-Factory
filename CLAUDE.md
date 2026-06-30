@@ -110,7 +110,11 @@ L'orchestrateur DOIT poser lui-même les questions clés à l'utilisateur **avan
 - Volumétrie / charge attendue ?
 - Systèmes existants à intégrer ou remplacer ?
 
-Ne lancer l'agent qu'après avoir reçu les réponses et les inclure dans le prompt.
+**Avant designer** (obligatoire — évite un blocage Phase Zéro coûteux) :
+- Quel registre visuel ? (ex : sombre/technique, clair/épuré, dark-first, cohérent avec l'existant)
+- Quelle cible principale ? (iPhone, tablette, desktop, tous)
+
+Inclure les réponses directement dans le prompt de chaque agent. Ne jamais laisser un agent poser ces questions lui-même — chaque aller-retour coûte ~30K tokens et un délai inutile.
 
 ---
 
@@ -183,6 +187,15 @@ specs-framer (update) → sélectionne features V2+ à activer
                                          ↓
                      ┌─── [GATE 2 : architecture validée ? Y/N] ───┐
                      ↓ (oui)                              ↓ (non → révision)
+2b. [SI REFONTE UI] checkpoint wireframes obligatoire :
+    Résumer les wireframes clés (ASCII ou description) dans la réponse et demander :
+    > "Ces wireframes correspondent à ton idée ? [Y/N ou corrections]"
+    Ne pas passer à l'étape 3 sans cette validation — un Y/N sur specs textuelles
+    ne suffit pas pour du visuel. Intégrer les corrections avant de continuer.
+2c. [SI REFONTE UI] test-writer ciblé post-design.md :
+    Identifier les éléments DOM supprimés/remplacés par le nouveau design
+    (boutons, selects, classes CSS, IDs). Mettre à jour les tests qui les référencent
+    AVANT de lancer code-implementer. Évite les cassures en cours d'implémentation.
 3. test-writer (TDD) → tests par module
 4. code-implementer  → une micro-tâche à la fois (voir protocole ci-dessous)
    [+ expert-claude-code en audit continu des configs agents]
@@ -191,7 +204,14 @@ specs-framer (update) → sélectionne features V2+ à activer
                      security-check.sh avant Gate 3
                      ┌─── [GATE 3 : implémentation terminée ? Y/N] ┐
                      ↓ (oui)                              ↓ (non → retour impl.)
+4c. [SI REFONTE UI] /verify obligatoire avant code review :
+    Lancer /verify ou /run pour tester le golden path dans le vrai navigateur
+    (navigation, création, interactions principales). Ne pas pousser si des bugs
+    visuels ou fonctionnels sont détectés. C'est le dernier verrou qualité réel —
+    les tests Jest ne couvrent pas le rendu DOM.
 5. code-reviewer     → revue + verdict
+    Règle effort : diff > 500 lignes OU > 5 fichiers modifiés → /code-review medium minimum.
+    /code-review low insuffisant pour une refonte UI complète.
 6. doc-writer        → README + CLAUDE.md de l'app
 7. infra-engineer    → déploiement Vercel (instructions iPad si besoin)
 ```
@@ -234,6 +254,11 @@ Pour chaque ligne T[n] du tableau :
 
 Ne jamais envoyer plusieurs micro-tâches en un seul appel à code-implementer.
 Ne jamais passer à T[n+1] sans avoir vérifié inter-agent.md après T[n].
+
+**Règle micro-tâches triviales** : si une tâche représente < 5 lignes de diff et ne contient
+pas de logique métier, la grouper avec une autre tâche de même nature dans le même appel agent.
+Seuil de regroupement : cumul ≤ 3 fichiers ET ≤ 15 lignes → 1 seul agent.
+Exemple : changements de config (manifest, index.html, meta tags) = 1 tâche, pas 3.
 
 ---
 

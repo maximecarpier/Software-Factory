@@ -1,7 +1,7 @@
 // M-F1 : vue formulaire — création ET édition d'un item backlog
 
 import { validateItem, createItem } from '../model.js';
-import { load, add, update } from '../store.js';
+import { load, add, update, remove } from '../store.js';
 import { showToast } from '../components/toast.js';
 
 // ID de l'item en cours d'édition (null = mode création)
@@ -54,6 +54,23 @@ function renderProjectSelect(selectedProjectId) {
 }
 
 /**
+ * Initialise les toggle buttons d'un groupe : clic → exclusif.
+ * @param {string} groupId
+ * @param {Function|null} onChange - callback(value) à chaque changement
+ */
+function initToggleGroup(groupId, onChange) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (onChange) onChange(btn.dataset.value);
+    });
+  });
+}
+
+/**
  * Injecte le formulaire (création ou édition) dans le conteneur fourni.
  * @param {HTMLElement} container — typiquement #app
  * @param {string|null} editId — ID de l'item à éditer, ou null pour la création
@@ -75,11 +92,12 @@ export function renderForm(container, editId = null) {
   const title = isEditing ? "Modifier l'item" : 'Nouvel item';
   const submitLabel = isEditing ? 'Enregistrer les modifications' : 'Enregistrer';
 
-  // Valeurs pré-remplies en mode édition
-  const currentType = isEditing ? editingItem.type : '';
+  // Valeurs pré-remplies (défauts en création)
+  const currentType = isEditing ? editingItem.type : 'feature';
   const currentTitre = isEditing ? editingItem.titre : '';
   const currentDesc = isEditing ? (editingItem.description || '') : '';
-  const currentPrio = isEditing ? editingItem.priorite : '';
+  const currentPrio = isEditing ? editingItem.priorite : 'moyenne';
+  const currentStatut = isEditing ? (editingItem.statut || 'à faire') : 'à faire';
   const currentProjectId = isEditing ? (editingItem.projectId || '') : '';
   const currentUrl = isEditing ? (editingItem.url || '') : '';
 
@@ -87,19 +105,29 @@ export function renderForm(container, editId = null) {
   const projectGroupStyle = currentType === 'feature' ? 'flex' : 'none';
   const urlGroupStyle = currentType === 'projet' ? 'flex' : 'none';
 
+  // Classes actives pour les toggles
+  const typeFeatureActive = currentType === 'feature' ? 'active' : '';
+  const typeProjetActive  = currentType === 'projet'  ? 'active' : '';
+
+  const prioHauteActive   = currentPrio === 'haute'   ? 'active' : '';
+  const prioMoyenneActive = currentPrio === 'moyenne' ? 'active' : '';
+  const prioBaisseActive  = currentPrio === 'basse'   ? 'active' : '';
+
+  const statutAFaireActive  = currentStatut === 'à faire'  ? 'active' : '';
+  const statutEnCoursActive = currentStatut === 'en cours' ? 'active' : '';
+  const statutTermineActive = currentStatut === 'terminé'  ? 'active' : '';
+
   container.innerHTML = `
     <div class="form-container">
       <h1>${escapeHtml(title)}</h1>
       <form id="item-form" novalidate>
 
-        <div class="field-group">
-          <label for="field-type">Type <span class="required" aria-hidden="true">*</span></label>
-          <select id="field-type" name="type" autocomplete="off">
-            <option value="">-- Choisir un type --</option>
-            <option value="projet" ${currentType === 'projet' ? 'selected' : ''}>Projet</option>
-            <option value="feature" ${currentType === 'feature' ? 'selected' : ''}>Feature</option>
-          </select>
-          <span class="field-error" id="error-type" role="alert"></span>
+        <div class="form-section">
+          <label class="form-label">TYPE</label>
+          <div class="toggle-group" id="toggle-type">
+            <button type="button" class="toggle-btn ${typeFeatureActive}" data-value="feature">Feature</button>
+            <button type="button" class="toggle-btn ${typeProjetActive}" data-value="projet">Projet</button>
+          </div>
         </div>
 
         <div class="field-group" id="field-group-project" style="display: ${projectGroupStyle}">
@@ -114,7 +142,7 @@ export function renderForm(container, editId = null) {
             type="text"
             id="field-titre"
             name="titre"
-            placeholder="Titre de l'item (max 100 caractères)"
+            placeholder="Titre de l'item"
             autocomplete="off"
             value="${escapeHtml(currentTitre)}"
           />
@@ -126,8 +154,8 @@ export function renderForm(container, editId = null) {
           <textarea
             id="field-description"
             name="description"
-            rows="4"
-            placeholder="Description facultative (max 1 000 caractères)"
+            rows="3"
+            placeholder="Description facultative"
           >${escapeHtml(currentDesc)}</textarea>
           <span class="field-error" id="error-description" role="alert"></span>
         </div>
@@ -144,15 +172,22 @@ export function renderForm(container, editId = null) {
           />
         </div>
 
-        <div class="field-group">
-          <label for="field-priorite">Priorité <span class="required" aria-hidden="true">*</span></label>
-          <select id="field-priorite" name="priorite" autocomplete="off">
-            <option value="">-- Choisir une priorité --</option>
-            <option value="haute" ${currentPrio === 'haute' ? 'selected' : ''}>Haute</option>
-            <option value="moyenne" ${currentPrio === 'moyenne' ? 'selected' : ''}>Moyenne</option>
-            <option value="basse" ${currentPrio === 'basse' ? 'selected' : ''}>Basse</option>
-          </select>
-          <span class="field-error" id="error-priorite" role="alert"></span>
+        <div class="form-section">
+          <label class="form-label">PRIORITÉ</label>
+          <div class="toggle-group" id="toggle-priorite">
+            <button type="button" class="toggle-btn ${prioHauteActive}"   data-value="haute">Haute</button>
+            <button type="button" class="toggle-btn ${prioMoyenneActive}" data-value="moyenne">Moyenne</button>
+            <button type="button" class="toggle-btn ${prioBaisseActive}"  data-value="basse">Basse</button>
+          </div>
+        </div>
+
+        <div class="form-section" id="section-statut" style="display:${isEditing ? 'block' : 'none'}">
+          <label class="form-label">STATUT</label>
+          <div class="toggle-group" id="toggle-statut">
+            <button type="button" class="toggle-btn ${statutAFaireActive}"  data-value="à faire">À faire</button>
+            <button type="button" class="toggle-btn ${statutEnCoursActive}" data-value="en cours">En cours</button>
+            <button type="button" class="toggle-btn ${statutTermineActive}" data-value="terminé">Terminé</button>
+          </div>
         </div>
 
         <div class="form-actions">
@@ -160,35 +195,55 @@ export function renderForm(container, editId = null) {
           ${isEditing ? `<a href="#/backlog" class="btn-secondary form-cancel">Annuler</a>` : ''}
         </div>
 
+        <div id="section-delete" style="display:${isEditing ? 'block' : 'none'}">
+          <hr class="form-divider">
+          <button type="button" id="btn-delete-item" class="btn-danger">
+            ⚠ Supprimer cet item
+          </button>
+        </div>
+
       </form>
     </div>
   `;
 
-  // Initialiser le select projet si le type est déjà 'feature' (mode édition)
+  // Initialiser le select projet si le type courant est 'feature'
   if (currentType === 'feature') {
     renderProjectSelect(currentProjectId);
   }
 
-  // Afficher/masquer les champs conditionnels selon le type sélectionné
-  const typeSelect = document.getElementById('field-type');
-  typeSelect.addEventListener('change', () => {
+  // Toggle TYPE → affiche/masque les champs conditionnels
+  initToggleGroup('toggle-type', (value) => {
     const projectGroupEl = document.getElementById('field-group-project');
     const urlGroupEl = document.getElementById('field-group-url');
-    if (typeSelect.value === 'feature') {
+    if (value === 'feature') {
       projectGroupEl.style.display = 'flex';
       renderProjectSelect('');
       if (urlGroupEl) urlGroupEl.style.display = 'none';
-    } else if (typeSelect.value === 'projet') {
+    } else if (value === 'projet') {
       projectGroupEl.style.display = 'none';
       if (urlGroupEl) urlGroupEl.style.display = 'flex';
     } else {
       projectGroupEl.style.display = 'none';
       if (urlGroupEl) urlGroupEl.style.display = 'none';
     }
-    // Effacer l'erreur éventuelle sur le projet quand le type change
     const errEl = document.getElementById('error-projectId');
     if (errEl) errEl.textContent = '';
   });
+
+  initToggleGroup('toggle-priorite', null);
+  initToggleGroup('toggle-statut', null);
+
+  // Bouton supprimer (édition uniquement)
+  const deleteBtn = document.getElementById('btn-delete-item');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', () => {
+      if (confirm('Supprimer cet item définitivement ?')) {
+        remove(_editId);
+        showToast('Item supprimé', 'info');
+        window.location.hash = '#/backlog';
+      }
+    });
+  }
 
   const form = document.getElementById('item-form');
   form.addEventListener('submit', handleSubmit);
@@ -224,14 +279,16 @@ async function handleSubmit(e) {
   clearErrors();
 
   const form = e.target;
-  const type = form.elements['type']?.value ?? '';
+  const type     = document.querySelector('#toggle-type .toggle-btn.active')?.dataset.value     || 'feature';
+  const priorite = document.querySelector('#toggle-priorite .toggle-btn.active')?.dataset.value || 'moyenne';
+  const statut   = document.querySelector('#toggle-statut .toggle-btn.active')?.dataset.value   || 'à faire';
   const projectIdEl = document.getElementById('field-project');
 
   const data = {
     type,
     titre: form.elements['titre']?.value ?? '',
     description: form.elements['description']?.value || null,
-    priorite: form.elements['priorite']?.value ?? '',
+    priorite,
     projectId: projectIdEl ? projectIdEl.value : undefined,
     url: form.elements['url']?.value?.trim() || null,
   };
@@ -260,9 +317,9 @@ async function handleSubmit(e) {
       titre: data.titre.trim(),
       description: data.description && data.description.trim() !== '' ? data.description.trim() : null,
       priorite: data.priorite,
+      statut,
       createdAt: existing.createdAt,
     };
-    if (existing.statut !== undefined) updatedItem.statut = existing.statut;
     updatedItem.url = data.url || null;
     if (data.type === 'feature' && data.projectId) {
       updatedItem.projectId = data.projectId;
@@ -275,7 +332,7 @@ async function handleSubmit(e) {
     const newItem = createItem(data);
     add(newItem);
     form.reset();
-    // Masquer le champ projet après reset (le type revient à vide)
+    // Masquer le champ projet après reset
     const groupEl = document.getElementById('field-group-project');
     if (groupEl) groupEl.style.display = 'none';
     window.location.hash = '#/backlog';

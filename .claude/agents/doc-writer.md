@@ -56,7 +56,7 @@ npm start   # http://localhost:<PORT>
 | GITHUB_TOKEN | Token GitHub (lecture API) | ✅ |
 
 ## Déploiement
-Push sur `main` → GitHub Actions → Vercel automatiquement.
+Push sur `main` → Vercel redéploie automatiquement (intégration GitHub, Root Directory : `apps/<nom>/`).
 URL production : https://<nom>.vercel.app
 ```
 
@@ -78,4 +78,3 @@ Ne jamais commenter le **quoi** — le code le dit déjà.
 - Court > long : une doc de 20 lignes lue vaut mieux qu'une doc de 200 lignes ignorée
 - Toujours vérifier que l'URL de prod dans la doc correspond à celle réellement déployée
 - Pas de sections vides, pas de `TODO` dans la doc
-- Utiliser `haiku` (modèle rapide) — la doc ne nécessite pas de raisonnement complexe
