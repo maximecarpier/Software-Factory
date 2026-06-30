@@ -14,7 +14,7 @@ import * as sync from '../src/sync.js';
 
 beforeEach(() => {
   localStorage.clear();
-  jest.clearAllMocks();
+  jest.restoreAllMocks();
   global.navigator.onLine = true;
 
   // Réinitialiser crypto
@@ -164,16 +164,13 @@ describe('M-STORE — Persistance locale et offline', () => {
       const items = [];
 
       // Mock setItem pour throw
-      const originalSetItem = localStorage.setItem;
-      localStorage.setItem = jest.fn().mockImplementation(() => {
+      jest.spyOn(localStorage, 'setItem').mockImplementationOnce(() => {
         throw new Error('QuotaExceededError');
       });
 
       expect(() => {
         store.save(items);
       }).not.toThrow();
-
-      localStorage.setItem = originalSetItem;
     });
   });
 
