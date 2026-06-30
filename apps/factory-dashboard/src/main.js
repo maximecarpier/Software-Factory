@@ -1,13 +1,14 @@
 // M-SHELL : point d'entrée — initialise la nav, le routeur, et la sync Redis
 
 import './style.css';
-import { renderNav, updateOnlineBadge } from './components/nav.js';
+import { renderHeader, renderNav, updateOnlineBadge } from './components/nav.js';
 import { initRouter } from './router.js';
 import { fetchFromGitHub } from './store.js';
 import { showToast } from './components/toast.js';
 import { renderBacklog } from './views/backlogView.js';
 import { hasPending, flushPending } from './sync.js';
 
+renderHeader();
 renderNav();
 initRouter();
 

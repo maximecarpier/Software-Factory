@@ -1,4 +1,4 @@
-// M-NAV : tab bar fixed bottom + badge « Hors ligne »
+// M-NAV : header fixe haut + tab bar fixe bas
 
 const ICON_LIST = `<svg class="tab-bar-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <line x1="8" y1="6" x2="21" y2="6"/>
@@ -13,11 +13,18 @@ const ICON_FOLDER = `<svg class="tab-bar-icon" width="24" height="24" viewBox="0
   <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
 </svg>`;
 
-/**
- * Injecte le tab bar fixed bottom dans l'élément #nav.
- * 2 onglets : Backlog (#/backlog) et Projets (#/projects).
- * La création d'items passe par le FAB (plus de lien « + Nouvel item »).
- */
+export function renderHeader() {
+  const header = document.getElementById('header');
+  if (!header) return;
+  header.innerHTML = `
+    <div class="app-header">
+      <img src="/logo.jpeg" class="app-logo" alt="Factory Dashboard logo" />
+      <span class="app-title">Factory Dashboard</span>
+      <span class="badge-offline-slot"></span>
+    </div>
+  `;
+}
+
 export function renderNav() {
   const nav = document.getElementById('nav');
   if (!nav) return;
@@ -33,12 +40,14 @@ export function renderNav() {
       </button>
     </nav>
   `;
+
+  nav.querySelectorAll('.tab-bar-item').forEach(item => {
+    item.addEventListener('click', () => {
+      window.location.hash = item.dataset.route;
+    });
+  });
 }
 
-/**
- * Met en surbrillance l'onglet correspondant au hash actif.
- * @param {string} hash — ex: '#/backlog' ou '#/projects'
- */
 export function updateActiveNav(hash) {
   const items = document.querySelectorAll('.tab-bar-item');
   const effectiveHash = hash === '#/' || hash === '' ? '#/backlog' : hash;
@@ -48,14 +57,8 @@ export function updateActiveNav(hash) {
   });
 }
 
-/**
- * Injecte ou retire le badge « Hors ligne » selon navigator.onLine.
- * Le badge est positionné dans .filter-strip si présent, sinon en tête de #app.
- * Doit être appelé au boot (après renderNav) et sur chaque event online/offline.
- */
 export function updateOnlineBadge() {
-  const existing = document.querySelector('.badge-offline');
-  if (existing) existing.remove();
+  document.querySelectorAll('.badge-offline').forEach(el => el.remove());
 
   if (navigator.onLine) return;
 
@@ -63,9 +66,9 @@ export function updateOnlineBadge() {
   badge.className = 'badge-offline';
   badge.textContent = '● Hors ligne';
 
-  const filterStrip = document.querySelector('.filter-strip');
-  if (filterStrip) {
-    filterStrip.appendChild(badge);
+  const slot = document.querySelector('.badge-offline-slot');
+  if (slot) {
+    slot.appendChild(badge);
   } else {
     const app = document.getElementById('app');
     if (app) app.prepend(badge);
