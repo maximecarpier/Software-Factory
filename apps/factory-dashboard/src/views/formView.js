@@ -154,7 +154,7 @@ export function renderForm(container, editId = null) {
           <textarea
             id="field-description"
             name="description"
-            rows="4"
+            rows="3"
             placeholder="Description facultative"
           >${escapeHtml(currentDesc)}</textarea>
           <span class="field-error" id="error-description" role="alert"></span>

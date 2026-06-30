@@ -106,6 +106,8 @@ body {
   background: linear-gradient(135deg, #1E1B4B 0%, #312E81 60%, #4338CA 100%);
   display: flex;
   align-items: center;
+  justify-content: center;
+  position: relative;
   padding: 0 16px;
   gap: 12px;
   box-shadow: var(--shadow-header);
@@ -124,11 +126,11 @@ body {
   font-weight: 700;
   color: #FFFFFF;
   letter-spacing: -0.02em;
-  flex: 1;
 }
 
 .badge-offline-slot {
-  margin-left: auto;
+  position: absolute;
+  right: 16px;
 }
 
 .badge-offline {
@@ -163,13 +165,22 @@ h1 {
 /* ─── Formulaire F1 ─────────────────────────────────────────────── */
 .form-container {
   max-width: 560px;
+  padding-top: 12px;
+}
+
+.form-container h1 {
+  margin-bottom: 1rem;
+}
+
+.form-section {
+  margin-bottom: 0.875rem;
 }
 
 .field-group {
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.875rem;
 }
 
 .field-group label {
@@ -208,7 +219,7 @@ h1 {
 
 .field-group textarea {
   resize: vertical;
-  min-height: 96px;
+  min-height: 64px;
 }
 
 .field-error {
@@ -218,7 +229,7 @@ h1 {
 }
 
 .form-actions {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
 }
 
 /* ─── Boutons ───────────────────────────────────────────────────── */
@@ -823,7 +834,8 @@ h1 {
   color: var(--color-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  min-width: 52px;
+  width: 60px;
+  min-width: 60px;
   flex-shrink: 0;
 }
 

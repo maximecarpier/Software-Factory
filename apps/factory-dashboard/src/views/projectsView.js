@@ -53,7 +53,7 @@ export function renderProjects(container) {
   const projets = allItems.filter(i => i.type === 'projet');
 
   const enCours = projets
-    .filter(p => p.statut !== 'terminé')
+    .filter(p => p.statut === 'en cours')
     .sort((a, b) => a.titre.localeCompare(b.titre));
 
   const termines = projets
