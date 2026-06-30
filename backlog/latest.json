@@ -54,7 +54,7 @@
       "id": "proj-maman-sport-001",
       "type": "projet",
       "titre": "StepQuest",
-      "description": "Nouvelle app à créer — sport / fitness.",
+      "description": "Voir notes",
       "priorite": "haute",
       "createdAt": "2026-06-27T00:00:00.000Z",
       "statut": "à faire",
@@ -93,7 +93,7 @@
       "id": "275a43ad-693b-44ca-a27c-fea94fe3b744",
       "type": "feature",
       "titre": "Refonte graphique",
-      "description": null,
+      "description": "Voir notes",
       "priorite": "moyenne",
       "createdAt": "2026-06-28T15:30:51.450Z",
       "statut": "à faire",
@@ -106,8 +106,9 @@
       "titre": "Consommation tokens et heures",
       "description": "Faire une nouvelle page qui indique ma consommation de tokens sur la session et d'un point de vue hebdo par rapport à mes limites de plan PRO",
       "priorite": "moyenne",
-      "statut": "à faire",
       "createdAt": "2026-06-28T17:40:40.101Z",
+      "statut": "à faire",
+      "url": null,
       "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
     },
     {
@@ -125,7 +126,7 @@
       "id": "519a3038-7c01-40a2-9d1b-55d0693aec35",
       "type": "feature",
       "titre": "Optimisation conso de token",
-      "description": "Lors d'un process multi agent (transmission des infos par le texte pour éviter les relecture de fichier, répertoire github spécialisé pour la réduction, mise en place de skills ou tools ?",
+      "description": "Lors d'un process multi agent (transmission des infos par le texte pour éviter les relecture de fichier, répertoire github spécialisé pour la réduction, mise en place de skills ou tools ? — Piste : les fichiers lus par plusieurs agents (dans des contextes différents) pourraient être mutualisés en une seule lecture par l'orchestrateur, puis distribués au besoin plutôt que relus à chaque nouveau contexte.",
       "priorite": "moyenne",
       "statut": "à faire",
       "createdAt": "2026-06-28T17:59:54.027Z",
@@ -135,22 +136,12 @@
       "id": "cb497986-594e-475c-a252-771ac4259738",
       "type": "feature",
       "titre": "Gestion du hors connexion et disponibilité immédiate pour facilité la saisie d'idées",
-      "description": "Voir notes",
-      "priorite": "moyenne",
+      "description": "Reprendre la code review",
+      "priorite": "haute",
       "createdAt": "2026-06-28T18:01:05.506Z",
-      "statut": "à faire",
+      "statut": "en cours",
       "url": null,
       "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
-    },
-    {
-      "id": "0c3cf729-f960-4a03-bb48-294a379eb81f",
-      "type": "feature",
-      "titre": "Liberté totale architectural",
-      "description": "L'architecte a le droit de me proposer n'importe quelle solution à partir du moment que c'est la plus adapté nouvelle bdd, utilisation d'un nouvel outil pas de problème il faut quand même me dire si il y a des coûts de fonctionnement ou un free plan et expliquer pourquoi le choix",
-      "priorite": "moyenne",
-      "statut": "terminé",
-      "createdAt": "2026-06-28T18:38:21.924Z",
-      "projectId": "proj-software-factory-001"
     },
     {
       "id": "6d8af19d-08e7-458f-bdf9-9f4de5fb7b46",
@@ -163,26 +154,6 @@
       "projectId": "proj-travelfinance-001"
     },
     {
-      "id": "e8deffb7-2565-4402-95e7-0d0cba3f818b",
-      "type": "feature",
-      "titre": "Faire le keep alive pour l'app mobile",
-      "description": "Script smart-keepalive.sh",
-      "priorite": "moyenne",
-      "statut": "à faire",
-      "createdAt": "2026-06-29T01:49:57.729Z",
-      "projectId": "proj-software-factory-001"
-    },
-    {
-      "id": "b53914d9-4698-4cad-9419-f64b79ac9c13",
-      "type": "feature",
-      "titre": "Vérifier pourquoi les apps ne fonctionnent pas en wifi",
-      "description": null,
-      "priorite": "moyenne",
-      "statut": "à faire",
-      "createdAt": "2026-06-29T03:20:00.966Z",
-      "projectId": "proj-software-factory-001"
-    },
-    {
       "id": "8b3623b0-aae6-42ac-956f-a7576738c184",
       "type": "projet",
       "titre": "Apprentissage Dashboard",
@@ -190,6 +161,27 @@
       "priorite": "basse",
       "statut": "à faire",
       "createdAt": "2026-06-29T08:09:56.825Z"
+    },
+    {
+      "id": "82691c3c-b465-4e5b-a992-d44d4cd2c0a1",
+      "type": "feature",
+      "titre": "Mettre à la page safecalc",
+      "description": null,
+      "priorite": "moyenne",
+      "createdAt": "2026-06-29T14:29:30.656Z",
+      "statut": "à faire",
+      "url": null,
+      "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
+    },
+    {
+      "id": "0dbc9aa0-257f-45f7-b3e0-3d9bfb652ffe",
+      "type": "feature",
+      "titre": "Affichage par défaut",
+      "description": "Lors d’un démarrage d’app l’écran doit s’ouvrir sur la page contenant l’arc en cours \n\n- lors d’un clic sur un arc la page de l’arc doit s’afficher en haut de la liste",
+      "priorite": "basse",
+      "statut": "à faire",
+      "createdAt": "2026-06-29T17:12:40.467Z",
+      "projectId": "proj-onepiece-001"
     }
   ]
 }
