@@ -229,10 +229,55 @@ Pour chaque ligne T[n] du tableau :
      - Si [→ test-writer]    : relancer test-writer avec la question, attendre réponse, puis relancer T[n]
      - Si [→ orchestrateur]  : redécoupe T[n] en sous-tâches, relancer
      - Si aucun blocage      : passer à T[n+1]
+  5. Mettre à jour docs/state.md : T[n] → COMPLETED + delta technique (1-2 lignes max)
 ```
 
 Ne jamais envoyer plusieurs micro-tâches en un seul appel à code-implementer.
 Ne jamais passer à T[n+1] sans avoir vérifié inter-agent.md après T[n].
+
+---
+
+### Token Diet — Discipline du contexte (obligatoire)
+
+L'orchestrateur est responsable de la santé de la fenêtre de contexte. Ces règles s'appliquent à toutes les sessions et à tous les appels d'agents.
+
+#### Règle 1 — Lecture ciblée du code source
+
+Préférer la lecture ciblée à la lecture intégrale pour les fichiers de code (`.js`, `.ts`, `.html`, `.css`, `.py`…) :
+
+| Besoin | Outil recommandé |
+|---|---|
+| Trouver une fonction | `grep -n "nomFonction" fichier.js` |
+| Lire un bloc précis | `Read` avec `offset` + `limit` |
+| Comprendre la structure | `grep -n "^function\|^const \|^class\|^export"` |
+| Diff récent | `git diff HEAD -- fichier.js` |
+
+**Exception** : les fichiers `.md` (specs, architecture, design) peuvent être lus en entier pour garder la vision globale.
+
+#### Règle 2 — Briefs enclavés pour les sous-agents
+
+Chaque appel à un sous-agent reçoit **uniquement** ce dont il a besoin pour sa micro-tâche :
+- La spec de T[n] (ligne du tableau architecture.md)
+- Le snippet designer si applicable
+- Les directives `[tech-architect → code-implementer]` d'inter-agent.md
+
+**Interdiction d'injecter** : l'historique du chat, specs.md complet, architecture.md complet, ou le contexte de tâches déjà validées.
+
+#### Règle 3 — Registre d'état par projet (`docs/state.md`)
+
+Créer `apps/<projet>/docs/state.md` à Gate 2 depuis `scripts/templates/state.md`.
+
+Après chaque T[n] validé, l'orchestrateur met à jour `state.md` :
+- Marquer T[n] `COMPLETED`
+- Écrire 1-2 lignes dans "Dernier incrément" (fichiers touchés, comportement validé)
+- Effacer le détail des incréments précédents (garder seulement le dernier)
+
+`state.md` est le point d'entrée de reprise — il évite de relire architecture.md en entier.
+
+#### Règle 4 — Signal de nettoyage
+
+Si la session dépasse ~10 échanges depuis le dernier Gate, terminer la réponse par :
+> 🧹 **`state.md` mis à jour. Tape `/compact` si le contexte est lourd avant la prochaine tâche.**
 
 ---
 

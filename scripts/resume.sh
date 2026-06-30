@@ -57,6 +57,21 @@ for proj in projects:
     print(f"   Checkpoint     : {gate} ({label})")
     print(f"   Docs           : {', '.join(files) if files else 'aucun'}")
     print(f"   Prochaine étape: {next_step}")
+
+    # Afficher l'état des micro-tâches si state.md existe
+    state_file = docs / "state.md"
+    if state_file.exists():
+        content = state_file.read_text()
+        lines = content.splitlines()
+        pending = sum(1 for l in lines if "PENDING" in l)
+        completed = sum(1 for l in lines if "COMPLETED" in l)
+        total = pending + completed
+        # Extraire le dernier incrément
+        last_action = next((l.split(":", 1)[1].strip() for l in lines if l.startswith("- **Dernière tâche**") and "—" not in l), None)
+        print(f"   Micro-tâches   : {completed}/{total} complétées")
+        if last_action:
+            print(f"   Dernier incrément : {last_action}")
+
     print("=" * 52)
 
 PYEOF
