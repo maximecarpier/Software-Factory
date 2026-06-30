@@ -1,5 +1,20 @@
 # Canal inter-agents — factory-dashboard
 
+## [designer → tech-architect]
+> Round 1 (refonte v3.0) — 2026-06-30
+
+**Nouvelles fonctionnalités hors specs v2.0 — valider avant implémentation :**
+- La refonte ajoute la suppression d'item (depuis formView en mode édition) alors que les specs v2.0 §8.5 l'excluent explicitement. Confirmer que store.js doit exposer un `remove(id)` et que l'API `/api/backlog` accepte un DELETE ou PUT sans l'item.
+- La refonte ajoute la gestion du champ `statut` (à faire / en cours / terminé) en toggle dans le formulaire et via swipe-droite. Ce champ est absent du modèle de données specs v2.0 §4.4. Confirmer l'ajout de `statut` au modèle et au PUT Redis.
+- La vue Projets affiche des items de type `projet` groupés par `statut`. Confirmer que c'est bien une vue dérivée du backlog (pas un second store).
+
+**Questions techniques de la refonte UI :**
+- Le swipe sur les cartes capture touchmove et doit coexister avec le scroll vertical — confirmer que la désambiguïsation (|deltaX| > |deltaY| pour activer swipe) est suffisante ou s'il faut un `touch-action: pan-y` sur le conteneur scroll.
+- Pull-to-refresh manuel : `overscroll-behavior-y: contain` sur `body` empêche-t-il correctement le pull-to-navigate natif en mode standalone PWA sur iOS ? Tester sur iPhone avant implémentation.
+- `navigator.vibrate()` est absent de Safari/iOS — le haptic feedback sera un no-op sur la cible principale. Pas de workaround web disponible. Simplement ignorer silencieusement (`'vibrate' in navigator` guard).
+- Le `#nav` (tab bar) passe de `sticky top:0` à `fixed bottom:0`. Z-index actuel du toast : 100. FAB : 40. Tab bar : 50. Toast doit rester au-dessus du tab bar — confirmer la pile z-index.
+- La recherche full-text est côté client (filter sur le cache local) — pas d'appel API supplémentaire. Confirmer.
+
 ## [tech-architect → designer]
 > Round 1 (v2.0 offline) — 2026-06-29
 - Nouveau badge « Hors ligne » à intégrer dans la nav (`nav.js`). État visuel : masqué quand en ligne, visible quand `!navigator.onLine`. Doit signaler de façon non bloquante que les changements sont locaux et seront synchronisés au retour réseau.
