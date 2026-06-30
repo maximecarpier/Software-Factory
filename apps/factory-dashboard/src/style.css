@@ -9,21 +9,70 @@
 }
 
 :root {
-  --color-bg: #f5f5f5;
-  --color-surface: #ffffff;
-  --color-border: #d1d5db;
-  --color-text: #111827;
-  --color-text-muted: #6b7280;
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-secondary-bg: #e5e7eb;
-  --color-secondary-hover: #d1d5db;
-  --color-error: #dc2626;
-  --color-warning-bg: #fef3c7;
-  --color-warning-border: #f59e0b;
-  --radius: 6px;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
-  --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* ── Couleurs fondamentales ─────────────────────────────── */
+  --color-bg:           #f9fafb;
+  --color-surface:      #ffffff;
+  --color-border:       #e5e7eb;
+  --color-text:         #111827;
+  --color-muted:        #6b7280;
+  --color-accent:       #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-subtle:       #f3f4f6;
+  --color-error:        #dc2626;
+
+  /* ── Priorités (bord gauche des cartes) ─────────────────── */
+  --color-prio-haute:   #ef4444;
+  --color-prio-moyenne: #f97316;
+  --color-prio-basse:   #d1d5db;
+
+  /* ── Statuts (badges projets) ───────────────────────────── */
+  --color-statut-cours-bg:     #dbeafe;
+  --color-statut-cours-text:   #1d4ed8;
+  --color-statut-termine-bg:   #d1fae5;
+  --color-statut-termine-text: #065f46;
+
+  /* ── Actions swipe ──────────────────────────────────────── */
+  --color-swipe-done:  #22c55e;
+  --color-swipe-edit:  #3b82f6;
+
+  /* ── Rayons (iOS-first) ─────────────────────────────────── */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-pill: 999px;
+
+  /* ── Ombres ─────────────────────────────────────────────── */
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-fab:  0 4px 16px rgba(37,99,235,0.35);
+  --shadow-tab:  0 -1px 0 rgba(0,0,0,0.08);
+
+  /* ── Typographie ────────────────────────────────────────── */
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI',
+          system-ui, sans-serif;
+  --font-size-xs:   12px;
+  --font-size-sm:   13px;
+  --font-size-base: 15px;
+  --font-size-md:   17px;
+  --font-size-lg:   20px;
+  --font-size-xl:   24px;
+
+  /* ── Espacements ────────────────────────────────────────── */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* ── Layout mobile ──────────────────────────────────────── */
+  --tab-bar-height:   49px;
+  --fab-size:         56px;
+  --touch-min:        44px;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* ── Transitions ────────────────────────────────────────── */
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 html {
@@ -37,6 +86,9 @@ body {
   color: var(--color-text);
   min-height: 100vh;
   line-height: 1.5;
+  overscroll-behavior-y: contain;
+  padding-bottom: calc(var(--tab-bar-height) + var(--safe-area-bottom));
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ─── Navigation ────────────────────────────────────────────────── */
@@ -86,29 +138,33 @@ body {
 .nav-link {
   display: inline-block;
   padding: 0.375rem 0.75rem;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-text-muted);
+  color: var(--color-muted);
   text-decoration: none;
   transition: background 0.15s, color 0.15s;
 }
 
 .nav-link:hover {
-  background: var(--color-secondary-bg);
+  background: var(--color-subtle);
   color: var(--color-text);
 }
 
 .nav-link.active {
-  background: var(--color-primary);
+  background: var(--color-accent);
   color: #fff;
 }
 
 /* ─── Main content ──────────────────────────────────────────────── */
 #app {
-  max-width: 860px;
+  max-width: 560px;
   margin: 0 auto;
-  padding: 2rem 1rem 4rem;
+  padding: 0 var(--space-md) var(--space-xl);
+}
+
+@media (min-width: 768px) {
+  #app { max-width: 560px; }
 }
 
 h1 {
@@ -147,7 +203,7 @@ h1 {
   width: 100%;
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   font-size: 0.9375rem;
   font-family: var(--font);
   color: var(--color-text);
@@ -160,7 +216,7 @@ h1 {
 .field-group select:focus,
 .field-group textarea:focus {
   outline: none;
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
@@ -183,10 +239,10 @@ h1 {
 .btn-primary {
   display: inline-block;
   padding: 0.5rem 1.25rem;
-  background: var(--color-primary);
+  background: var(--color-accent);
   color: #fff;
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   font-size: 0.9375rem;
   font-weight: 600;
   font-family: var(--font);
@@ -196,16 +252,16 @@ h1 {
 }
 
 .btn-primary:hover {
-  background: var(--color-primary-hover);
+  background: var(--color-accent-hover);
 }
 
 .btn-secondary {
   display: inline-block;
   padding: 0.5rem 1.25rem;
-  background: var(--color-secondary-bg);
+  background: var(--color-subtle);
   color: var(--color-text);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   font-size: 0.9375rem;
   font-weight: 500;
   font-family: var(--font);
@@ -215,7 +271,7 @@ h1 {
 }
 
 .btn-secondary:hover {
-  background: var(--color-secondary-hover);
+  background: var(--color-border);
 }
 
 /* ─── Backlog F2 ────────────────────────────────────────────────── */
@@ -231,7 +287,7 @@ h1 {
   align-items: flex-end;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   padding: 0.875rem 1rem;
   margin-bottom: 1rem;
 }
@@ -246,7 +302,7 @@ h1 {
 .filter-group label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-text-muted);
+  color: var(--color-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -254,7 +310,7 @@ h1 {
 .filter-group select {
   padding: 0.4rem 0.6rem;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   font-size: 0.875rem;
   font-family: var(--font);
   color: var(--color-text);
@@ -264,14 +320,14 @@ h1 {
 
 .filter-group select:focus {
   outline: none;
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 /* Compteur */
 .counter {
   font-size: 0.8125rem;
-  color: var(--color-text-muted);
+  color: var(--color-muted);
   margin-bottom: 0.75rem;
 }
 
@@ -285,9 +341,9 @@ h1 {
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   padding: 1rem 1.125rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-card);
   transition: box-shadow 0.15s;
 }
 
@@ -311,7 +367,7 @@ h1 {
 
 .card-date {
   font-size: 0.75rem;
-  color: var(--color-text-muted);
+  color: var(--color-muted);
   white-space: nowrap;
   margin-left: auto;
 }
@@ -326,20 +382,18 @@ h1 {
 
 .card-desc {
   font-size: 0.875rem;
-  color: var(--color-text-muted);
+  color: var(--color-muted);
   line-height: 1.5;
 }
 
 /* ─── Badges type ───────────────────────────────────────────────── */
 .badge {
   display: inline-block;
-  padding: 0.2em 0.55em;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
   font-weight: 600;
   line-height: 1.4;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 /* Type badges */
@@ -385,6 +439,37 @@ h1 {
   color: #065f46;
 }
 
+/* ─── Chip filtre (base — sans état actif) ──────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font);
+}
+
+/* ─── Toggle button (base — sans état actif) ────────────────────── */
+.toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--touch-min);
+  flex: 1;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font);
+}
+
 /* ─── États vides ───────────────────────────────────────────────── */
 .empty-state {
   text-align: center;
@@ -403,14 +488,14 @@ h1 {
 
 .empty-sub {
   font-size: 0.9375rem;
-  color: var(--color-text-muted);
+  color: var(--color-muted);
 }
 
 /* ─── Bandeau avertissement ─────────────────────────────────────── */
 .banner-warning {
-  background: var(--color-warning-bg);
-  border: 1px solid var(--color-warning-border);
-  border-radius: var(--radius);
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: var(--radius-sm);
   padding: 0.625rem 1rem;
   font-size: 0.875rem;
   color: #92400e;
@@ -456,16 +541,16 @@ h1 {
   font-size: 0.8125rem;
   font-weight: 500;
   font-family: var(--font);
-  background: var(--color-secondary-bg);
+  background: var(--color-subtle);
   color: var(--color-text);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .btn-edit:hover {
-  background: var(--color-secondary-hover);
+  background: var(--color-border);
 }
 
 .btn-delete {
@@ -476,7 +561,7 @@ h1 {
   background: #fee2e2;
   color: #991b1b;
   border: 1px solid #fca5a5;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -495,9 +580,9 @@ h1 {
 .warning-message {
   font-size: 0.875rem;
   color: #92400e;
-  background: var(--color-warning-bg);
-  border: 1px solid var(--color-warning-border);
-  border-radius: var(--radius);
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: var(--radius-sm);
   padding: 0.5rem 0.75rem;
   margin: 0;
 }
@@ -523,7 +608,7 @@ h1 {
   }
 
   #app {
-    padding: 1.25rem 0.75rem 3rem;
+    padding: 0 var(--space-md) var(--space-xl);
   }
 
   .filter-bar {
