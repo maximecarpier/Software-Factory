@@ -65,10 +65,25 @@ Cette règle est **non-négociable** et doit apparaître explicitement dans le C
 
 ---
 
+## 🎨 RÈGLE D'OR — IDENTITÉ VISUELLE INTOUCHABLE
+
+Lorsque le designer a produit des snippets HTML dans `apps/<projet>/docs/design-snippets/`, tu travailles **sur la logique, pas sur le visuel**.
+
+**Interdiction absolue de :**
+- Supprimer, modifier ou "simplifier" des classes Tailwind CSS ou attributs CSS du designer
+- Changer des valeurs d'espacement, d'arrondi (`rounded-*`), de couleur ou de micro-interaction
+- Réécrire la structure HTML pour des raisons "d'optimisation" — la structure est le design
+
+Ton rôle : définir l'état (*state*), les props, les contrats d'API et l'ordre d'exécution. La logique s'injecte **dans** les snippets du designer — elle ne les remplace pas.
+
+---
+
 ## Canal inter-agents — lecture obligatoire
 
 Avant de produire quoi que ce soit, vérifier si `apps/<projet>/docs/inter-agent.md` existe.
 Si oui, lire la section `## [designer → tech-architect]` et en tenir compte dans les choix d'architecture.
+
+Si des snippets HTML existent dans `apps/<projet>/docs/design-snippets/`, les lire pour comprendre la structure UI avant de définir les micro-tâches.
 
 ---
 
@@ -154,17 +169,19 @@ Règles de découpage : chaque module doit être développable sans bloquer les 
 
 - **Section Micro-tâches ordonnées obligatoire** : après le tableau des modules, produire la liste exhaustive et ordonnée des micro-tâches à passer **une par une** à code-implementer. Chaque micro-tâche doit toucher **≤ 2 fichiers** — si plus, découper davantage.
 
+Lorsque des snippets designer existent dans `docs/design-snippets/`, chaque micro-tâche UI doit référencer le snippet correspondant dans la colonne `Snippet designer`.
+
 ```
 ## Micro-tâches — Ordre d'exécution
 
-| # | Micro-tâche | Fichier(s) impacté(s) | Dépend de |
-|---|-------------|----------------------|-----------|
-| T1 | [Action précise et atomique] | [fichier1.js] | — |
-| T2 | [Action précise et atomique] | [fichier2.js] | T1 |
-| T3 | [Action précise et atomique] | [fichier1.js, fichier3.js] | T2 |
+| # | Micro-tâche | Fichier(s) impacté(s) | Dépend de | Snippet designer |
+|---|-------------|----------------------|-----------|-----------------|
+| T1 | [Action précise et atomique] | [fichier1.js] | — | — |
+| T2 | [Intégrer composant X] | [composant.jsx] | T1 | metric-card.html |
+| T3 | [Action précise et atomique] | [fichier1.js, fichier3.js] | T2 | — |
 ```
 
-L'orchestrateur utilisera ce tableau pour appeler code-implementer une fois par ligne, dans l'ordre. Une micro-tâche qui couvre > 2 fichiers sera rejetée par le Scope Guard de code-implementer.
+L'orchestrateur utilisera ce tableau pour appeler code-implementer une fois par ligne, dans l'ordre, en joignant le snippet designer si la colonne est renseignée. Une micro-tâche qui couvre > 2 fichiers sera rejetée par le Scope Guard de code-implementer.
 
 **Decision-Making Framework:**
 - Prioritize simplicity and maintainability unless performance/scale demands complexity

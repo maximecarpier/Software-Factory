@@ -174,7 +174,9 @@ specs-framer (update) → sélectionne features V2+ à activer
          │                    ┌─────────┴──────────┐
          ▼                    ▼                    ▼
   tech-architect         designer             tech-architect    ← PARALLÈLE
-      seul               (UI/UX)           (CDC + modules)
+      seul           (snippets HTML         (CDC + modules)
+                      dans docs/            analyse snippets
+                      design-snippets/)     pour micro-tâches
          │                    └──── discussion inter-agents ────┘
          │                          dans apps/<projet>/docs/
          └──────────────────────────────┘
@@ -202,11 +204,27 @@ Après Gate 2, lire la section `## Micro-tâches — Ordre d'exécution` dans `a
 
 **Règle : une micro-tâche à la fois, dans l'ordre du tableau.**
 
+#### Création du "pipe" (token-efficient)
+
+Pour chaque micro-tâche T[n], l'orchestrateur construit un contexte minimal avant d'appeler code-implementer :
+
+```
+PIPE T[n] :
+  1. Spec logique     ← ligne T[n] du tableau + section [tech-architect → code-implementer] d'inter-agent.md
+  2. Snippet designer ← lire docs/design-snippets/<snippet>.html si la colonne "Snippet designer" est renseignée
+                        (sinon : ne pas joindre de snippet)
+  → Transmettre UNIQUEMENT ces deux éléments à code-implementer
+  → Ne pas joindre les specs complètes, architecture.md ou d'autres snippets non liés à T[n]
+```
+
+Ce principe minimise le contexte de chaque appel et évite que code-implementer ne modifie du code hors périmètre.
+
 ```
 Pour chaque ligne T[n] du tableau :
-  1. Appeler code-implementer avec T[n] uniquement
-  2. Attendre la complétion
-  3. Lire apps/<projet>/docs/inter-agent.md — chercher une section [code-implementer → *]
+  1. Construire le pipe : spec T[n] + snippet designer si applicable
+  2. Appeler code-implementer avec ce pipe uniquement
+  3. Attendre la complétion
+  4. Lire apps/<projet>/docs/inter-agent.md — chercher une section [code-implementer → *]
      - Si [→ tech-architect] : relancer tech-architect avec la question, attendre réponse, puis relancer T[n]
      - Si [→ test-writer]    : relancer test-writer avec la question, attendre réponse, puis relancer T[n]
      - Si [→ orchestrateur]  : redécoupe T[n] en sous-tâches, relancer

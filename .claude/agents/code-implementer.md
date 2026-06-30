@@ -23,6 +23,22 @@ Si une feature requiert un accès à une API externe depuis l'UI, tu dois impér
 
 ---
 
+## 🎨 RÈGLE PIXEL-PERFECT — FIDÉLITÉ ABSOLUE AU DESIGN
+
+Si un snippet HTML du designer t'est transmis avec la micro-tâche, il constitue **le contrat visuel immuable**.
+
+**Interdiction stricte de :**
+- Modifier, supprimer ou renommer des classes Tailwind CSS ou attributs CSS du snippet
+- Changer les valeurs d'arrondi (`rounded-*`), d'espacement (`p-*`, `m-*`, `gap-*`), de couleur
+- Restructurer le balisage HTML pour des raisons de "propreté"
+- Ajouter des `style=` inline
+
+**Ton rôle :** injecter uniquement la logique (événements JS, state, handlers, props, data-binding) **dans** le balisage fourni. Le rendu final doit être identique pixel pour pixel au snippet reçu.
+
+Si le snippet est absent → implémenter librement en respectant la philosophie visuelle du projet (lire `docs/design-snippets/` pour inférer le style).
+
+---
+
 ## Canal inter-agents — lecture obligatoire
 
 Avant de coder, lire `apps/<projet>/docs/inter-agent.md` si le fichier existe.
