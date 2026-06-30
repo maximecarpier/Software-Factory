@@ -91,10 +91,9 @@ describe('Bug 1a — formView création offline : factory_pending contient le no
     const container = document.getElementById('app');
     renderForm(container, null);
 
-    document.getElementById('field-type').value = 'projet';
-    document.getElementById('field-type').dispatchEvent(new Event('change'));
+    document.querySelector('#toggle-type .toggle-btn[data-value="projet"]').click();
     document.getElementById('field-titre').value = 'Projet Créé Offline';
-    document.getElementById('field-priorite').value = 'haute';
+    document.querySelector('#toggle-priorite .toggle-btn[data-value="haute"]').click();
 
     document.getElementById('item-form').dispatchEvent(
       new Event('submit', { bubbles: true, cancelable: true })
