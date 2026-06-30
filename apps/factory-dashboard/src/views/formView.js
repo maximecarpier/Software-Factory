@@ -253,6 +253,7 @@ async function handleSubmit(e) {
   if (_editId) {
     // ── Mode édition : store.update gère save + enqueue + flush ──
     const existing = allItems.find(i => i.id === _editId);
+    if (!existing) return;
     const updatedItem = {
       id: existing.id,
       type: data.type,
