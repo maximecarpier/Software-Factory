@@ -41,6 +41,8 @@ document.addEventListener('touchstart', e => {
   }
 }, { passive: true });
 
+document.addEventListener('touchcancel', () => { ptrActive = false; });
+
 document.addEventListener('touchend', async e => {
   if (!ptrActive) return;
   const deltaY = e.changedTouches[0].clientY - ptrStartY;

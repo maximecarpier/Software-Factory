@@ -4,7 +4,7 @@
 import { renderForm } from './views/formView.js';
 import { renderBacklog } from './views/backlogView.js';
 import { renderProjects } from './views/projectsView.js';
-import { updateActiveNav } from './components/nav.js';
+import { updateActiveNav, updateOnlineBadge } from './components/nav.js';
 
 /**
  * Retourne le hash actuel normalisé.
@@ -25,6 +25,7 @@ function route(hash) {
   if (!app) return;
 
   updateActiveNav(hash);
+  updateOnlineBadge();
 
   if (hash.startsWith('#/edit/')) {
     // Mode édition — extrait l'ID après '#/edit/'
