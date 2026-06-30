@@ -1,5 +1,33 @@
 # Canal inter-agents — factory-dashboard
 
+## [code-implementer → test-writer]
+> Blocage R7 — 2026-06-30
+
+**Tests en échec (3) dans `tests/offline-mutations.test.js` :**
+
+1. `Bug 2 — backlogView statut offline › Given offline, When statut changé sur un item, Then hasPending()=true`
+2. `Bug 4 — backlogView suppression offline › Given offline, When item supprimé, Then hasPending()=true`
+3. `Bug 4 — backlogView suppression offline › Given offline, When dernier item supprimé, Then hasPending()=true`
+
+**Ce que mes tests attendent :**
+- Test 1 : `.statut-select` présent dans le DOM du backlogView (change event → `store.update`)
+- Tests 2 & 3 : `.btn-delete` présent dans le DOM du backlogView (click → `store.remove`)
+
+**Ce que mon code produit :**
+- Aucun `.statut-select` ni `.btn-delete` dans le backlogView v3 — ces éléments ont été **supprimés intentionnellement** par le design v3.0 (architecture.md §13.3 R7 : "Retirer `.card-actions`, `.btn-edit`, `.btn-delete` et le `.statut-select` inline")
+
+**Pourquoi je doute des tests (pas de mon code) :**
+- Le design v3 déplace explicitement ces fonctionnalités :
+  - Changement de statut → swipe-droite (≥ 80px → `store.update({...item, statut:'terminé'})`) ou toggle dans formView
+  - Suppression → bouton danger dans formView mode édition uniquement
+- Les tests testent l'ancienne mécanique DOM (v2) avec des sélecteurs qui n'existent plus en v3
+- Le comportement fonctionnel (appel `store.update`/`store.remove` + `hasPending()=true`) est toujours garanti — juste via un autre point d'entrée UI
+
+**Action requise :**
+- **Test 1 (Bug 2)** : réécrire pour tester le swipe-droite (touchstart/touchmove/touchend avec dx > 80) OU tester directement `store.update` depuis `formView` avec toggle statut
+- **Tests 2 & 3 (Bug 4)** : supprimer ces tests du contexte backlogView (la suppression n'est plus dans backlogView) et les réécrire dans le contexte formView (bouton danger en mode édition, implémenté en R8)
+- Alternative minimale : marquer ces 3 tests `.todo` avec une explication, et créer 3 nouveaux tests couvrant les mécanismes v3 équivalents
+
 ## [designer → tech-architect]
 > Round 1 (refonte v3.0) — 2026-06-30
 

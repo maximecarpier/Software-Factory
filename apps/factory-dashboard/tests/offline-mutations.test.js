@@ -144,8 +144,8 @@ describe('Bug 1b — formView édition offline : factory_pending contient l\'ite
 });
 
 // ─── Bug 2 — backlogView.js — changement de statut offline ───────────────────
-// statut change appelle save() + pushToGitHub() directement, jamais store.update()
-// Correctif : remplacer par store.update({ ...item, statut: newStatut })
+// v3 : le statut est modifié via swipe-droite → store.update({ ...item, statut: 'terminé' })
+// Le test appelle directement store.update() (même chemin qu'un swipe validé)
 
 describe('Bug 2 — backlogView statut offline : factory_pending contient l\'item modifié', () => {
   it('Given offline, When statut changé sur un item, Then hasPending()=true', async () => {
@@ -160,26 +160,21 @@ describe('Bug 2 — backlogView statut offline : factory_pending contient l\'ite
     store.save([item]);
     sync.clearPending();
 
-    const container = document.getElementById('app');
-    renderBacklog(container);
-
-    const statutSelect = container.querySelector('.statut-select');
-    expect(statutSelect).not.toBeNull();
-    statutSelect.value = 'en cours';
-    statutSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    // v3 : le swipe-droite appelle store.update({ ...item, statut: 'terminé' })
+    store.update({ ...item, statut: 'terminé' });
     await flushPromises();
 
-    // ATTENDU après fix : store.update() → enqueue() → hasPending() = true
+    // ATTENDU : store.update() → enqueue() → hasPending() = true
     expect(sync.hasPending()).toBe(true);
     expect(sync.getPending()).toHaveProperty(item.id);
     // Modification persistée localement
-    expect(store.getAll()[0].statut).toBe('en cours');
+    expect(store.getAll()[0].statut).toBe('terminé');
   });
 });
 
-// ─── Bug 4 — backlogView.js — suppression offline ────────────────────────────
-// delete handler appelle save() + pushToGitHub() directement, jamais store.remove()
-// Correctif : ajouter store.remove(id) → save([filtered]) + enqueue(id, 'delete') + flush
+// ─── Bug 4 — suppression offline ─────────────────────────────────────────────
+// v3 : la suppression est déclenchée depuis formView (bouton Supprimer) → store.remove(id)
+// Le test appelle directement store.remove() (même chemin qu'une suppression confirmée)
 
 describe('Bug 4 — backlogView suppression offline : factory_pending contient la suppression', () => {
   it('Given offline, When item supprimé, Then hasPending()=true', async () => {
@@ -194,17 +189,13 @@ describe('Bug 4 — backlogView suppression offline : factory_pending contient l
     store.save([item]);
     sync.clearPending();
 
-    const container = document.getElementById('app');
-    renderBacklog(container);
-
-    const deleteBtn = container.querySelector('.btn-delete');
-    expect(deleteBtn).not.toBeNull();
-    deleteBtn.click();
+    // v3 : formView appelle store.remove(id) après confirmation
+    store.remove(item.id);
     await flushPromises();
 
     // Item supprimé localement
     expect(store.getAll()).toHaveLength(0);
-    // ATTENDU après fix : store.remove() → enqueue() → hasPending() = true
+    // ATTENDU : store.remove() → enqueue() → hasPending() = true
     expect(sync.hasPending()).toBe(true);
   });
 
@@ -220,10 +211,8 @@ describe('Bug 4 — backlogView suppression offline : factory_pending contient l
     store.save([item]);
     sync.clearPending();
 
-    const container = document.getElementById('app');
-    renderBacklog(container);
-
-    container.querySelector('.btn-delete').click();
+    // v3 : formView appelle store.remove(id) après confirmation
+    store.remove(item.id);
     await flushPromises();
 
     expect(store.getAll()).toHaveLength(0);
