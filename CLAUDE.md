@@ -263,8 +263,8 @@ Ce mode déploie une coquille navigable complète (données hard-codées) avant 
 
 ```
 PHASE PROTOTYPE
-  0. brainstorm-agent → challenge l'idée (idem Mode A)
-     ORCHESTRATEUR → pose les questions clés (voir section ci-dessus)
+  0. brainstorm-agent → SESSION INTERACTIVE MULTI-TOURS (idem Mode A)
+     L'agent dialogue directement avec l'utilisateur jusqu'au "stop".
   1. specs-framer (mode UI) → CdC axé sur les écrans et parcours utilisateur
                               Pas de specs backend/API à ce stade.
                               V2+ = toutes les fonctionnalités réelles (reportées à Phase V1)
@@ -327,18 +327,17 @@ PHASE V1 (wiring fonctionnel)
 ### Workflow pipeline adaptatif (ordre obligatoire)
 
 ```
-0. ORCHESTRATEUR     → avant brainstorm : extraire les contraintes fortes (voir section
-                       "Contraintes fortes") + poser 2 questions clés à l'utilisateur.
-                       Injecter les réponses dans le brief brainstorm.
-                                         ↓
-   brainstorm-agent  → challenge l'idée + génère idées librement (sans trier)
-                       IMPORTANT : si le résultat revient hors-sujet ou ignore les
-                       contraintes fortes → l'orchestrateur relaie les corrections à
-                       l'utilisateur et relance brainstorm avec les contraintes en tête.
-                                         ↓
-   ORCHESTRATEUR     → présenter le résumé brainstorm à l'utilisateur, demander :
-                       "Ces idées/directions te conviennent ? Corrections ?"
-                       avant de passer à specs-framer.
+0. brainstorm-agent  → SESSION INTERACTIVE MULTI-TOURS (pas un agent en arrière-plan)
+                       L'agent dialogue directement avec l'utilisateur :
+                       - Pose ses questions une par une ou par groupe
+                       - Attend les réponses de l'utilisateur
+                       - Rebondit, creuse, challenge, génère de nouvelles pistes
+                       - Continue jusqu'à ce que l'utilisateur dise "stop" / "c'est bon"
+                       L'orchestrateur NE lance PAS de questions pré-vol avant brainstorm.
+                       L'orchestrateur NE résume PAS après brainstorm.
+                       C'est l'agent lui-même qui mène le dialogue de bout en bout.
+                       → Quand l'utilisateur dit stop : brainstorm synthétise les idées
+                         retenues et passe la main à specs-framer.
                                          ↓
 1. specs-framer      → tri MVP / V2+ avec l'utilisateur + CdC fonctionnel
                        (MVP détaillé + V2+ documentées pour l'archi)
