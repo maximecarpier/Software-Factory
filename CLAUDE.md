@@ -44,20 +44,33 @@ Stack libre, préférence : léger, web-first, bien rendu sur mobile/tablette (r
 Toujours proposer l'option la plus simple et gratuite (Vercel hobby, SQLite, localStorage, fichiers JSON...).
 Si une option payante ou complexe est nécessaire → présenter les alternatives avec coût/complexité et **valider avec l'utilisateur** avant de l'inclure dans l'architecture.
 
-### Vercel (option par défaut pour le web) — Instructions iPad (manuel)
+### Vercel (option par défaut pour le web) — Déploiement automatique via API
 
-Pour connecter un nouveau `apps/<nom>/` à Vercel depuis Safari :
+**RÈGLE ABSOLUE : ne jamais donner d'instructions manuelles Vercel à l'utilisateur. Claude fait tout via l'API avec le token disponible dans `.env.local`.**
 
-1. Aller sur **vercel.com → Add New → Project**
-2. Importer le repo `maximecarpier/Software-Factory`
-3. Champ **Root Directory** : `apps/<nom-app>/`
-4. Framework : Auto-detect (ou préciser si nécessaire)
-5. **Environment Variables** : ajouter `GITHUB_TOKEN` (valeur depuis `.env.local`)
-6. Cliquer **Deploy**
+Séquence de déploiement (via API Vercel, token = `VERCEL_TOKEN` dans `.env.local`) :
 
-L'URL générée sera `https://<nom-app>.vercel.app` (ou un slug Vercel si le nom est pris).
+```bash
+VERCEL_TOKEN=$(grep VERCEL_TOKEN .env.local | cut -d= -f2)
+TEAM_ID="team_jzUtIdasxc8rAZTu9kpaucyL"
 
-Chaque push sur `main` redéploie automatiquement toutes les apps connectées à leur Root Directory respectif.
+# 1. Créer le projet lié au repo GitHub
+curl -s -X POST "https://api.vercel.com/v10/projects?teamId=$TEAM_ID" \
+  -H "Authorization: Bearer $VERCEL_TOKEN" -H "Content-Type: application/json" \
+  -d '{"name":"<nom-app>","framework":null,"rootDirectory":"apps/<nom-app>","gitRepository":{"type":"github","repo":"maximecarpier/Software-Factory"}}'
+
+# 2. Déclencher le déploiement production
+PROJECT_ID=<prj_xxx>  # récupéré à l'étape 1
+COMMIT=$(git rev-parse HEAD)
+REPO_ID=1281091420
+curl -s -X POST "https://api.vercel.com/v13/deployments?teamId=$TEAM_ID" \
+  -H "Authorization: Bearer $VERCEL_TOKEN" -H "Content-Type: application/json" \
+  -d "{\"name\":\"<nom-app>\",\"project\":\"$PROJECT_ID\",\"target\":\"production\",\"gitSource\":{\"type\":\"github\",\"repoId\":$REPO_ID,\"ref\":\"main\",\"sha\":\"$COMMIT\"}}"
+
+# 3. Attendre READY (polling toutes les 10s)
+```
+
+L'URL de production sera `https://<nom-app>.vercel.app`. Chaque push sur `main` redéploie automatiquement.
 
 ---
 
@@ -121,6 +134,16 @@ Ne jamais lancer designer + tech-architect en parallèle si l'app est simple. Ne
 ### Questions obligatoires avant specs-framer et tech-architect
 
 L'orchestrateur DOIT poser lui-même les questions clés à l'utilisateur **avant** de lancer ces agents — ne jamais leur passer un brief si complet qu'il court-circuite leur Phase Zéro.
+
+#### Contraintes fortes — extraction obligatoire avant tout agent
+
+**Avant brainstorm et specs-framer**, identifier et noter explicitement les contraintes non négociables de l'utilisateur. Si elles ne sont pas claires, les demander explicitement :
+- Contraintes de contenu (ex : "pas de génération IA", "contenu humain uniquement")
+- Contraintes légales ou éthiques
+- Contraintes techniques dures (ex : "doit marcher offline", "pas de backend")
+- Contraintes utilisateur (ex : "uniquement pour enfants")
+
+Ces contraintes doivent apparaître en tête de **chaque** brief agent sous la section `## CONTRAINTES ABSOLUES` — distincte du reste du contexte pour ne pas être noyées.
 
 **Avant specs-framer**, poser au moins 2 questions parmi :
 - Qui sont les utilisateurs et dans quel contexte ?
@@ -252,6 +275,13 @@ PHASE PROTOTYPE
      [GATE 2P : checkpoint wireframes obligatoire]
      > "Ces wireframes couvrent bien tous les écrans ? [Y/N ou corrections]"
      Ne pas lancer code-implementer sans ce Y.
+  2b. MINI-BRIEF TECHNIQUE (obligatoire avant code-implementer) :
+     Après Gate 2P, l'orchestrateur présente à l'utilisateur et valide :
+     - Stack choisie (vanilla JS, React, Vue…) et pourquoi
+     - Structure de fichiers prévue
+     - Choix techniques notables (ex : TTS via Web Speech API, routing SPA vs multi-page)
+     > "Stack : [X]. Structure : [Y]. On part là-dessus ? [Y/N]"
+     Ce brief remplace tech-architect en Mode B prototype — il prend 2 lignes, pas 2 agents.
   3. code-implementer (front only) :
      - Tous les écrans du wireframe, navigation complète et fonctionnelle
      - Données hard-codées dans src/data/fixtures.js uniquement
@@ -297,9 +327,18 @@ PHASE V1 (wiring fonctionnel)
 ### Workflow pipeline adaptatif (ordre obligatoire)
 
 ```
-0. brainstorm-agent  → challenge l'idée + génère idées librement (sans trier)
+0. ORCHESTRATEUR     → avant brainstorm : extraire les contraintes fortes (voir section
+                       "Contraintes fortes") + poser 2 questions clés à l'utilisateur.
+                       Injecter les réponses dans le brief brainstorm.
                                          ↓
-   ORCHESTRATEUR     → pose 2 questions clés à l'utilisateur (voir section ci-dessus)
+   brainstorm-agent  → challenge l'idée + génère idées librement (sans trier)
+                       IMPORTANT : si le résultat revient hors-sujet ou ignore les
+                       contraintes fortes → l'orchestrateur relaie les corrections à
+                       l'utilisateur et relance brainstorm avec les contraintes en tête.
+                                         ↓
+   ORCHESTRATEUR     → présenter le résumé brainstorm à l'utilisateur, demander :
+                       "Ces idées/directions te conviennent ? Corrections ?"
+                       avant de passer à specs-framer.
                                          ↓
 1. specs-framer      → tri MVP / V2+ avec l'utilisateur + CdC fonctionnel
                        (MVP détaillé + V2+ documentées pour l'archi)
@@ -355,7 +394,7 @@ PHASE V1 (wiring fonctionnel)
     Règle effort : diff > 500 lignes OU > 5 fichiers modifiés → /code-review medium minimum.
     /code-review low insuffisant pour une refonte UI complète.
 6. doc-writer        → README + CLAUDE.md de l'app
-7. infra-engineer    → déploiement Vercel (instructions iPad si besoin)
+7. infra-engineer    → déploiement Vercel via API (JAMAIS d'instructions manuelles à l'utilisateur — voir section Vercel)
 8. BILAN             → obligatoire pour tout processus complexe (voir section ci-dessous)
 ```
 
