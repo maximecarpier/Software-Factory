@@ -19,7 +19,7 @@ function generateId() {
  * @param {{ type: string, titre: string, description: string|null, priorite: string, projectId?: string }} fields
  * @returns {Object} Item complet avec id et createdAt
  */
-export function createItem({ type, titre, description, priorite, projectId, url }) {
+export function createItem({ type, titre, description, priorite, projectId, url, version, source }) {
   const item = {
     id: generateId(),
     type,
@@ -29,13 +29,13 @@ export function createItem({ type, titre, description, priorite, projectId, url 
     statut: 'à faire',
     createdAt: new Date().toISOString(),
   };
-  // projectId uniquement pour les features avec un projet parent défini
   if (type === 'feature' && projectId) {
     item.projectId = projectId;
   }
-  // url uniquement pour les projets
-  if (type === 'projet' && url) {
-    item.url = url;
+  if (type === 'projet') {
+    if (url) item.url = url;
+    if (version) item.version = version;
+    if (source === 'external') item.source = source;
   }
   return item;
 }

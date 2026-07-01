@@ -1050,6 +1050,32 @@ h1 {
   text-transform: uppercase;
 }
 
+.badge-version {
+  background: #F3F4F6;
+  color: #6B7280;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-source-externe {
+  background: #FEF9C3;
+  color: #854D0E;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.project-badges-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 .section-label {
   font-size: var(--font-size-xs);
   font-weight: 700;

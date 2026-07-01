@@ -158,6 +158,58 @@ specs-framer (update) → sélectionne features V2+ à activer
 
 ---
 
+### Migration d'app externe (V0-raw → V0 déployée)
+
+Utiliser ce pipeline quand une app a été développée **hors de la Factory** et doit être intégrée dans `apps/<nom>/`.
+
+#### Pipeline de migration
+
+```
+PHASE 0 — IMPORT (script bash)
+  ./scripts/migrate-app.sh <chemin-source> <nom-app>
+    → copie dans apps/<nom>/ (excl. node_modules, .git, dist)
+    → crée docs/ si absent
+  git add apps/<nom>/ && git commit -m "chore: migrate <nom> V0-raw into mono-repo"
+
+PHASE 1 — REVERSE DOC
+  doc-writer (mode reverse)
+    → lit apps/<nom>/ et infère docs/specs.md + architecture.md + design.md (V0)
+    → chaque fichier taggé "⚠️ V0 inférée — à valider"
+
+  [GATE V0 : "Ces docs reflètent bien l'app ? Y/N + corrections"]
+  → si N : doc-writer relancé avec corrections avant de continuer
+
+PHASE 2 — AUDIT
+  code-auditor
+    → lit code + docs V0 validées
+    → produit docs/audit.md (living document)
+    → règle migration partielle : signale UNIQUEMENT ce qui est cassé/risqué
+    → tout ce qui fonctionne = "CONSERVÉ — OK"
+    → pour chaque bloquant : demande Y/N avant toute correction
+  security-check.sh
+
+  [GATE AUDIT : "Quels bloquants corriger avant deploy V0 ?"]
+
+PHASE 3 — DEPLOY V0
+  infra-engineer → Vercel setup (instructions iPad si besoin)
+  git commit -m "chore: V0 deployed — <nom>"
+  Mettre à jour le backlog : source = "external", version = "v0"
+
+PHASE 4 — ROADMAP V1 (Factory standard)
+  specs-framer (mode update)
+    → importe les gaps sélectionnés de audit.md comme features V1
+    → pipeline Factory standard reprend ici
+```
+
+#### Règles du pipeline migration
+
+- **Migration partielle** : ne changer que ce qui est cassé ou risqué. Demander avant tout changement.
+- **GATE V0 obligatoire** : ne jamais lancer code-auditor sans validation des docs inférées.
+- **audit.md est vivant** : relancer code-auditor à chaque version (V1, V2…), mettre à jour les statuts.
+- **Version et source dans le backlog** : tout projet migré reçoit `source: "external"` et `version: "v0"` dans le backlog.
+
+---
+
 ### Workflow pipeline adaptatif (ordre obligatoire)
 
 ```

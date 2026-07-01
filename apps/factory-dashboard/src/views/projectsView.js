@@ -31,11 +31,24 @@ function renderCard(item) {
     ? `<a class="project-url" href="${escapeHtml(item.url)}" target="_blank" rel="noopener">${escapeHtml(shortUrl)} ↗</a>`
     : `<div class="project-url-none">Pas encore déployé</div>`;
 
+  const versionBadge = item.version
+    ? `<span class="badge-version">${escapeHtml(item.version)}</span>`
+    : '';
+
+  const sourceBadge = item.source === 'external'
+    ? `<span class="badge-source-externe">externe</span>`
+    : '';
+
+  const badgesRow = (versionBadge || sourceBadge)
+    ? `<div class="project-badges-row">${versionBadge}${sourceBadge}</div>`
+    : '';
+
   return `<div class="project-card">
       <div class="project-icon" style="background-color:${color}">${initiale}</div>
       <div class="project-info">
         <div class="project-name">${nom}</div>
         <span class="${badgeClass}">${badgeLabel}</span>
+        ${badgesRow}
         ${urlHtml}
       </div>
     </div>`;

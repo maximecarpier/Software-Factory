@@ -4,14 +4,8 @@ import { validateItem, createItem } from '../model.js';
 import { load, add, update, remove } from '../store.js';
 import { showToast } from '../components/toast.js';
 
-// ID de l'item en cours d'édition (null = mode création)
 let _editId = null;
 
-/**
- * Échappe les caractères HTML spéciaux pour les valeurs d'attributs et de texte.
- * @param {string} str
- * @returns {string}
- */
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -21,11 +15,6 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-/**
- * Injecte (ou réinjecte) le select du projet parent dans le wrapper dédié.
- * En l'absence de projets, affiche un message d'avertissement à la place.
- * @param {string} selectedProjectId - ID pré-sélectionné (peut être '')
- */
 function renderProjectSelect(selectedProjectId) {
   const wrapper = document.getElementById('project-select-wrapper');
   if (!wrapper) return;
@@ -53,11 +42,6 @@ function renderProjectSelect(selectedProjectId) {
   `;
 }
 
-/**
- * Initialise les toggle buttons d'un groupe : clic → exclusif.
- * @param {string} groupId
- * @param {Function|null} onChange - callback(value) à chaque changement
- */
 function initToggleGroup(groupId, onChange) {
   const group = document.getElementById(groupId);
   if (!group) return;
@@ -70,18 +54,22 @@ function initToggleGroup(groupId, onChange) {
   });
 }
 
-/**
- * Injecte le formulaire (création ou édition) dans le conteneur fourni.
- * @param {HTMLElement} container — typiquement #app
- * @param {string|null} editId — ID de l'item à éditer, ou null pour la création
- */
+function setProjetFieldsVisibility(visible) {
+  const urlGroupEl     = document.getElementById('field-group-url');
+  const versionGroupEl = document.getElementById('field-group-version');
+  const sourceGroupEl  = document.getElementById('field-group-source');
+  const display = visible ? 'flex' : 'none';
+  if (urlGroupEl)     urlGroupEl.style.display     = display;
+  if (versionGroupEl) versionGroupEl.style.display = display;
+  if (sourceGroupEl)  sourceGroupEl.style.display  = visible ? 'block' : 'none';
+}
+
 export function renderForm(container, editId = null) {
   _editId = editId || null;
 
   const { items } = load();
   const editingItem = _editId ? items.find(i => i.id === _editId) : null;
 
-  // Item introuvable → fallback création
   if (_editId && !editingItem) {
     _editId = null;
     window.location.hash = '#/new';
@@ -92,20 +80,21 @@ export function renderForm(container, editId = null) {
   const title = isEditing ? "Modifier l'item" : 'Nouvel item';
   const submitLabel = isEditing ? 'Enregistrer les modifications' : 'Enregistrer';
 
-  // Valeurs pré-remplies (défauts en création)
-  const currentType = isEditing ? editingItem.type : 'feature';
-  const currentTitre = isEditing ? editingItem.titre : '';
-  const currentDesc = isEditing ? (editingItem.description || '') : '';
-  const currentPrio = isEditing ? editingItem.priorite : 'moyenne';
-  const currentStatut = isEditing ? (editingItem.statut || 'à faire') : 'à faire';
+  const currentType     = isEditing ? editingItem.type       : 'feature';
+  const currentTitre    = isEditing ? editingItem.titre       : '';
+  const currentDesc     = isEditing ? (editingItem.description || '') : '';
+  const currentPrio     = isEditing ? editingItem.priorite    : 'moyenne';
+  const currentStatut   = isEditing ? (editingItem.statut || 'à faire') : 'à faire';
   const currentProjectId = isEditing ? (editingItem.projectId || '') : '';
-  const currentUrl = isEditing ? (editingItem.url || '') : '';
+  const currentUrl      = isEditing ? (editingItem.url     || '') : '';
+  const currentVersion  = isEditing ? (editingItem.version || '') : '';
+  const currentSource   = isEditing ? (editingItem.source  || 'factory') : 'factory';
 
-  // Visibilité initiale des champs conditionnels
+  const isProjet = currentType === 'projet';
   const projectGroupStyle = currentType === 'feature' ? 'flex' : 'none';
-  const urlGroupStyle = currentType === 'projet' ? 'flex' : 'none';
+  const projetFieldsStyle = isProjet ? 'flex' : 'none';
+  const sourceGroupStyle  = isProjet ? 'block' : 'none';
 
-  // Classes actives pour les toggles
   const typeFeatureActive = currentType === 'feature' ? 'active' : '';
   const typeProjetActive  = currentType === 'projet'  ? 'active' : '';
 
@@ -116,6 +105,9 @@ export function renderForm(container, editId = null) {
   const statutAFaireActive  = currentStatut === 'à faire'  ? 'active' : '';
   const statutEnCoursActive = currentStatut === 'en cours' ? 'active' : '';
   const statutTermineActive = currentStatut === 'terminé'  ? 'active' : '';
+
+  const sourceFactoryActive  = currentSource !== 'external' ? 'active' : '';
+  const sourceExterneActive  = currentSource === 'external' ? 'active' : '';
 
   container.innerHTML = `
     <div class="form-container">
@@ -160,7 +152,7 @@ export function renderForm(container, editId = null) {
           <span class="field-error" id="error-description" role="alert"></span>
         </div>
 
-        <div class="field-group" id="field-group-url" style="display: ${urlGroupStyle}">
+        <div class="field-group" id="field-group-url" style="display: ${projetFieldsStyle}">
           <label for="field-url">URL du projet</label>
           <input
             type="url"
@@ -170,6 +162,26 @@ export function renderForm(container, editId = null) {
             autocomplete="off"
             value="${escapeHtml(currentUrl)}"
           />
+        </div>
+
+        <div class="field-group" id="field-group-version" style="display: ${projetFieldsStyle}">
+          <label for="field-version">Version</label>
+          <input
+            type="text"
+            id="field-version"
+            name="version"
+            placeholder="v0, v1.0..."
+            autocomplete="off"
+            value="${escapeHtml(currentVersion)}"
+          />
+        </div>
+
+        <div class="form-section" id="field-group-source" style="display: ${sourceGroupStyle}">
+          <label class="form-label">SOURCE</label>
+          <div class="toggle-group" id="toggle-source">
+            <button type="button" class="toggle-btn ${sourceFactoryActive}" data-value="factory">Factory</button>
+            <button type="button" class="toggle-btn ${sourceExterneActive}" data-value="external">Externe</button>
+          </div>
         </div>
 
         <div class="form-section">
@@ -206,25 +218,22 @@ export function renderForm(container, editId = null) {
     </div>
   `;
 
-  // Initialiser le select projet si le type courant est 'feature'
   if (currentType === 'feature') {
     renderProjectSelect(currentProjectId);
   }
 
-  // Toggle TYPE → affiche/masque les champs conditionnels
   initToggleGroup('toggle-type', (value) => {
     const projectGroupEl = document.getElementById('field-group-project');
-    const urlGroupEl = document.getElementById('field-group-url');
     if (value === 'feature') {
       projectGroupEl.style.display = 'flex';
       renderProjectSelect('');
-      if (urlGroupEl) urlGroupEl.style.display = 'none';
+      setProjetFieldsVisibility(false);
     } else if (value === 'projet') {
       projectGroupEl.style.display = 'none';
-      if (urlGroupEl) urlGroupEl.style.display = 'flex';
+      setProjetFieldsVisibility(true);
     } else {
       projectGroupEl.style.display = 'none';
-      if (urlGroupEl) urlGroupEl.style.display = 'none';
+      setProjetFieldsVisibility(false);
     }
     const errEl = document.getElementById('error-projectId');
     if (errEl) errEl.textContent = '';
@@ -232,8 +241,8 @@ export function renderForm(container, editId = null) {
 
   initToggleGroup('toggle-priorite', null);
   initToggleGroup('toggle-statut', null);
+  initToggleGroup('toggle-source', null);
 
-  // Bouton supprimer (édition uniquement)
   const deleteBtn = document.getElementById('btn-delete-item');
   if (deleteBtn) {
     deleteBtn.addEventListener('click', () => {
@@ -249,9 +258,6 @@ export function renderForm(container, editId = null) {
   form.addEventListener('submit', handleSubmit);
 }
 
-/**
- * Efface tous les messages d'erreur inline.
- */
 function clearErrors() {
   ['type', 'projectId', 'titre', 'description', 'priorite'].forEach(field => {
     const el = document.getElementById(`error-${field}`);
@@ -259,10 +265,6 @@ function clearErrors() {
   });
 }
 
-/**
- * Affiche les erreurs de validation sous les champs concernés.
- * @param {Object.<string, string>} errors
- */
 function displayErrors(errors) {
   Object.entries(errors).forEach(([field, message]) => {
     const el = document.getElementById(`error-${field}`);
@@ -270,10 +272,6 @@ function displayErrors(errors) {
   });
 }
 
-/**
- * Handler de soumission du formulaire.
- * Valide, persiste localement (immédiat), redirige, puis pousse vers GitHub (async).
- */
 async function handleSubmit(e) {
   e.preventDefault();
   clearErrors();
@@ -282,24 +280,25 @@ async function handleSubmit(e) {
   const type     = document.querySelector('#toggle-type .toggle-btn.active')?.dataset.value     || 'feature';
   const priorite = document.querySelector('#toggle-priorite .toggle-btn.active')?.dataset.value || 'moyenne';
   const statut   = document.querySelector('#toggle-statut .toggle-btn.active')?.dataset.value   || 'à faire';
+  const source   = document.querySelector('#toggle-source .toggle-btn.active')?.dataset.value   || 'factory';
   const projectIdEl = document.getElementById('field-project');
 
   const data = {
     type,
-    titre: form.elements['titre']?.value ?? '',
+    titre:       form.elements['titre']?.value ?? '',
     description: form.elements['description']?.value || null,
     priorite,
-    projectId: projectIdEl ? projectIdEl.value : undefined,
-    url: form.elements['url']?.value?.trim() || null,
+    projectId:   projectIdEl ? projectIdEl.value : undefined,
+    url:         form.elements['url']?.value?.trim()     || null,
+    version:     form.elements['version']?.value?.trim() || null,
+    source:      type === 'projet' ? source : null,
   };
 
-  // Validation — passe allItems pour vérifier le projet parent des features
   const { items: allItems } = load();
   const { ok, errors } = validateItem(data, allItems);
 
   if (!ok) {
     displayErrors(errors);
-    // Focus sur le premier champ en erreur
     const firstField = Object.keys(errors)[0];
     const focusId = firstField === 'projectId' ? 'field-project' : `field-${firstField}`;
     const el = document.getElementById(focusId);
@@ -308,19 +307,22 @@ async function handleSubmit(e) {
   }
 
   if (_editId) {
-    // ── Mode édition : store.update gère save + enqueue + flush ──
     const existing = allItems.find(i => i.id === _editId);
     if (!existing) return;
     const updatedItem = {
-      id: existing.id,
-      type: data.type,
-      titre: data.titre.trim(),
+      id:          existing.id,
+      type:        data.type,
+      titre:       data.titre.trim(),
       description: data.description && data.description.trim() !== '' ? data.description.trim() : null,
-      priorite: data.priorite,
+      priorite:    data.priorite,
       statut,
-      createdAt: existing.createdAt,
+      createdAt:   existing.createdAt,
     };
     updatedItem.url = data.url || null;
+    if (data.type === 'projet') {
+      updatedItem.version = data.version || null;
+      if (data.source === 'external') updatedItem.source = 'external';
+    }
     if (data.type === 'feature' && data.projectId) {
       updatedItem.projectId = data.projectId;
     }
@@ -328,11 +330,9 @@ async function handleSubmit(e) {
     window.location.hash = '#/backlog';
     showToast('Item modifié.');
   } else {
-    // ── Mode création : store.add gère save + enqueue + flush ──
     const newItem = createItem(data);
     add(newItem);
     form.reset();
-    // Masquer le champ projet après reset
     const groupEl = document.getElementById('field-group-project');
     if (groupEl) groupEl.style.display = 'none';
     window.location.hash = '#/backlog';
