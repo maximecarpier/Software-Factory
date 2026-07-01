@@ -657,13 +657,24 @@ Ne pas inventer d'agents en dehors de ce tableau sans signal explicite du brains
 
 ### Audit continu (expert-claude-code)
 
-L'agent `expert-claude-code` peut être lancé à tout moment pour auditer `.claude/agents/` et `scripts/` :
-- Éliminer les doublons de règles entre agents
-- Corriger les contradictions
-- Signaler les instructions mortes (ex: références à l'ancien create-app.sh)
-- Créer de nouveaux agents spécialisés (voir section "Détection de domaine")
+L'agent `expert-claude-code` audite **toutes les couches de configuration** de la Factory :
 
-Lancer systématiquement après l'ajout de nouveaux agents ou après une refonte du pipeline.
+| Couche | Fichiers |
+|---|---|
+| Agents | `.claude/agents/*.md` |
+| Scripts | `scripts/*.sh` |
+| Instructions projet | `CLAUDE.md` |
+| Mémoire persistante | `memory/*.md` (projet + utilisateur) |
+| Configuration Claude Code | `.claude/settings.json`, settings globaux |
+| Bilans de sessions | `apps/*/docs/bilan-*.md` |
+
+**Checks prioritaires :**
+- P1 — Contradictions inter-couches (mémoire ↔ CLAUDE.md, bilan ↔ agent, etc.)
+- P2 — Doublons et gonflement entre agents
+- P3 — Instructions mortes (fichiers supprimés, workflows abandonnés)
+- P4 — Calibrage modèles et qualité des règles
+
+**Déclencher après :** ajout d'agent, session bilan, refonte pipeline, ou quand un comportement inattendu suggère une incohérence de config.
 
 ---
 
