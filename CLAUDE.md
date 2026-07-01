@@ -87,12 +87,34 @@ Déployée sur : `https://dashboard-usine.vercel.app`
 
 Calibrer la lourdeur du processus à la complexité réelle de l'application :
 
-| Complexité | Pipeline |
-|---|---|
-| Simple (≤ 3 écrans, pas d'API tierce) | brainstorm → specs → tech-architect seul → code-implementer → review → deploy |
-| Complexe (API, auth, multi-rôles, data) | Pipeline complet ci-dessous |
+| Complexité | Mode | Pipeline |
+|---|---|---|
+| Simple (≤ 3 écrans, pas d'API tierce) | A | brainstorm → specs → tech-architect seul → code-implementer → review → deploy |
+| Complexe (API, auth, multi-rôles, data) | A | Pipeline complet ci-dessous |
+| UX incertaine / validation visuelle nécessaire | B | Pipeline Prototype UI first (voir section dédiée) |
 
 Ne jamais lancer designer + tech-architect en parallèle si l'app est simple. Ne jamais découper en modules si le code tient en 1-2 fichiers.
+
+---
+
+### Modes de création — Choix du pipeline au démarrage
+
+**Poser ce choix avant specs-framer** si l'utilisateur n'a pas exprimé de préférence :
+
+> "Comment veux-tu démarrer ?
+> - **[A] MVP fonctionnel** — on livre quelque chose qui marche end-to-end, par tranches verticales (backend + frontend ensemble). Idéal quand les fonctionnalités sont claires.
+> - **[B] Prototype UI d'abord** — on construit une coquille navigable complète (tous les écrans, données hard-codées) pour valider l'UX, puis on câble la logique réelle en V1. Idéal quand l'UX est incertaine ou qu'on veut valider le produit visuellement avant d'investir."
+
+**Signaux qui suggèrent Mode B :**
+- "Je veux voir à quoi ça ressemble avant de développer"
+- L'app a beaucoup d'écrans interconnectés et la navigation est au cœur de l'UX
+- Le projet est à présenter à des parties prenantes avant développement
+- L'UX est expérimentale ou non standard
+
+**Signaux qui suggèrent Mode A :**
+- Les fonctionnalités sont bien définies et la valeur métier dépend du backend
+- App simple (≤ 3 écrans, logique métier claire)
+- L'utilisateur veut "quelque chose qui marche" rapidement
 
 ---
 
@@ -207,6 +229,68 @@ PHASE 4 — ROADMAP V1 (Factory standard)
 - **GATE V0 obligatoire** : ne jamais lancer code-auditor sans validation des docs inférées.
 - **audit.md est vivant** : relancer code-auditor à chaque version (V1, V2…), mettre à jour les statuts.
 - **Version et source dans le backlog** : tout projet migré reçoit `source: "external"` et `version: "v0"` dans le backlog.
+
+---
+
+### Mode B — Pipeline Prototype UI first
+
+Ce mode déploie une coquille navigable complète (données hard-codées) avant tout backend, puis évolue vers un MVP fonctionnel en V1.
+
+**Contrainte architecturale obligatoire** : le prototype DOIT avoir ses données **séparées du rendu** — toutes les données factices dans `src/data/fixtures.js` (pas de magic strings dispersés dans les composants). Cela permet le wiring V1 sans réécriture UI.
+
+```
+PHASE PROTOTYPE
+  0. brainstorm-agent → challenge l'idée (idem Mode A)
+     ORCHESTRATEUR → pose les questions clés (voir section ci-dessus)
+  1. specs-framer (mode UI) → CdC axé sur les écrans et parcours utilisateur
+                              Pas de specs backend/API à ce stade.
+                              V2+ = toutes les fonctionnalités réelles (reportées à Phase V1)
+     [GATE 0 : périmètre écrans validé ? Y/N]
+     [GATE 1 : specs UI validées ? Y/N]
+  2. designer → wireframes de TOUS les écrans prévus
+               + note structure composants (contrat données/rendu)
+     [GATE 2P : checkpoint wireframes obligatoire]
+     > "Ces wireframes couvrent bien tous les écrans ? [Y/N ou corrections]"
+     Ne pas lancer code-implementer sans ce Y.
+  3. code-implementer (front only) :
+     - Tous les écrans du wireframe, navigation complète et fonctionnelle
+     - Données hard-codées dans src/data/fixtures.js uniquement
+     - Zéro backend, zéro appel API réel
+     - Composants découplés des données (props ou état local)
+  4. infra-engineer → deploy prototype (Vercel, static)
+
+  [GATE P : "Le prototype valide-t-il l'UX ? [Y/N + retours]"]
+    Si N → retour designer (corrections) → code-implementer → re-deploy
+    Si Y → Phase V1
+
+PHASE V1 (wiring fonctionnel)
+  specs-framer (update) → ajoute specs backend/logique métier depuis retours Gate P
+                          Incrémente version : prototype → v1.0
+  [GATE 1-V1 : specs V1 validées ? Y/N]
+  tech-architect → lit le prototype existant + conçoit le backend
+                   → définit les interfaces de données (remplacent fixtures.js)
+  [db-architect si entités persistantes hors localStorage]
+  [GATE 2-V1 : architecture V1 validée ? Y/N]
+  test-writer → tests logique métier + intégration
+  code-implementer (wiring) :
+    - Remplace fixtures.js par les vraies sources de données
+    - Connecte les appels API/BDD
+    - Ne touche les composants UI que si les données réelles l'imposent
+  doc-writer (sync) → synchronise docs avec le code réel
+  security-check.sh
+  [GATE 3 : implémentation V1 terminée ? Y/N]
+  code-reviewer → revue + verdict
+  doc-writer → README + CLAUDE.md
+  infra-engineer → deploy V1
+  BILAN (obligatoire)
+```
+
+**Règles du Mode B :**
+- Ne jamais lancer tech-architect avant Gate P — il analyserait un prototype non validé.
+- `src/data/fixtures.js` est le contrat entre prototype et wiring — ne jamais disperser les données factices dans les composants.
+- Si le wiring révèle des incohérences UI (données réelles ≠ hard-codées), corriger dans le même run code-implementer, pas en tâche séparée.
+- Le bilan de la Phase Prototype est optionnel ; le bilan de la Phase V1 est obligatoire.
+- resume.sh détecte le Mode B via la présence de `src/data/fixtures.js` sans backend — afficher : "📍 Mode B détecté — Prototype déployé. Gate P atteint ? [Y/N]"
 
 ---
 
