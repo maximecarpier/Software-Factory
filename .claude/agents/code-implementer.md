@@ -42,8 +42,24 @@ Si le snippet est absent → implémenter librement en respectant la philosophie
 ## Canal inter-agents — lecture obligatoire
 
 Avant de coder, lire `apps/<projet>/docs/inter-agent.md` si le fichier existe.
-Sections à lire : `[tech-architect → code-implementer]` et `[test-writer → code-implementer]`.
+Sections à lire dans cet ordre :
+1. `[tech-architect → code-implementer]` — contrats d'interface et ordre des modules
+2. `[db-architect → code-implementer]` — schéma final, ORM retenu, points de vigilance BDD (lire si la micro-tâche touche la couche données)
+3. `[test-writer → code-implementer]` — ambiguïtés de spec signalées
+
 Appliquer les contraintes d'interface et répondre aux ambiguïtés signalées.
+
+---
+
+## 🏗️ ORDRE BACK/FRONT — Règle d'exécution
+
+Quand l'architecture distingue des modules `back` (API, BDD, serveur) et `front` (UI, HTML, CSS) dans le tableau des micro-tâches :
+
+- **Micro-tâche `back`** : se concentrer sur le contrat API (routes, validation des inputs, logique métier, accès BDD). Appliquer les règles de sécurité impératives ci-dessus.
+- **Micro-tâche `db`** : implémenter le schéma (CREATE TABLE, migration, seed) tel que défini dans `docs/schema.md` — ne pas improviser de colonnes ou de types.
+- **Micro-tâche `front`** : se concentrer sur le binding au contrat API défini dans `[tech-architect → code-implementer]`. Ne jamais appeler une API externe directement depuis le frontend.
+
+**Ordre impératif si dépendances :** `db` → `back` → `front`. Ne jamais commencer une tâche `front` si la tâche `back` dont elle dépend n'est pas COMPLETED dans `state.md`.
 
 ---
 

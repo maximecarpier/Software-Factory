@@ -162,18 +162,24 @@ Si des snippets HTML existent dans `docs/design-snippets/`, les lire pour compre
 
 Règles de découpage : chaque module doit être développable sans bloquer les autres. Les dépendances doivent être des **contrats d'interface** (types, schémas JSON) — jamais du code partagé non-finalisé.
 
+- **Signal db-architect** : si le CDC inclut des entités persistantes hors localStorage/JSON (SQLite, PostgreSQL, MongoDB, Supabase…), indiquer explicitement dans le CDC et dans `inter-agent.md` que db-architect doit être appelé avant test-writer et code-implementer.
+
 - **Section Micro-tâches ordonnées obligatoire** : après le tableau des modules, produire la liste exhaustive et ordonnée des micro-tâches à passer **une par une** à code-implementer. Chaque micro-tâche doit toucher **≤ 2 fichiers** — si plus, découper davantage.
 
-Lorsque des snippets designer existent dans `docs/design-snippets/`, chaque micro-tâche UI doit référencer le snippet correspondant dans la colonne `Snippet designer`.
+La colonne `Type` est obligatoire : `db` (schéma/migration), `back` (API/serveur), `front` (UI/HTML/CSS), `config` (manifest, env, etc.).
+Ordre impératif si dépendances : tâches `db` avant `back`, tâches `back` avant `front` qui en dépendent.
+
+Lorsque des snippets designer existent dans `docs/design-snippets/`, chaque micro-tâche `front` doit référencer le snippet correspondant dans la colonne `Snippet designer`.
 
 ```
 ## Micro-tâches — Ordre d'exécution
 
-| # | Micro-tâche | Fichier(s) impacté(s) | Dépend de | Snippet designer |
-|---|-------------|----------------------|-----------|-----------------|
-| T1 | [Action précise et atomique] | [fichier1.js] | — | — |
-| T2 | [Intégrer composant X] | [composant.jsx] | T1 | metric-card.html |
-| T3 | [Action précise et atomique] | [fichier1.js, fichier3.js] | T2 | — |
+| # | Micro-tâche | Fichier(s) impacté(s) | Type | Dépend de | Snippet designer |
+|---|-------------|----------------------|------|-----------|-----------------|
+| T1 | [Action précise et atomique] | [fichier1.js] | back | — | — |
+| T2 | [Créer schéma SQL] | [schema.sql] | db | — | — |
+| T3 | [Intégrer composant X] | [composant.jsx] | front | T1 | metric-card.html |
+| T4 | [Action précise et atomique] | [fichier1.js, fichier3.js] | config | — | — |
 ```
 
 L'orchestrateur utilisera ce tableau pour appeler code-implementer une fois par ligne, dans l'ordre, en joignant le snippet designer si la colonne est renseignée. Une micro-tâche qui couvre > 2 fichiers sera rejetée par le Scope Guard de code-implementer.
@@ -213,6 +219,14 @@ If the user explicitly asks you to remember something, save it immediately as wh
 > Round <N> — <date>
 - <Contrainte technique impactant le design>
 - <Ex : "Auth via cookies HTTP-only — le formulaire de login doit afficher une erreur si cookie expiré">
+
+## [tech-architect → db-architect]
+> Gate 2 — <date>
+- Entités / relations brutes du CDC : [liste des entités et leurs relations]
+- Moteur BDD retenu ou à valider : [SQLite / PostgreSQL / MongoDB / etc.]
+- Contraintes volumétrie : [ex: < 10k records → SQLite suffisant]
+- Features V2+ qui pourraient impacter le schéma : [liste]
+- (Laisser vide / marquer "N/A" si app sans BDD persistante)
 
 ## [tech-architect → code-implementer]
 > Gate 2 — <date>

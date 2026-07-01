@@ -196,6 +196,12 @@ specs-framer (update) → sélectionne features V2+ à activer
     Identifier les éléments DOM supprimés/remplacés par le nouveau design
     (boutons, selects, classes CSS, IDs). Mettre à jour les tests qui les référencent
     AVANT de lancer code-implementer. Évite les cassures en cours d'implémentation.
+2d. [SI APP AVEC BDD] db-architect → schéma détaillé + docs/schema.md + canaux inter-agents
+    Déclenché si : l'architecture contient des entités persistantes hors localStorage/JSON
+                   (SQLite, PostgreSQL, MongoDB, Supabase, Turso, etc.)
+    Non déclenché : app localStorage-only, stockage JSON statique, pas de BDD
+    Lit : architecture.md section données + [tech-architect → db-architect] dans inter-agent.md
+    Produit : docs/schema.md + sections [db-architect → code-implementer] et [db-architect → test-writer]
 3. test-writer (TDD) → tests par module
 4. code-implementer  → une micro-tâche à la fois (voir protocole ci-dessous)
    [+ expert-claude-code en audit continu des configs agents]
@@ -231,10 +237,13 @@ Pour chaque micro-tâche T[n], l'orchestrateur construit un contexte minimal ava
 ```
 PIPE T[n] :
   1. Spec logique     ← ligne T[n] du tableau + section [tech-architect → code-implementer] d'inter-agent.md
+                        + section [db-architect → code-implementer] si Type = "db" ou "back" (accès BDD)
   2. Snippet designer ← lire docs/design-snippets/<snippet>.html si la colonne "Snippet designer" est renseignée
                         (sinon : ne pas joindre de snippet)
-  → Transmettre UNIQUEMENT ces deux éléments à code-implementer
-  → Ne pas joindre les specs complètes, architecture.md ou d'autres snippets non liés à T[n]
+  → Transmettre UNIQUEMENT ces éléments à code-implementer
+  → Ne pas joindre les specs complètes, architecture.md, schema.md complet ou d'autres snippets non liés à T[n]
+  → Vérifier la colonne "Type" : si la tâche T[n] est "front" et qu'une tâche "back" dont elle dépend
+    n'est pas COMPLETED dans state.md → NE PAS lancer T[n], corriger l'ordre d'abord
 ```
 
 Ce principe minimise le contexte de chaque appel et évite que code-implementer ne modifie du code hors périmètre.
@@ -285,6 +294,7 @@ Chaque appel à un sous-agent reçoit **uniquement** ce dont il a besoin pour sa
 - La spec de T[n] (ligne du tableau architecture.md)
 - Le snippet designer si applicable
 - Les directives `[tech-architect → code-implementer]` d'inter-agent.md
+- Les directives `[db-architect → code-implementer]` si T[n] touche la couche données
 
 **Interdiction d'injecter** : l'historique du chat, specs.md complet, architecture.md complet, ou le contexte de tâches déjà validées.
 
@@ -320,6 +330,12 @@ Les agents communiquent via `apps/<projet>/docs/inter-agent.md` — canal partag
 > Round 1 — YYYY-MM-DD
 - Auth via cookies HTTP-only — prévoir état visuel si session expirée.
 
+## [tech-architect → db-architect]
+> Gate 2 — YYYY-MM-DD
+- Entités / relations brutes : [User(id, email), Project(id, userId), Task(id, projectId, statut)]
+- Moteur BDD retenu : SQLite (< 10k records, Vercel hobby)
+- Features V2+ impactant le schéma : [export CSV → pas d'impact, filtres avancés → index sur statut]
+
 ## [tech-architect → code-implementer]
 > Gate 2 — YYYY-MM-DD
 - Interface commune : `Item { id, type, titre, statut, priorite, projectId }`
@@ -328,6 +344,18 @@ Les agents communiquent via `apps/<projet>/docs/inter-agent.md` — canal partag
 ## [tech-architect → test-writer]
 > Gate 2 — YYYY-MM-DD
 - Redis down → retourner 503, pas liste vide.
+
+## [db-architect → code-implementer]
+> Post-Gate 2 — YYYY-MM-DD
+- Schéma final : voir docs/schema.md
+- Moteur : SQLite — fichier : `data/app.db`
+- ORM : Knex 3.x
+- Points de vigilance : [FK explicites obligatoires, PRAGMA foreign_keys=ON à activer, index créé après CREATE TABLE]
+
+## [db-architect → test-writer]
+> Post-Gate 2 — YYYY-MM-DD
+- Contraintes à tester : [UNIQUE sur email → 409, FK violation → 400, NOT NULL → 400]
+- Seeds de test : voir docs/schema.md section "Données de seed"
 
 ## [test-writer → code-implementer]
 > TDD — YYYY-MM-DD
