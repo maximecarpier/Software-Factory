@@ -1,1 +1,2 @@
 - [Projet Dashboard Ressources](project_dashboard_ressources.md) — Dashboard personnel pour surveiller tokens Claude + temps Codespace GitHub, usage simple sans interactivité
+- [Projet Compteur Histoire Pirate](project_compteur_histoire_pirate.md) — App contes pirates familiale, Mode B prototype v0.1 (4 écrans), TTS Web Speech API, 10 features V2+ différées
