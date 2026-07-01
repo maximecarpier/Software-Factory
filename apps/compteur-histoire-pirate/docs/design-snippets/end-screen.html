@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<!-- SNIPPET: end-screen -->
+<!--
+  ÉCRAN 4 — Fin d'histoire
+  Props injectées depuis fixtures.js (histoire écoutée) :
+    - histoire.messageFin    → .end-message
+    - histoire.imageFin      (string | null) → .end-illustration__img
+  Événements :
+    - tap .btn-home → navigate('accueil')
+  Note : si l'écran est atteint sans histoire active (state inattendu),
+         code-implementer affiche les données de histoires[0] par défaut.
+-->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Fin de l'aventure — Histoires de Pirates</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-bg:        #0a0a0f;
+      --c-surface:   #0d1b2a;
+      --c-accent:    #c9a227;
+      --c-text:      #f5e6c8;
+      --c-muted:     #6b7a8d;
+      --c-accent-08: rgba(201, 162, 39, 0.08);
+      --c-accent-20: rgba(201, 162, 39, 0.20);
+      --c-accent-30: rgba(201, 162, 39, 0.30);
+      --c-surface-80: rgba(13, 27, 42, 0.80);
+      --font-display: 'Cinzel', Georgia, serif;
+      --font-body:    'Lora', Georgia, serif;
+      --font-ui:      'Inter', system-ui, sans-serif;
+      --shadow-accent: 0 4px 20px rgba(201, 162, 39, 0.30);
+      --border-accent: 1px solid rgba(201, 162, 39, 0.20);
+      --border-subtle: 1px solid rgba(245, 230, 200, 0.06);
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --min-touch:  2.75rem;
+      --t-base:     200ms ease;
+      --t-fast:     150ms ease;
+      --safe-top:    env(safe-area-inset-top, 20px);
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+    body {
+      background: var(--c-bg);
+      color: var(--c-text);
+      font-family: var(--font-body);
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; border: none; background: none; font: inherit;
+             color: inherit; -webkit-tap-highlight-color: transparent; }
+
+    /* ── Lueur dorée de fond (ambiance chaleur de fin) ── */
+    body::before {
+      content: '';
+      position: fixed;
+      bottom: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80vw;
+      height: 60vw;
+      background: radial-gradient(
+        ellipse,
+        rgba(201, 162, 39, 0.08) 0%,
+        transparent 70%
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Screen layout ── */
+    .screen-end {
+      position: relative;
+      z-index: 1;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: calc(2rem + var(--safe-top)) 1.5rem calc(2rem + var(--safe-bottom));
+    }
+
+    /* ── Contenu centré ── */
+    .end-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      text-align: center;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    /* ── Ornement décoratif ── */
+    .end-ornament {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--c-accent);
+    }
+
+    .end-ornament__icon {
+      width: 40px;
+      height: 40px;
+      opacity: 0.85;
+    }
+
+    /* Lignes décoratives de part et d'autre */
+    .end-ornament__line {
+      width: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--c-accent-30));
+    }
+
+    .end-ornament__line--right {
+      background: linear-gradient(90deg, var(--c-accent-30), transparent);
+    }
+
+    /* ── Titre ── */
+    .end-title {
+      font-family: var(--font-display);
+      font-size: 1.875rem;   /* 30px */
+      font-weight: 700;
+      color: var(--c-accent);
+      letter-spacing: 0.05em;
+      line-height: 1.2;
+    }
+
+    /* ── Message personnalisé ── */
+    .end-message {
+      font-family: var(--font-body);
+      font-size: 1rem;       /* 16px */
+      font-style: italic;
+      color: rgba(245, 230, 200, 0.70);
+      line-height: 1.7;
+    }
+
+    /* ── Illustration de fin ── */
+    .end-illustration {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+
+    /* Placeholder sombre (visible si image absente) */
+    .end-illustration__placeholder {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, #0d1b2a 0%, #060f18 60%, #0a0a0f 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    /* Lueur dorée bas du placeholder */
+    .end-illustration__placeholder::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: linear-gradient(to top, rgba(201, 162, 39, 0.10), transparent);
+    }
+
+    .end-illustration__placeholder svg {
+      width: 48px;
+      height: 48px;
+      color: rgba(201, 162, 39, 0.35);
+      position: relative;
+      z-index: 1;
+    }
+
+    .end-illustration__placeholder-label {
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      color: rgba(245, 230, 200, 0.30);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Image réelle */
+    .end-illustration__img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    /* ── Bouton retour accueil ── */
+    .btn-home {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.625rem;
+      width: 100%;
+      min-height: var(--min-touch);
+      padding: 1rem 1.5rem;
+      margin-top: 0.5rem;
+      background: var(--c-accent-08);
+      color: var(--c-accent);
+      border: var(--border-accent);
+      border-radius: var(--radius-lg);
+      font-family: var(--font-ui);
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      transition: transform var(--t-fast), background var(--t-fast), border-color var(--t-fast);
+      cursor: pointer;
+    }
+
+    .btn-home:active {
+      transform: scale(0.97);
+      background: rgba(201, 162, 39, 0.14);
+      border-color: rgba(201, 162, 39, 0.35);
+    }
+
+    .btn-home svg {
+      width: 20px;
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <main class="screen-end">
+    <div class="end-content">
+
+      <!-- ── Ornement ── -->
+      <div class="end-ornament" aria-hidden="true">
+        <div class="end-ornament__line"></div>
+        <!-- Icône ancre Lucide -->
+        <svg class="end-ornament__icon" xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="5" r="3"/>
+          <line x1="12" y1="22" x2="12" y2="8"/>
+          <path d="M5 12H2a10 10 0 0 0 20 0h-3"/>
+        </svg>
+        <div class="end-ornament__line end-ornament__line--right"></div>
+      </div>
+
+      <!-- ── Titre ── -->
+      <h1 class="end-title">Fin de l'aventure&nbsp;!</h1>
+
+      <!-- ── Message personnalisé (depuis fixtures.js → histoire.messageFin) ── -->
+      <p class="end-message">
+        Barbe d'Acier garde son secret encore quelques nuits…
+      </p>
+
+      <!-- ── Illustration de fin ── -->
+      <div class="end-illustration">
+        <div class="end-illustration__placeholder" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="5" r="3"/>
+            <line x1="12" y1="22" x2="12" y2="8"/>
+            <path d="M5 12H2a10 10 0 0 0 20 0h-3"/>
+          </svg>
+          <span class="end-illustration__placeholder-label">Illustration de fin</span>
+        </div>
+        <!-- code-implementer : ajouter onerror="this.style.display='none'" -->
+        <img
+          src="/assets/images/histoire-1-fin.jpg"
+          alt=""
+          class="end-illustration__img"
+        >
+      </div>
+
+      <!-- ── CTA retour accueil ── -->
+      <button class="btn-home" aria-label="Retourner à l'accueil">
+        <!-- Lucide Anchor (petit) -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true">
+          <circle cx="12" cy="5" r="3"/>
+          <line x1="12" y1="22" x2="12" y2="8"/>
+          <path d="M5 12H2a10 10 0 0 0 20 0h-3"/>
+        </svg>
+        Retourner à l'accueil
+      </button>
+
+    </div>
+  </main>
+</body>
+</html>

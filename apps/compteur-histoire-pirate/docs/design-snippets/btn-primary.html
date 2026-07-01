@@ -1,0 +1,80 @@
+<!-- SNIPPET: btn-primary -->
+<!--
+  Bouton d'action principal — fond or/ambre
+  Utilisé dans : intro-screen (Écouter l'histoire)
+  Variantes : normal | loading | disabled
+  CSS : voir .btn-primary dans intro-screen.html et _tokens.css
+-->
+
+<!-- État normal -->
+<button class="btn-primary" aria-label="Écouter l'histoire Le Trésor de l'Île Maudite">
+  <!-- Heroicons play solid -->
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+       width="20" height="20" aria-hidden="true">
+    <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"/>
+  </svg>
+  Écouter l'histoire
+</button>
+
+<!-- État loading (TTS en démarrage, 1 seconde) -->
+<!--
+<button class="btn-primary btn-primary--loading" disabled aria-busy="true"
+        aria-label="Démarrage de la lecture en cours">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+       width="20" height="20" aria-hidden="true">
+    <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"/>
+  </svg>
+  Chargement…
+</button>
+-->
+
+<!-- État disabled -->
+<!--
+<button class="btn-primary" disabled aria-disabled="true">
+  Écouter l'histoire
+</button>
+-->
+
+<!--
+  CSS complet :
+
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    width: 100%;
+    min-height: var(--min-touch); /* 44px */
+    padding: 1rem 1.5rem;
+    background: var(--c-accent);
+    color: var(--c-bg);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: var(--shadow-accent);
+    transition: transform var(--t-fast), opacity var(--t-fast), box-shadow var(--t-fast);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn-primary:active {
+    transform: scale(0.97);
+    opacity: 0.88;
+    box-shadow: none;
+  }
+
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 3px;
+  }
+
+  .btn-primary--loading,
+  .btn-primary:disabled {
+    opacity: 0.55;
+    pointer-events: none;
+    box-shadow: none;
+  }
+-->

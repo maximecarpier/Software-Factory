@@ -1,0 +1,67 @@
+<!-- SNIPPET: paragraph-states -->
+<!--
+  Les trois états visuels d'un paragraphe de l'écran Lecture.
+  code-implementer : gérer les transitions dynamiquement via JS.
+  La classe sur chaque .para change en fonction de l'index du paragraphe actif.
+
+  Mapping :
+    index < paragrapheActif → .para--past
+    index === paragrapheActif → .para--current (aria-current="true")
+    index > paragrapheActif  → .para--upcoming
+-->
+
+<!-- État : passé (déjà lu) -->
+<p class="para para--past">
+  Il était une fois, sur les mers tumultueuses des Caraïbes, un capitaine dont la barbe brillait comme de l'acier poli au soleil couchant.
+</p>
+
+<!-- État : en cours (lu actuellement) -->
+<p class="para para--current" aria-current="true">
+  Le Capitaine Barbe d'Acier navigua trois jours et trois nuits sans jamais quitter la barre, les yeux rivés sur une étoile que nul marin n'avait su nommer.
+</p>
+
+<!-- État : à venir (pas encore lu) -->
+<p class="para para--upcoming">
+  Au matin du quatrième jour, une île surgit de la brume — noire de roche, silencieuse comme un secret.
+</p>
+
+<!--
+  CSS complet :
+
+  .para {
+    font-family: var(--font-body);
+    font-size: 1.125rem;   /* 18px — taille confort lecture */
+    line-height: 1.8;
+    padding: 0.875rem 1.5rem;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid transparent;  /* placeholder pour l'état current */
+    transition:
+      opacity var(--t-slow),
+      color var(--t-slow),
+      background var(--t-slow),
+      border-color var(--t-slow);
+  }
+
+  /* Paragraphes passés — effacés, lecture terminée */
+  .para--past {
+    color: var(--c-muted);
+    opacity: 0.50;
+    border-left-color: transparent;
+  }
+
+  /* Paragraphe en cours — mis en valeur */
+  .para--current {
+    color: var(--c-text);
+    opacity: 1;
+    background: var(--c-accent-08);
+    padding-left: calc(1.5rem - 3px);  /* compensé par la bordure 3px */
+    border-left: 3px solid var(--c-accent);
+  }
+
+  /* Paragraphes à venir — présents mais atténués */
+  .para--upcoming {
+    color: var(--c-text-60);
+    opacity: 1;
+    border-left-color: transparent;
+  }
+-->

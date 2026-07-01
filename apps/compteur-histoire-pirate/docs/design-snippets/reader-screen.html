@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<!-- SNIPPET: reader-screen -->
+<!--
+  ÉCRAN 3 — Lecture d'histoire
+  Props injectées depuis fixtures.js (histoire sélectionnée) :
+    - histoire.titre          → .reader-header__title
+    - histoire.paragraphes[]  → liste de .para avec état initial 'upcoming'
+  État géré par JS :
+    - paragrapheActif (index) → classe .para--current / .para--past / .para--upcoming
+    - isPlaying (bool)        → .btn-playpause affiche play ou pause
+    - progression (0–1)       → largeur de .reader-bar__fill
+    - ttsDisponible (bool)    → afficher/masquer .reader-banner--warning
+  Événements :
+    - tap .btn-back      → navigate('accueil'), arrêter TTS immédiatement
+    - tap .btn-playpause → toggle TTS play/pause
+    - tap .btn-restart   → relancer TTS depuis paragraphe 0, scroll en haut
+    - TTS end            → navigate('fin', histoire.id) après 1500ms
+-->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Lecture — Histoires de Pirates</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-bg:        #0a0a0f;
+      --c-surface:   #0d1b2a;
+      --c-accent:    #c9a227;
+      --c-text:      #f5e6c8;
+      --c-muted:     #6b7a8d;
+      --c-accent-08: rgba(201, 162, 39, 0.08);
+      --c-accent-20: rgba(201, 162, 39, 0.20);
+      --c-surface-95: rgba(13, 27, 42, 0.95);
+      --c-text-06:   rgba(245, 230, 200, 0.06);
+      --c-text-12:   rgba(245, 230, 200, 0.12);
+      --c-text-30:   rgba(245, 230, 200, 0.30);
+      --c-text-60:   rgba(245, 230, 200, 0.60);
+      --font-display: 'Cinzel', Georgia, serif;
+      --font-body:    'Lora', Georgia, serif;
+      --font-ui:      'Inter', system-ui, sans-serif;
+      --shadow-accent: 0 4px 20px rgba(201, 162, 39, 0.30);
+      --border-subtle: 1px solid rgba(245, 230, 200, 0.06);
+      --border-accent: 1px solid rgba(201, 162, 39, 0.20);
+      --radius-sm: 8px;
+      --radius-lg: 16px;
+      --min-touch:  2.75rem;
+      --t-base:     200ms ease;
+      --t-fast:     150ms ease;
+      --t-slow:     300ms ease;
+      --safe-top:    env(safe-area-inset-top, 20px);
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+      --reader-bar-height: 96px; /* hauteur barre + safe-bottom */
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+    body {
+      background: var(--c-bg);
+      color: var(--c-text);
+      font-family: var(--font-body);
+      height: 100dvh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { cursor: pointer; border: none; background: none; font: inherit;
+             color: inherit; -webkit-tap-highlight-color: transparent; }
+
+    /* ── Screen layout ── */
+    .screen-reader {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+    }
+
+    /* ── En-tête fixe ── */
+    .reader-header {
+      flex-shrink: 0;
+      padding-top: var(--safe-top);
+      height: calc(3.5rem + var(--safe-top));
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-left: 0.75rem;
+      padding-right: 1.25rem;
+      background: var(--c-bg);
+      border-bottom: var(--border-subtle);
+      position: relative;
+      z-index: 10;
+    }
+
+    .btn-back {
+      width: var(--min-touch);
+      height: var(--min-touch);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background var(--t-fast), transform var(--t-fast);
+    }
+
+    .btn-back:active {
+      background: rgba(245, 230, 200, 0.06);
+      transform: scale(0.92);
+    }
+
+    .btn-back svg {
+      width: 22px;
+      height: 22px;
+      color: var(--c-text);
+    }
+
+    .reader-header__title {
+      flex: 1;
+      font-family: var(--font-display);
+      font-size: 0.875rem;   /* 14px */
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: rgba(245, 230, 200, 0.80);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Espace miroir du btn-back pour centrer le titre */
+    .reader-header__spacer {
+      width: var(--min-touch);
+      flex-shrink: 0;
+    }
+
+    /* ── Bandeau TTS indisponible ── */
+    .reader-banner {
+      flex-shrink: 0;
+      display: none;   /* affiché par JS si ttsDisponible === false */
+      align-items: flex-start;
+      gap: 0.625rem;
+      padding: 0.875rem 1.25rem;
+      background: rgba(201, 162, 39, 0.10);
+      border-bottom: 1px solid rgba(201, 162, 39, 0.25);
+    }
+
+    .reader-banner--visible {
+      display: flex;
+    }
+
+    .reader-banner svg {
+      width: 18px;
+      height: 18px;
+      color: var(--c-accent);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .reader-banner__text {
+      font-family: var(--font-ui);
+      font-size: 0.8125rem;  /* 13px */
+      color: rgba(245, 230, 200, 0.75);
+      line-height: 1.5;
+    }
+
+    /* ── Zone de lecture scrollable ── */
+    .reader-content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      padding-bottom: calc(var(--reader-bar-height) + var(--safe-bottom));
+    }
+
+    /* Masque de fondu en bas (avant la barre) */
+    .reader-fade {
+      position: fixed;
+      bottom: calc(var(--reader-bar-height) + var(--safe-bottom));
+      left: 0;
+      right: 0;
+      height: 3rem;
+      background: linear-gradient(to top, var(--c-bg) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .reader-paragraphs {
+      padding: 1.5rem 0;
+    }
+
+    /* ── États des paragraphes ── */
+    .para {
+      font-family: var(--font-body);
+      font-size: 1.125rem;   /* 18px */
+      line-height: 1.8;
+      padding: 0.875rem 1.5rem;
+      border-radius: var(--radius-sm);
+      transition:
+        opacity var(--t-slow),
+        color var(--t-slow),
+        background var(--t-slow),
+        border-color var(--t-slow);
+    }
+
+    /* Paragraphes passés : atténués */
+    .para--past {
+      color: var(--c-muted);
+      opacity: 0.50;
+    }
+
+    /* Paragraphe en cours : mis en avant, accent gauche */
+    .para--current {
+      color: var(--c-text);
+      opacity: 1;
+      background: var(--c-accent-08);
+      padding-left: calc(1.5rem - 3px);
+      border-left: 3px solid var(--c-accent);
+    }
+
+    /* Paragraphes à venir : légèrement atténués */
+    .para--upcoming {
+      color: var(--c-text-60);
+      opacity: 1;
+    }
+
+    /* ── Barre de lecture fixe en bas ── */
+    .reader-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      background: var(--c-surface-95);
+      border-top: var(--border-subtle);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    /* Barre de progression */
+    .reader-bar__progress {
+      padding: 0.75rem 1.5rem 0;
+    }
+
+    .reader-bar__track {
+      width: 100%;
+      height: 3px;
+      background: var(--c-text-12);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .reader-bar__fill {
+      height: 100%;
+      background: var(--c-accent);
+      border-radius: 999px;
+      transition: width var(--t-slow);
+    }
+
+    /* Contrôles */
+    .reader-bar__controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      padding: 0.75rem 1.5rem calc(0.75rem + var(--safe-bottom));
+    }
+
+    /* Espace miroir du btn-restart pour centrage visuel du btn-playpause */
+    .reader-bar__spacer {
+      width: 2.75rem; /* = taille du btn-restart */
+      flex-shrink: 0;
+    }
+
+    /* Bouton Play/Pause principal */
+    .btn-playpause {
+      width: 3.5rem;    /* 56px */
+      height: 3.5rem;
+      border-radius: 50%;
+      background: var(--c-accent);
+      color: var(--c-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-accent);
+      transition: transform var(--t-fast), box-shadow var(--t-fast), opacity var(--t-fast);
+      flex-shrink: 0;
+    }
+
+    .btn-playpause:active {
+      transform: scale(0.93);
+      box-shadow: none;
+    }
+
+    .btn-playpause svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* Icône Play (affichée en état pause) */
+    .btn-playpause__icon-play  { display: block; }
+    .btn-playpause__icon-pause { display: none;  }
+
+    /* code-implementer : quand isPlaying === true, ajouter .is-playing sur btn-playpause */
+    .btn-playpause.is-playing .btn-playpause__icon-play  { display: none;  }
+    .btn-playpause.is-playing .btn-playpause__icon-pause { display: block; }
+
+    /* Bouton Restart */
+    .btn-restart {
+      width: 2.75rem;   /* 44px */
+      height: 2.75rem;
+      border-radius: 50%;
+      border: var(--border-subtle);
+      color: var(--c-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color var(--t-base), border-color var(--t-base), transform var(--t-fast);
+      flex-shrink: 0;
+    }
+
+    .btn-restart:active {
+      transform: scale(0.92);
+      color: var(--c-text);
+      border-color: rgba(245, 230, 200, 0.20);
+    }
+
+    .btn-restart svg {
+      width: 20px;
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <main class="screen-reader">
+
+    <!-- ── En-tête fixe ── -->
+    <header class="reader-header">
+      <button class="btn-back" aria-label="Retour à l'accueil">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15.75 19.5 8.25 12l7.5-7.5"/>
+        </svg>
+      </button>
+      <h1 class="reader-header__title">Le Trésor de l'Île Maudite</h1>
+      <div class="reader-header__spacer" aria-hidden="true"></div>
+    </header>
+
+    <!-- ── Bandeau TTS indisponible (masqué par défaut) ── -->
+    <div class="reader-banner" role="alert" aria-live="polite">
+      <!-- Heroicons exclamation-triangle -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <p class="reader-banner__text">
+        Lecture audio non disponible sur ce navigateur. Le texte reste lisible.
+      </p>
+    </div>
+
+    <!-- ── Zone de lecture ── -->
+    <div class="reader-content" id="reader-content">
+      <div class="reader-paragraphs">
+
+        <!-- Paragraphe passé (exemple) -->
+        <p class="para para--past">
+          Il était une fois, sur les mers tumultueuses des Caraïbes, un capitaine dont la barbe brillait comme de l'acier poli au soleil couchant.
+        </p>
+
+        <!-- Paragraphe en cours (exemple) -->
+        <p class="para para--current" aria-current="true">
+          Le Capitaine Barbe d'Acier navigua trois jours et trois nuits sans jamais quitter la barre, les yeux rivés sur une étoile que nul marin n'avait su nommer.
+        </p>
+
+        <!-- Paragraphes à venir (exemples) -->
+        <p class="para para--upcoming">
+          Au matin du quatrième jour, une île surgit de la brume — noire de roche, silencieuse comme un secret.
+        </p>
+        <p class="para para--upcoming">
+          «&#8239;C'est là&#8239;», murmura-t-il à son mousse Tim, qui tremblait autant de fièvre que d'excitation.
+        </p>
+        <p class="para para--upcoming">
+          Ils débarquèrent dans la crique aux sables rouges, armés d'une vieille carte cousue dans la doublure du chapeau du capitaine.
+        </p>
+        <p class="para para--upcoming">
+          Trois pas vers le palmier tordu, sept pas vers le rocher en forme de crâne, et creuser jusqu'à ce que le métal chante.
+        </p>
+        <p class="para para--upcoming">
+          La pelle de Tim heurta quelque chose de dur. Un coffre, cerclé de fer rouillé, fermé par un cadenas en forme de serpent.
+        </p>
+        <p class="para para--upcoming">
+          Barbe d'Acier sourit — le seul sourire que Tim lui connut jamais — et sortit de sa botte une clé minuscule, portée depuis vingt ans.
+        </p>
+        <p class="para para--upcoming">
+          Le coffre s'ouvrit dans un grincement qui fit fuir les perroquets. À l'intérieur&#8239;: non pas de l'or, mais une carte encore plus ancienne.
+        </p>
+        <p class="para para--upcoming">
+          «&#8239;L'aventure ne fait que commencer&#8239;», dit le capitaine. Et ils repartirent vers la mer, le vent dans le dos et le mystère plein les yeux.
+        </p>
+
+      </div>
+    </div>
+
+    <!-- Fondu bas avant la barre -->
+    <div class="reader-fade" aria-hidden="true"></div>
+
+    <!-- ── Barre de lecture fixe ── -->
+    <div class="reader-bar" role="toolbar" aria-label="Contrôles de lecture">
+
+      <!-- Barre de progression -->
+      <div class="reader-bar__progress" aria-hidden="true">
+        <div class="reader-bar__track">
+          <!-- width mis à jour par JS : style="width: <N>%" -->
+          <div class="reader-bar__fill" style="width: 20%"></div>
+        </div>
+      </div>
+
+      <!-- Contrôles play/pause/restart -->
+      <div class="reader-bar__controls">
+
+        <!-- Bouton Restart -->
+        <button class="btn-restart" aria-label="Recommencer depuis le début">
+          <!-- Heroicons arrow-path -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
+          </svg>
+        </button>
+
+        <!-- Bouton Play/Pause (état initial : playing) -->
+        <button class="btn-playpause is-playing"
+                aria-label="Mettre en pause"
+                aria-pressed="true">
+          <!-- Icône Play (visible quand pausé) -->
+          <svg class="btn-playpause__icon-play"
+               xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"/>
+          </svg>
+          <!-- Icône Pause (visible quand en lecture) -->
+          <svg class="btn-playpause__icon-pause"
+               xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+
+        <!-- Espace miroir pour centrage -->
+        <div class="reader-bar__spacer" aria-hidden="true"></div>
+
+      </div>
+    </div>
+
+  </main>
+</body>
+</html>

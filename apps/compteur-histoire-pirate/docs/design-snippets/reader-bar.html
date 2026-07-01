@@ -1,0 +1,124 @@
+<!-- SNIPPET: reader-bar -->
+<!--
+  Barre de lecture fixe en bas de l'écran Lecture
+  État géré par JS :
+    - isPlaying (bool)   → classe .is-playing sur .btn-playpause
+                           swap des icônes play/pause
+                           aria-label + aria-pressed mis à jour
+    - progression (0–1)  → style="width: <N>%" sur .reader-bar__fill
+  CSS : voir reader-screen.html section .reader-bar
+-->
+
+<div class="reader-bar" role="toolbar" aria-label="Contrôles de lecture">
+
+  <!-- ── Barre de progression ── -->
+  <div class="reader-bar__progress" aria-hidden="true">
+    <div class="reader-bar__track">
+      <!-- Progression 20% (exemple) — mise à jour dynamique par JS -->
+      <div class="reader-bar__fill" style="width: 20%"></div>
+    </div>
+  </div>
+
+  <!-- ── Contrôles ── -->
+  <div class="reader-bar__controls">
+
+    <!-- Bouton Restart -->
+    <button class="btn-restart" aria-label="Recommencer depuis le début">
+      <!-- Heroicons arrow-path -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round"
+           stroke-linejoin="round" width="20" height="20" aria-hidden="true">
+        <path d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0
+                 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1
+                 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
+      </svg>
+    </button>
+
+    <!--
+      Bouton Play/Pause
+      État initial : playing (classe .is-playing présente)
+      code-implementer :
+        - isPlaying = true  → ajouter .is-playing, aria-label="Mettre en pause",   aria-pressed="true"
+        - isPlaying = false → retirer .is-playing, aria-label="Reprendre la lecture", aria-pressed="false"
+    -->
+    <button class="btn-playpause is-playing"
+            aria-label="Mettre en pause"
+            aria-pressed="true">
+      <!-- Icône Play (visible quand pausé — .is-playing absent) -->
+      <svg class="btn-playpause__icon-play"
+           xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+           width="22" height="22" aria-hidden="true">
+        <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"/>
+      </svg>
+      <!-- Icône Pause (visible quand en lecture — .is-playing présent) -->
+      <svg class="btn-playpause__icon-pause"
+           xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+           width="22" height="22" aria-hidden="true">
+        <path fill-rule="evenodd"
+              d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z"
+              clip-rule="evenodd"/>
+      </svg>
+    </button>
+
+    <!-- Espace miroir pour centrage visuel -->
+    <div class="reader-bar__spacer" aria-hidden="true"></div>
+
+  </div>
+</div>
+
+<!--
+  CSS complet :
+
+  .reader-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
+    background: var(--c-surface-95);
+    border-top: var(--border-subtle);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .reader-bar__progress { padding: 0.75rem 1.5rem 0; }
+
+  .reader-bar__track {
+    width: 100%; height: 3px;
+    background: rgba(245, 230, 200, 0.12);
+    border-radius: 999px; overflow: hidden;
+  }
+
+  .reader-bar__fill {
+    height: 100%; background: var(--c-accent);
+    border-radius: 999px; transition: width var(--t-slow);
+  }
+
+  .reader-bar__controls {
+    display: flex; align-items: center; justify-content: center;
+    gap: 2rem; padding: 0.75rem 1.5rem calc(0.75rem + var(--safe-bottom));
+  }
+
+  .reader-bar__spacer { width: 2.75rem; flex-shrink: 0; }
+
+  .btn-playpause {
+    width: 3.5rem; height: 3.5rem; border-radius: 50%;
+    background: var(--c-accent); color: var(--c-bg);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-accent); border: none; cursor: pointer;
+    transition: transform var(--t-fast), box-shadow var(--t-fast);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-playpause:active { transform: scale(0.93); box-shadow: none; }
+
+  .btn-playpause__icon-play  { display: block; }
+  .btn-playpause__icon-pause { display: none;  }
+  .btn-playpause.is-playing .btn-playpause__icon-play  { display: none;  }
+  .btn-playpause.is-playing .btn-playpause__icon-pause { display: block; }
+
+  .btn-restart {
+    width: 2.75rem; height: 2.75rem; border-radius: 50%;
+    border: var(--border-subtle); color: var(--c-muted);
+    display: flex; align-items: center; justify-content: center;
+    background: none; cursor: pointer;
+    transition: color var(--t-base), border-color var(--t-base), transform var(--t-fast);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-restart:active { transform: scale(0.92); color: var(--c-text); }
+-->
