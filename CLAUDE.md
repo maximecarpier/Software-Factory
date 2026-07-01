@@ -220,6 +220,7 @@ specs-framer (update) → sélectionne features V2+ à activer
     /code-review low insuffisant pour une refonte UI complète.
 6. doc-writer        → README + CLAUDE.md de l'app
 7. infra-engineer    → déploiement Vercel (instructions iPad si besoin)
+8. BILAN             → obligatoire pour tout processus complexe (voir section ci-dessous)
 ```
 
 ---
@@ -511,6 +512,68 @@ Lancer systématiquement après l'ajout de nouveaux agents ou après une refonte
 - Une dépendance a été substituée → mettre à jour architecture.md
 
 Si aucune divergence : doc-writer le note explicitement et passe la main.
+
+---
+
+### Bilan de pipeline (obligatoire pour tout processus complexe)
+
+**Déclenchement** : après toute opération complexe liée à une application.
+Types couverts : `création` | `feature` | `bug` | `refonte` | `itération V2+`
+Non déclenché : corrections < 10 lignes, mises à jour config, tâches triviales (< 3 agents mobilisés).
+
+**Timing** : immédiatement après step 7 (deploy), ou après Gate 3 si déploiement différé.
+
+**Fichier** : `apps/<projet>/docs/bilan-<YYYY-MM-DD>-<type>.md`
+
+**Template obligatoire :**
+
+```markdown
+# Bilan — [type] [nom-projet] — [YYYY-MM-DD]
+
+## Consommation tokens
+| Métrique | Valeur |
+|---|---|
+| Total session | [résultat de /cost — lancer juste avant de rédiger] |
+| Durée | [heure début → heure fin] |
+
+## Workflow agentique
+| Ordre | Agent | Nb appels | Observations |
+|---|---|---|---|
+| 1 | brainstorm-agent | 1 | — |
+| 2 | specs-framer | 2 | 1 relance après Gate 0 |
+| 3 | designer + tech-architect | 1 chacun (parallèle) | — |
+| … | … | … | … |
+
+## Consommation estimée par agent
+Estimation basée sur nb appels × complexité perçue (heavy ≈ 40K tokens, medium ≈ 20K, light ≈ 8K).
+| Agent | Nb appels | Complexité | % estimé du total |
+|---|---|---|---|
+| code-implementer | 8 | heavy | ~45% |
+| designer | 1 | medium | ~10% |
+| … | … | … | … |
+
+## ✅ Ce qui s'est bien passé
+- [workflow fluide, sans retour en arrière]
+- [gate passé du premier coup]
+
+## ❌ Ce qui ne s'est pas bien passé
+- [blocage inter-agents — impact : X appels en plus]
+- [spec ambiguë détectée en implémentation — impact : relance tech-architect]
+- [bug post-deploy — impact : cycle supplémentaire]
+
+## 🔧 Plan d'amélioration
+| Problème | Cause racine | Action corrective | Priorité |
+|---|---|---|---|
+| [problème 1] | [cause] | [règle CLAUDE.md à modifier / agent à créer / étape à ajouter] | haute |
+| [problème 2] | [cause] | [action concrète] | moyenne |
+```
+
+**Règles de rédaction :**
+- Lancer `/cost` juste avant de rédiger pour capturer le total de session
+- La consommation par agent est une estimation — la noter honnêtement comme telle
+- "Ce qui s'est bien passé" = moments fluides, gates passés du premier coup, agents qui n'ont pas eu besoin d'une relance
+- "Ce qui ne s'est pas bien passé" = blocages, relances imprévues, gates ratés, ambiguïtés specs, bugs post-deploy
+- Le plan d'amélioration doit être **actionnable** : nommer la règle CLAUDE.md à modifier, l'agent à créer, ou l'étape à ajouter — pas de généralités
 
 ---
 
