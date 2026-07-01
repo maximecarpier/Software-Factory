@@ -54,10 +54,10 @@
       "id": "proj-maman-sport-001",
       "type": "projet",
       "titre": "StepQuest",
-      "description": "Nouvelle app à créer — sport / fitness.",
+      "description": "Via Google studio",
       "priorite": "haute",
+      "statut": "en cours",
       "createdAt": "2026-06-27T00:00:00.000Z",
-      "statut": "à faire",
       "url": null
     },
     {
@@ -122,17 +122,6 @@
       "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
     },
     {
-      "id": "519a3038-7c01-40a2-9d1b-55d0693aec35",
-      "type": "feature",
-      "titre": "Optimisation conso de token",
-      "description": "Skills ? Tools ?\nAméliorer le gitignore \nForcer l’agent principale à travailler avec un état résumé \nRègle du diff \nCherche à améliorer le ciblage au max",
-      "priorite": "haute",
-      "createdAt": "2026-06-28T17:59:54.027Z",
-      "statut": "à faire",
-      "url": null,
-      "projectId": "proj-software-factory-001"
-    },
-    {
       "id": "cb497986-594e-475c-a252-771ac4259738",
       "type": "feature",
       "titre": "Gestion du hors connexion et disponibilité immédiate pour facilité la saisie d'idées",
@@ -175,11 +164,11 @@
     {
       "id": "b3f9a2dd-6c36-4ecd-963b-97de6890c3cc",
       "type": "projet",
-      "titre": "Site de resa transport + Dashboard pour l’espace pro",
-      "description": null,
+      "titre": "resa transport",
+      "description": "+ Dashboard pour l’espace pro",
       "priorite": "moyenne",
-      "createdAt": "2026-06-30T11:06:07.480Z",
       "statut": "à faire",
+      "createdAt": "2026-06-30T11:06:07.480Z",
       "url": null
     },
     {
@@ -190,6 +179,57 @@
       "priorite": "moyenne",
       "statut": "à faire",
       "createdAt": "2026-06-30T11:22:52.668Z"
+    },
+    {
+      "id": "cde537f0-7ad1-4332-8136-c41ee43237fc",
+      "type": "projet",
+      "titre": "Babycare",
+      "description": null,
+      "priorite": "moyenne",
+      "statut": "en cours",
+      "createdAt": "2026-06-30T14:19:55.081Z",
+      "url": null
+    },
+    {
+      "id": "d5d028e3-9a4d-445e-b7f1-92a06d2964bc",
+      "type": "feature",
+      "titre": "Ajouter workflow ingestion app",
+      "description": "Intégration app \nAudit de code \ndoc et tech à mettre à jour ou créer\nLister ce qui n’est pas branché/fonctionnel\nInitialiser comme MVP et ajout backend en V2+",
+      "priorite": "haute",
+      "statut": "à faire",
+      "createdAt": "2026-07-01T08:50:46.620Z",
+      "projectId": "proj-software-factory-001"
+    },
+    {
+      "id": "5f19ffe9-e63e-4238-baa5-05278fecf3ce",
+      "type": "feature",
+      "titre": "Améliorer le design des app claude",
+      "description": "Skills, plugins, bibliothèque ?",
+      "priorite": "moyenne",
+      "statut": "à faire",
+      "createdAt": "2026-07-01T08:54:01.049Z",
+      "url": null,
+      "projectId": "proj-software-factory-001"
+    },
+    {
+      "id": "67d29d40-852d-4aa8-9cb7-ae44a3255aa7",
+      "type": "feature",
+      "titre": "Boutons pas hyper réactifs",
+      "description": "Comprendre pourquoi et corriger",
+      "priorite": "haute",
+      "statut": "à faire",
+      "createdAt": "2026-07-01T08:57:57.697Z",
+      "projectId": "8daa4e57-56f7-40ae-a568-6158abf2e46a"
+    },
+    {
+      "id": "ebcfac5c-2a34-4a18-bfe9-8fea8a92f189",
+      "type": "feature",
+      "titre": "Ajout d’obsidian",
+      "description": null,
+      "priorite": "haute",
+      "statut": "à faire",
+      "createdAt": "2026-07-01T11:41:24.816Z",
+      "projectId": "proj-software-factory-001"
     }
   ]
 }
