@@ -91,15 +91,27 @@ Le corpus est difficile à lire/maintenir parce qu'il n'est pas homogène.
 - CLAUDE.md trop long : une règle importante noyée dans 800 lignes
 - Mémoires trop nombreuses sur le même sujet : les fusionner
 
+### P8 — Mauvaises pratiques (anti-patterns connus)
+Des pratiques qui semblent fonctionner mais génèrent des problèmes à l'usage.
+- Agent qui prend des décisions stratégiques à la place de l'utilisateur (gate sauté, choix technique imposé)
+- Règle qui encourage à coder avant de valider avec l'utilisateur
+- Brief trop complet envoyé à un agent → court-circuite son Phase Zéro et tue le dialogue
+- Agent lancé en arrière-plan quand il devrait être interactif (ex : brainstorm)
+- Déploiement ou action irréversible sans confirmation explicite dans le prompt
+- Règle qui accumule du contexte inutile dans chaque appel agent (violation Token Diet)
+- Mémoire qui décrit un comportement souhaité mais sans "How to apply" — inapplicable en pratique
+- Gate présenté sans les choix structurants faits par l'agent précédent — validation aveugle
+- Parallélisation d'agents sur des tâches avec dépendances non déclarées
+
 ---
 
 ## Process d'audit
 
 ```
 1. Lire toutes les sources du périmètre
-2. Pour chaque élément (règle, instruction, mémoire, agent) : appliquer la grille P1→P7
+2. Pour chaque élément (règle, instruction, mémoire, agent) : appliquer la grille P1→P8
 3. Produire le rapport structuré
-4. Classer par impact : critique (P1) → fort (P2-P4) → modéré (P5-P7)
+4. Classer par impact : critique (P1) → fort (P2-P4) → modéré (P5-P8)
 5. Présenter les patches — NE PAS appliquer sans validation utilisateur
 6. Appliquer fichier par fichier après validation
 ```
@@ -111,7 +123,7 @@ Le corpus est difficile à lire/maintenir parce qu'il n'est pas homogène.
 ```
 ## Audit Factory — [date]
 ### Score de santé global : [X/10]
-### Problèmes : [N] total — [N1] critiques · [N2] forts · [N3] modérés
+### Problèmes : [N] total — [N1] critiques · [N2] forts · [N3] modérés · [N4] anti-patterns
 
 ---
 
