@@ -1,0 +1,242 @@
+/* ═══════════════════════════════════════════════════════
+   TAVERN.CSS — Overlay atmosphérique taverne pirate
+   Charger APRÈS app.css dans index.html.
+   CSS pur — zéro image externe — Compatible Safari iOS 15+
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── 1. TOKENS — SURCHARGES CHAUDES ─────────────────────
+ * On override --c-bg pour réchauffer tous les .screen
+ * (qui utilisent background: var(--c-bg) dans app.css).
+ * On ajoute --c-amber-dark pour les ombres ornementales.
+ * ──────────────────────────────────────────────────────── */
+:root {
+  /* Brun-noir chaud au lieu du noir pur */
+  --c-bg: #0f0a06;
+
+  /* Ambre sombre pour liserés et ombres de cadre */
+  --c-amber-dark: #8B5E0A;
+}
+
+/* ─── 2. TEXTURE BOIS SOMBRE ─────────────────────────────
+ * Deux couches superposées sur le fond #0f0a06 :
+ *  a) SVG inline 300×90 px : veines de bois ondulées (lignes
+ *     courbes Quadratic Bézier), répété en tuile.
+ *  b) repeating-linear-gradient : grain vertical fin (1px/60px).
+ * Ensemble très discret — le texte et les cards ne sont pas
+ * parasités, la texture se lit surtout entre les éléments UI.
+ * ──────────────────────────────────────────────────────── */
+body {
+  background-color: #0f0a06;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='90'%3E%3Cpath d='M0 22 Q75 19 150 22 Q225 25 300 22' stroke='black' stroke-width='1.2' fill='none' opacity='0.28'/%3E%3Cpath d='M0 44 Q75 42 150 45 Q225 48 300 44' stroke='black' stroke-width='0.8' fill='none' opacity='0.22'/%3E%3Cpath d='M0 67 Q75 64 150 68 Q225 71 300 67' stroke='black' stroke-width='1' fill='none' opacity='0.25'/%3E%3Cpath d='M0 10 Q150 8 300 11' stroke='white' stroke-width='0.3' fill='none' opacity='0.025'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 59px,
+      rgba(0, 0, 0, 0.05) 60px
+    );
+  background-size: 300px 90px, 60px 100%;
+}
+
+/* Les .screen héritent --c-bg overridé via leur règle dans app.css */
+.screen {
+  background: var(--c-bg);
+}
+
+/* ─── 3. VIGNETTE LUMIÈRE DE BOUGIE ──────────────────────
+ * Pseudo-élément fixe sur body : vignette radiale sombre sur
+ * les bords, centre ouvert. Position: fixed garantit qu'il
+ * couvre l'intégralité du viewport indépendamment du scroll.
+ *
+ * Animation : amplitude opacity 0.97→1.00 (3% max).
+ * On suggère le vacillement, on ne le simule pas de façon cartoon.
+ *
+ * z-index: 9998 — au-dessus du contenu (--z-overlay: 20 max)
+ *                mais sous tout overlay natif iOS.
+ * pointer-events: none — aucun blocage des interactions touch.
+ * ──────────────────────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: radial-gradient(
+    ellipse 74% 62% at 50% 38%,
+    transparent 0%,
+    transparent 32%,
+    rgba(6, 2, 0, 0.38) 70%,
+    rgba(6, 2, 0, 0.65) 100%
+  );
+  animation: candle-vignette 9s ease-in-out infinite;
+}
+
+@keyframes candle-vignette {
+  0%   { opacity: 0.97;  }
+  18%  { opacity: 1.00;  }
+  42%  { opacity: 0.975; }
+  61%  { opacity: 1.00;  }
+  78%  { opacity: 0.97;  }
+  90%  { opacity: 0.985; }
+  100% { opacity: 0.97;  }
+}
+
+/* ─── 4. BORDURES ORNEMENTALES — STORY CARD ──────────────
+ * Double bordure : or externe (border) + liseré intérieur
+ * sombre ambre (box-shadow inset).
+ * Note : overflow: hidden sur .story-card n'affecte pas les
+ * box-shadow de l'élément lui-même (externe ou inset).
+ * ──────────────────────────────────────────────────────── */
+.story-card {
+  border: 1px solid rgba(201, 162, 39, 0.40);
+  box-shadow:
+    /* Deuxième liseré intérieur sombre : effet cadre taverne */
+    inset 0 0 0 1px rgba(139, 94, 10, 0.24),
+    /* Ombre portée profonde (remplace --shadow-card original) */
+    0 6px 32px rgba(0, 0, 0, 0.65),
+    /* Lueur ambre ambiante — halo chaleureux discret */
+    0 0 20px rgba(201, 162, 39, 0.07);
+}
+
+.story-card:focus-visible {
+  outline: 2px solid rgba(201, 162, 39, 0.65);
+  outline-offset: 3px;
+  box-shadow:
+    inset 0 0 0 1px rgba(139, 94, 10, 0.24),
+    0 6px 32px rgba(0, 0, 0, 0.65),
+    0 0 28px rgba(201, 162, 39, 0.18);
+}
+
+.story-card:active {
+  box-shadow:
+    inset 0 0 0 1px rgba(139, 94, 10, 0.24),
+    0 0 24px rgba(201, 162, 39, 0.22);
+}
+
+/* ─── 5. TYPOGRAPHIE CINZEL — OMBRES OR DRAMATIQUES ──────
+ * text-shadow en deux couches :
+ *  1) Lueur diffuse or (grand blur) — effet lumière bougie
+ *  2) Ombre portée sombre (petit blur) — relief sur fond sombre
+ * ──────────────────────────────────────────────────────── */
+.home-header__title {
+  text-shadow:
+    0 0 20px rgba(201, 162, 39, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.85);
+  letter-spacing: 0.13em;
+}
+
+.intro-title {
+  text-shadow:
+    0 0 24px rgba(201, 162, 39, 0.40),
+    0 2px 10px rgba(0, 0, 0, 0.85);
+}
+
+.end-title {
+  text-shadow:
+    0 0 28px rgba(201, 162, 39, 0.52),
+    0 2px 10px rgba(0, 0, 0, 0.85);
+}
+
+.story-card__title {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+}
+
+.reader-header__title {
+  text-shadow: 0 0 12px rgba(201, 162, 39, 0.22);
+}
+
+/* ─── 6. LUEUR BOUGIE SUR ÉLÉMENTS INTERACTIFS ───────────
+ * Les boutons primaires et le bouton play/pause émettent
+ * une lueur ambre supplémentaire, comme éclairés par une
+ * bougie proche. S'ajoute aux box-shadow existants.
+ * ──────────────────────────────────────────────────────── */
+.btn-primary {
+  box-shadow:
+    0 4px 20px rgba(201, 162, 39, 0.32),
+    0 0 28px rgba(201, 162, 39, 0.16);
+}
+
+.btn-playpause {
+  box-shadow:
+    0 4px 20px rgba(201, 162, 39, 0.32),
+    0 0 24px rgba(201, 162, 39, 0.16);
+}
+
+/* Paragraphe en lecture active — halo ambre très discret */
+.para--current {
+  box-shadow: inset 0 0 16px rgba(201, 162, 39, 0.04);
+}
+
+/* ─── 7. SÉPARATEUR CORDE TRESSÉE ────────────────────────
+ * Le diviseur plat .home-header__divider devient une corde
+ * tressée : repeating-linear-gradient sur 3 tons d'or
+ * (brun foncé → ambre sombre → or clair → retour).
+ * Pas de nouveau nœud HTML nécessaire — remplacement CSS pur.
+ * ──────────────────────────────────────────────────────── */
+.home-header__divider {
+  width: 80px;
+  height: 6px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(
+    90deg,
+    #6b4008 0px,
+    #8B5E0A 3px,
+    #c9a227 6px,
+    #8B5E0A 9px,
+    #6b4008 12px
+  );
+  opacity: 0.55;
+  margin-top: 0.5rem;
+}
+
+/*
+ * Classe utilitaire .tavern-rope — séparateur réutilisable
+ * si code-implementer veut l'insérer dans d'autres sections
+ * (ex: entre deux blocs de l'écran End).
+ * Usage : <span class="tavern-rope" aria-hidden="true"></span>
+ */
+.tavern-rope {
+  display: block;
+  width: 64px;
+  height: 6px;
+  border-radius: 999px;
+  margin: 0 auto;
+  background: repeating-linear-gradient(
+    90deg,
+    #6b4008 0px,
+    #8B5E0A 3px,
+    #c9a227 6px,
+    #8B5E0A 9px,
+    #6b4008 12px
+  );
+  opacity: 0.50;
+}
+
+/* ─── 8. BARRE DE LECTURE — FOND RÉCHAUFFÉ ───────────────
+ * Remplace le surface-95 bleuté par un brun quasi-opaque.
+ * Conserve le backdrop-filter déjà en place dans app.css.
+ * ──────────────────────────────────────────────────────── */
+.reader-bar {
+  background: rgba(12, 7, 3, 0.96);
+  border-top: 1px solid rgba(201, 162, 39, 0.18);
+}
+
+/* ─── 9. PLACEHOLDER COVER — RÉCHAUFFÉ ───────────────────
+ * Les zones couverture sans image tirent vers le brun sombre
+ * plutôt que le bleu nuit d'origine.
+ * ──────────────────────────────────────────────────────── */
+.story-card__placeholder {
+  background: linear-gradient(145deg, #0b1520 0%, #050805 100%);
+}
+
+/* ─── 10. ÉCRAN FIN — HALO OR RENFORCÉ ───────────────────
+ * Le radial-gradient de .screen-end::before gagne en intensité
+ * pour renforcer la sensation de lumière centrale dorée.
+ * ──────────────────────────────────────────────────────── */
+.screen-end::before {
+  background: radial-gradient(
+    ellipse,
+    rgba(201, 162, 39, 0.13) 0%,
+    transparent 62%
+  );
+}
