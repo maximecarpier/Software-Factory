@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --c-bg:      #0a0a0f;
+  --c-surface: #0d1b2a;
+  --c-accent:  #c9a227;
+  --c-text:    #f5e6c8;
+  --c-muted:   #6b7a8d;
+
+  --c-accent-08:  rgba(201, 162, 39, 0.08);
+  --c-accent-15:  rgba(201, 162, 39, 0.15);
+  --c-accent-20:  rgba(201, 162, 39, 0.20);
+  --c-accent-30:  rgba(201, 162, 39, 0.30);
+  --c-surface-80: rgba(13,  27,  42, 0.80);
+  --c-surface-95: rgba(13,  27,  42, 0.95);
+  --c-text-30:    rgba(245, 230, 200, 0.30);
+  --c-text-60:    rgba(245, 230, 200, 0.60);
+  --c-bg-00:      rgba(10,  10,  15, 0.00);
+  --c-text-06:    rgba(245, 230, 200, 0.06);
+  --c-text-12:    rgba(245, 230, 200, 0.12);
+
+  --font-display: 'Cinzel',  Georgia, 'Times New Roman', serif;
+  --font-body:    'Lora',    Georgia, 'Times New Roman', serif;
+  --font-ui:      'Inter',   system-ui, sans-serif;
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
+  --text-4xl:  2.25rem;
+
+  --leading-tight:  1.2;
+  --leading-snug:   1.4;
+  --leading-base:   1.6;
+  --leading-reader: 1.8;
+
+  --sp-1:  0.25rem;
+  --sp-2:  0.5rem;
+  --sp-3:  0.75rem;
+  --sp-4:  1rem;
+  --sp-5:  1.25rem;
+  --sp-6:  1.5rem;
+  --sp-8:  2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  20px;
+  --radius-2xl: 24px;
+
+  --border-accent: 1px solid rgba(201, 162, 39, 0.20);
+  --border-subtle: 1px solid rgba(245, 230, 200, 0.06);
+  --border-muted:  1px solid rgba(107, 122, 141, 0.20);
+
+  --shadow-card:   0 4px 24px rgba(0, 0, 0, 0.50);
+  --shadow-accent: 0 4px 20px rgba(201, 162, 39, 0.30);
+  --shadow-header: 0 1px 0 rgba(245, 230, 200, 0.06);
+
+  --min-touch: 2.75rem;
+
+  --t-fast: 150ms ease;
+  --t-base: 200ms ease;
+  --t-slow: 300ms ease;
+
+  --safe-top:    env(safe-area-inset-top,    20px);
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+
+  --z-base:    0;
+  --z-above:   1;
+  --z-badge:   2;
+  --z-header:  10;
+  --z-bar:     10;
+  --z-overlay: 20;
+
+  --reader-bar-height: 96px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background:  var(--c-bg);
+  color:       var(--c-text);
+  font-family: var(--font-body);
+  min-height:  100dvh;
+  overflow:    hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  cursor:     pointer;
+  border:     none;
+  background: none;
+  font:       inherit;
+  color:      inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+ol, ul {
+  list-style: none;
+}
